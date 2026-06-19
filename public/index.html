@@ -44,6 +44,29 @@ body.light {
   --accent: #6f4cf0;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+/* ── PRELOADER ── */
+#preloader {
+  position: fixed; inset: 0; z-index: 9999;
+  background: var(--bg);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 18px;
+  transition: opacity .35s ease, visibility .35s ease;
+}
+#preloader.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+.preloader-logo {
+  font-family: var(--font-display); font-weight: 700; font-size: 22px;
+  color: var(--text); letter-spacing: -0.02em;
+  display: flex; align-items: center; gap: 8px;
+}
+.preloader-logo span { color: var(--accent); }
+.preloader-spinner {
+  width: 30px; height: 30px; border-radius: 50%;
+  border: 3px solid var(--bg3); border-top-color: var(--accent);
+  animation: preloader-spin .8s linear infinite;
+}
+.preloader-text { font-size: 13px; color: var(--text2); }
+@keyframes preloader-spin { to { transform: rotate(360deg); } }
 body {
   font-family: var(--font-body);
   background: var(--bg); color: var(--text);
@@ -441,6 +464,12 @@ body {
 </head>
 <body>
 
+<div id="preloader">
+  <div class="preloader-logo">Chi<span>Setup</span>Shop</div>
+  <div class="preloader-spinner"></div>
+  <div class="preloader-text" id="preloader-text">Завантаження…</div>
+</div>
+
 <button class="theme-btn" id="theme-btn">☾</button>
 <div class="toast" id="toast"></div>
 
@@ -574,6 +603,7 @@ let cart = {};
 let checkoutStep = 1;
 let checkoutData = {};
 let orders = [];
+let telegramId = null;
 
 // ── THEME ──
 const themeBtn = document.getElementById('theme-btn');
@@ -595,14 +625,30 @@ window.onload = async () => {
     tg.expand();
     const u = tg.initDataUnsafe?.user;
     if (u) {
+      telegramId = u.id;
       document.getElementById('account-name').textContent = u.first_name + (u.last_name ? ' ' + u.last_name : '');
       document.getElementById('account-username').textContent = '@' + (u.username || 'username');
       document.getElementById('account-avatar').textContent = u.first_name[0];
     }
   }
   renderCats();
+
+  // Якщо сервер "спить" (Render free tier), перше завантаження може зайняти 30-50с —
+  // показуємо пояснення замість того, щоб лоадер просто висів без причини
+  const slowHintTimer = setTimeout(() => {
+    const t = document.getElementById('preloader-text');
+    if (t) t.textContent = 'Сервер прокидається, це займає до хвилини…';
+  }, 3500);
+
   await loadProducts();
+  loadOrders();
+  clearTimeout(slowHintTimer);
 };
+
+function hidePreloader() {
+  const el = document.getElementById('preloader');
+  if (el) el.classList.add('hidden');
+}
 
 async function loadProducts() {
   try {
@@ -616,6 +662,8 @@ async function loadProducts() {
         <h3>Помилка завантаження</h3>
         <p>Перевір підключення до інтернету</p>
       </div>`;
+  } finally {
+    hidePreloader();
   }
 }
 
@@ -809,6 +857,8 @@ function renderCheckoutStep() {
         </div>
       </div>
       ${checkoutData.delivery==='np'?`
+        <div class="form-label">Область</div>
+        <input class="form-input" id="inp-region" placeholder="Київська область" value="${checkoutData.region||''}">
         <div class="form-label">Місто</div>
         <input class="form-input" id="inp-city" placeholder="Київ" value="${checkoutData.city||''}">
         <div class="form-label">Відділення або поштомат</div>
@@ -843,13 +893,13 @@ async function placeOrder() {
     const res = await fetch(`${API}/api/orders`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: checkoutData.name, phone: checkoutData.phone, delivery: checkoutData.delivery, city: checkoutData.city, branch: checkoutData.branch, payment: checkoutData.payment, items, total: cartTotal() })
+      body: JSON.stringify({ name: checkoutData.name, phone: checkoutData.phone, delivery: checkoutData.delivery, region: checkoutData.region, city: checkoutData.city, branch: checkoutData.branch, payment: checkoutData.payment, items, total: cartTotal(), telegramId })
     });
     const data = await res.json();
     if (!data.success) throw new Error();
     const orderNum = data.orderNum;
-    orders.unshift({ num: orderNum, items: Object.values(cart), total: cartTotal(), date: new Date() });
     cart = {}; updateBadge();
+    loadOrders();
     setStep(4);
     document.getElementById('checkout-body').innerHTML = `
       <div class="success-page">
@@ -869,15 +919,20 @@ function nextStep1() {
   const name = document.getElementById('inp-name').value.trim();
   const phone = document.getElementById('inp-phone').value.trim();
   if (!name || !phone) { showToast('Заповніть всі поля'); return; }
+  const digits = phone.replace(/[^\d]/g, '');
+  // Очікуємо повний український номер: 0XXXXXXXXX (10 цифр) або 380XXXXXXXXX (12 цифр)
+  const isValid = /^380\d{9}$/.test(digits) || /^0\d{9}$/.test(digits);
+  if (!isValid) { showToast('Введіть повний номер телефону, напр. +380991234567'); return; }
   checkoutData.name = name; checkoutData.phone = phone;
   checkoutStep = 2; renderCheckoutStep();
 }
 function nextStep2() {
   if (!checkoutData.delivery) { showToast('Оберіть спосіб доставки'); return; }
   if (checkoutData.delivery === 'np') {
+    checkoutData.region = document.getElementById('inp-region')?.value.trim();
     checkoutData.city = document.getElementById('inp-city')?.value.trim();
     checkoutData.branch = document.getElementById('inp-branch')?.value.trim();
-    if (!checkoutData.city || !checkoutData.branch) { showToast('Вкажіть місто і відділення'); return; }
+    if (!checkoutData.region || !checkoutData.city || !checkoutData.branch) { showToast('Вкажіть область, місто і відділення'); return; }
   }
   checkoutStep = 3; renderCheckoutStep();
 }
@@ -888,22 +943,44 @@ function nextStep3() {
 function selectDelivery(t) { checkoutData.delivery = t; renderCheckoutStep(); }
 function selectPayment(t) { checkoutData.payment = t; renderCheckoutStep(); }
 
+async function loadOrders() {
+  if (!telegramId) { renderOrders(); return; }
+  try {
+    const res = await fetch(`${API}/api/orders?telegramId=${telegramId}`);
+    orders = await res.json();
+  } catch(e) {
+    orders = [];
+  }
+  renderOrders();
+}
+
+const STATUS_LABELS = {
+  new: { text: '🟡 Нове', color: 'var(--text2)' },
+  confirmed: { text: '🔵 Підтверджено', color: 'var(--accent)' },
+  shipped: { text: '📦 Відправлено', color: 'var(--accent)' },
+  done: { text: '✓ Виконано', color: 'var(--green)' },
+  cancelled: { text: '✕ Скасовано', color: 'var(--red)' }
+};
+
 function renderOrders() {
   const el = document.getElementById('orders-list');
   if (!orders.length) {
     el.innerHTML = `<div class="empty-state" style="padding:60px 20px"><div class="empty-icon">📦</div><h3>Замовлень немає</h3><p>Оформіть перше замовлення</p></div>`;
     return;
   }
-  el.innerHTML = orders.map(o => `
+  el.innerHTML = orders.map(o => {
+    const st = STATUS_LABELS[o.status] || STATUS_LABELS.new;
+    return `
     <div class="order-card">
       <div style="display:flex;justify-content:space-between;margin-bottom:8px">
-        <span style="font-family:var(--font-display);font-weight:600">${o.num}</span>
-        <span style="font-size:11.5px;color:var(--green);font-weight:600">✓ Оформлено</span>
+        <span style="font-family:var(--font-display);font-weight:600">${o.order_num}</span>
+        <span style="font-size:11.5px;color:${st.color};font-weight:600">${st.text}</span>
       </div>
-      <div style="font-size:12.5px;color:var(--text2)">${o.items.map(i=>i.product.name).join(', ')}</div>
-      <div style="font-family:var(--font-display);font-size:17px;font-weight:600;margin-top:8px">${o.total.toLocaleString()} ₴</div>
+      <div style="font-size:12.5px;color:var(--text2)">${(o.items||[]).map(i=>i.name).join(', ')}</div>
+      <div style="font-family:var(--font-display);font-size:17px;font-weight:600;margin-top:8px">${Number(o.total).toLocaleString()} ₴</div>
     </div>
-  `).join('');
+  `;
+  }).join('');
 }
 
 function showToast(msg) {
