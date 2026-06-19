@@ -5,47 +5,56 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ChiSetupShop — Адмін</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap');
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
-  --bg: #f5f5f0;
-  --bg2: #ffffff;
-  --bg3: #e8e8e3;
-  --accent: #1c1917;
-  --accent2: #44403c;
-  --text: #1c1917;
-  --text2: #78716c;
-  --text3: #a8a29e;
-  --green: #10b981;
-  --red: #ef4444;
-  --orange: #f59e0b;
-  --r: 14px;
-  --shadow: 0 1px 4px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.04);
+  --bg: #0a0a0b;
+  --bg2: #141416;
+  --bg3: #1e1e21;
+  --bg4: #27272a;
+  --line: #232326;
+  --text: #f4f4f5;
+  --text2: #9a9aa2;
+  --text3: #5c5c64;
+  --accent: #8b6cff;
+  --accent-dim: #8b6cff20;
+  --green: #34d399;
+  --green-dim: #34d39918;
+  --red: #f87171;
+  --red-dim: #f8717118;
+  --orange: #fbbf24;
+  --orange-dim: #fbbf2418;
+  --blue: #38bdf8;
+  --blue-dim: #38bdf818;
+  --mice: #8b6cff; --keyboards: #34d399; --headphones: #fb923c; --pads: #38bdf8;
+  --r: 16px;
+  --font-display: 'Space Grotesk', sans-serif;
+  --font-body: 'Inter', sans-serif;
 }
 body {
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-body);
   background: var(--bg); color: var(--text);
   min-height: 100vh; -webkit-font-smoothing: antialiased;
+  letter-spacing: -0.01em;
 }
 
-/* LOGIN */
-#login-screen {
-  min-height: 100vh; display: flex; align-items: center;
-  justify-content: center; padding: 20px;
-}
+/* ── LOGIN ── */
+#login-screen { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
 .login-box {
-  background: var(--bg2); border-radius: 24px;
-  padding: 40px 36px; width: 100%; max-width: 400px;
-  box-shadow: var(--shadow); border: 0.5px solid var(--bg3);
-  text-align: center;
+  background: var(--bg2); border-radius: 24px; padding: 44px 38px;
+  width: 100%; max-width: 400px; border: 1px solid var(--line); text-align: center;
 }
-.login-logo { font-size: 48px; margin-bottom: 8px; }
-.login-box h1 { font-size: 24px; font-weight: 800; margin-bottom: 6px; }
+.login-logo {
+  width: 56px; height: 56px; border-radius: 16px; background: var(--accent);
+  display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;
+  font-size: 24px;
+}
+.login-box h1 { font-family: var(--font-display); font-size: 24px; font-weight: 600; margin-bottom: 6px; }
 .login-box p { color: var(--text2); font-size: 14px; margin-bottom: 28px; }
 .login-input {
-  width: 100%; padding: 14px 16px; background: var(--bg);
-  border: 1.5px solid var(--bg3); border-radius: 12px;
+  width: 100%; padding: 14px 16px; background: var(--bg3);
+  border: 1.5px solid var(--line); border-radius: 12px;
   font-size: 16px; outline: none; font-family: inherit;
   margin-bottom: 14px; color: var(--text);
 }
@@ -53,179 +62,143 @@ body {
 .login-btn {
   width: 100%; padding: 14px; background: var(--accent);
   border: none; border-radius: 12px; color: #fff;
-  font-size: 16px; font-weight: 700; cursor: pointer; font-family: inherit;
+  font-size: 16px; font-weight: 600; cursor: pointer; font-family: inherit;
 }
 .login-err { color: var(--red); font-size: 14px; margin-top: 10px; display: none; }
 
-/* LAYOUT */
+/* ── LAYOUT ── */
 #admin-screen { display: none; }
 .sidebar {
-  width: 240px; background: var(--bg2); border-right: 0.5px solid var(--bg3);
+  width: 240px; background: var(--bg2); border-right: 1px solid var(--line);
   position: fixed; top: 0; left: 0; bottom: 0;
-  display: flex; flex-direction: column; padding: 24px 16px;
-  z-index: 100;
+  display: flex; flex-direction: column; padding: 26px 16px; z-index: 100;
 }
-.sidebar-logo { font-size: 22px; font-weight: 800; padding: 0 8px; margin-bottom: 28px; letter-spacing: -.02em; }
-.sidebar-logo span { opacity: .4; }
-.nav-item {
+.sidebar-logo {
+  font-family: var(--font-display); font-size: 19px; font-weight: 600;
+  padding: 0 8px; margin-bottom: 30px; letter-spacing: -0.02em;
   display: flex; align-items: center; gap: 10px;
-  padding: 11px 14px; border-radius: 10px; cursor: pointer;
-  font-size: 14px; font-weight: 500; color: var(--text2);
-  border: none; background: none; font-family: inherit;
-  width: 100%; text-align: left; margin-bottom: 2px;
 }
-.nav-item:hover { background: var(--bg); }
+.sidebar-logo-icon { width: 30px; height: 30px; border-radius: 9px; background: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 14px; }
+.nav-item {
+  display: flex; align-items: center; gap: 11px; padding: 11px 14px; border-radius: 11px;
+  cursor: pointer; font-size: 13.5px; font-weight: 500; color: var(--text2);
+  border: none; background: none; font-family: inherit; width: 100%;
+  text-align: left; margin-bottom: 3px;
+}
+.nav-item:hover { background: var(--bg3); }
 .nav-item.active { background: var(--accent); color: #fff; font-weight: 600; }
-.nav-item svg { width: 18px; height: 18px; flex-shrink: 0; }
-.sidebar-footer { margin-top: auto; font-size: 12px; color: var(--text3); padding: 0 8px; }
+.nav-item svg { width: 17px; height: 17px; flex-shrink: 0; }
+.sidebar-footer { margin-top: auto; font-size: 11.5px; color: var(--text3); padding: 0 8px; }
 
-.main { margin-left: 240px; padding: 32px; min-height: 100vh; }
+.main { margin-left: 240px; padding: 34px; min-height: 100vh; }
 .tab { display: none; }
 .tab.active { display: block; }
 
-/* CARDS */
-.page-title { font-size: 26px; font-weight: 800; letter-spacing: -.02em; margin-bottom: 6px; }
-.page-subtitle { font-size: 14px; color: var(--text2); margin-bottom: 28px; }
+.page-title { font-family: var(--font-display); font-size: 27px; font-weight: 600; letter-spacing: -0.02em; margin-bottom: 6px; }
+.page-subtitle { font-size: 13.5px; color: var(--text2); margin-bottom: 30px; }
 
-.stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 32px; }
-.stat-card {
-  background: var(--bg2); border-radius: var(--r);
-  padding: 20px; border: 0.5px solid var(--bg3);
-  box-shadow: var(--shadow);
-}
-.stat-label { font-size: 12px; color: var(--text2); font-weight: 500; margin-bottom: 8px; text-transform: uppercase; letter-spacing: .05em; }
-.stat-val { font-size: 28px; font-weight: 800; letter-spacing: -.02em; }
-.stat-hint { font-size: 12px; color: var(--text3); margin-top: 4px; }
+.stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 32px; }
+.stat-card { background: var(--bg2); border-radius: var(--r); padding: 20px; border: 1px solid var(--line); }
+.stat-label { font-size: 11px; color: var(--text3); font-weight: 600; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.06em; }
+.stat-val { font-family: var(--font-display); font-size: 27px; font-weight: 600; letter-spacing: -0.01em; }
+.stat-hint { font-size: 11.5px; color: var(--text3); margin-top: 4px; }
 
-/* TABLE */
-.card { background: var(--bg2); border-radius: var(--r); border: 0.5px solid var(--bg3); box-shadow: var(--shadow); overflow: hidden; }
-.card-header {
-  padding: 20px 24px; border-bottom: 0.5px solid var(--bg3);
-  display: flex; align-items: center; justify-content: space-between;
-}
-.card-title { font-size: 16px; font-weight: 700; }
+.card { background: var(--bg2); border-radius: var(--r); border: 1px solid var(--line); overflow: hidden; }
+.card-header { padding: 20px 22px; border-bottom: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between; }
+.card-title { font-family: var(--font-display); font-size: 16px; font-weight: 600; }
 table { width: 100%; border-collapse: collapse; }
-th { text-align: left; padding: 12px 20px; font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: .06em; border-bottom: 0.5px solid var(--bg3); background: var(--bg); }
-td { padding: 14px 20px; font-size: 14px; border-bottom: 0.5px solid var(--bg3); vertical-align: middle; }
+th { text-align: left; padding: 12px 20px; font-size: 10.5px; font-weight: 700; color: var(--text3); text-transform: uppercase; letter-spacing: 0.06em; border-bottom: 1px solid var(--line); background: var(--bg3); }
+td { padding: 14px 20px; font-size: 13.5px; border-bottom: 1px solid var(--line); vertical-align: middle; }
 tr:last-child td { border-bottom: none; }
-tr:hover td { background: var(--bg); }
+tr:hover td { background: var(--bg3); }
 
-/* PRODUCT IMG IN TABLE */
 .prod-img-cell {
-  width: 44px; height: 44px; border-radius: 10px;
-  background: var(--bg3); display: flex; align-items: center;
-  justify-content: center; font-size: 22px; overflow: hidden;
-  flex-shrink: 0;
+  width: 42px; height: 42px; border-radius: 10px; background: var(--bg3);
+  display: flex; align-items: center; justify-content: center; font-size: 20px; overflow: hidden; flex-shrink: 0;
 }
 .prod-img-cell img { width: 100%; height: 100%; object-fit: cover; }
 
-/* BADGE */
-.badge {
-  display: inline-flex; align-items: center; gap: 4px;
-  padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 600;
-}
-.badge.green { background: rgba(16,185,129,.1); color: #059669; }
-.badge.red { background: rgba(239,68,68,.1); color: #dc2626; }
-.badge.orange { background: rgba(245,158,11,.1); color: #d97706; }
-.badge.blue { background: rgba(59,130,246,.1); color: #2563eb; }
+.badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 20px; font-size: 11.5px; font-weight: 600; }
+.badge.green { background: var(--green-dim); color: var(--green); }
+.badge.red { background: var(--red-dim); color: var(--red); }
+.badge.orange { background: var(--orange-dim); color: var(--orange); }
+.badge.blue { background: var(--blue-dim); color: var(--blue); }
 
-/* BTNs */
+.cat-pill { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; }
+.cat-pill-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+
 .btn {
-  padding: 9px 18px; border-radius: 10px; font-size: 13px; font-weight: 600;
+  padding: 9px 17px; border-radius: 11px; font-size: 12.5px; font-weight: 600;
   cursor: pointer; font-family: inherit; border: none; display: inline-flex; align-items: center; gap: 6px;
 }
 .btn-primary { background: var(--accent); color: #fff; }
-.btn-secondary { background: var(--bg); border: 0.5px solid var(--bg3); color: var(--text2); }
-.btn-danger { background: rgba(239,68,68,.08); color: var(--red); }
-.btn-sm { padding: 6px 12px; font-size: 12px; }
-.btn:hover { opacity: .85; }
+.btn-secondary { background: var(--bg3); border: 1px solid var(--line); color: var(--text2); }
+.btn-danger { background: var(--red-dim); color: var(--red); }
+.btn-sm { padding: 6px 12px; font-size: 11.5px; }
+.btn:hover { opacity: .88; }
 
-/* STOCK INPUT INLINE */
 .stock-input {
-  width: 70px; padding: 6px 10px; border-radius: 8px;
-  border: 1px solid var(--bg3); font-size: 14px; font-weight: 600;
-  font-family: inherit; text-align: center;
-  background: var(--bg); color: var(--text);
+  width: 64px; padding: 6px 10px; border-radius: 8px; border: 1px solid var(--line);
+  font-size: 13.5px; font-weight: 600; font-family: var(--font-display); text-align: center;
+  background: var(--bg3); color: var(--text);
 }
 .stock-input:focus { outline: none; border-color: var(--accent); }
 
-/* MODAL */
 .modal-overlay {
-  position: fixed; inset: 0; background: rgba(0,0,0,.35);
+  position: fixed; inset: 0; background: rgba(0,0,0,.5);
   display: flex; align-items: flex-start; justify-content: center;
-  z-index: 500; padding: 40px 20px;
-  overflow-y: auto; backdrop-filter: blur(4px);
+  z-index: 500; padding: 40px 20px; overflow-y: auto; backdrop-filter: blur(4px);
   opacity: 0; pointer-events: none; transition: opacity .2s;
 }
 .modal-overlay.open { opacity: 1; pointer-events: all; }
 .modal {
-  background: var(--bg2); border-radius: 20px;
-  padding: 28px; width: 100%; max-width: 560px;
-  box-shadow: 0 20px 60px rgba(0,0,0,.2);
+  background: var(--bg2); border-radius: 22px; padding: 28px;
+  width: 100%; max-width: 560px; border: 1px solid var(--line);
   transform: translateY(20px); transition: transform .2s;
 }
 .modal-overlay.open .modal { transform: translateY(0); }
-.modal-title { font-size: 20px; font-weight: 800; margin-bottom: 24px; }
+.modal-title { font-family: var(--font-display); font-size: 20px; font-weight: 600; margin-bottom: 24px; }
 .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 .field { margin-bottom: 16px; }
-.field label { display: block; font-size: 12px; color: var(--text2); font-weight: 500; margin-bottom: 6px; }
+.field label { display: block; font-size: 11.5px; color: var(--text2); font-weight: 600; margin-bottom: 7px; text-transform: uppercase; letter-spacing: 0.03em; }
 .field input, .field textarea, .field select {
-  width: 100%; padding: 12px 14px; background: var(--bg);
-  border: 1.5px solid var(--bg3); border-radius: 10px;
-  font-size: 14px; font-family: inherit; color: var(--text); outline: none;
+  width: 100%; padding: 12px 14px; background: var(--bg3); border: 1.5px solid var(--line);
+  border-radius: 11px; font-size: 14px; font-family: inherit; color: var(--text); outline: none;
 }
 .field input:focus, .field textarea:focus, .field select:focus { border-color: var(--accent); }
 .field textarea { resize: vertical; min-height: 80px; }
 .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 8px; }
 
-/* PHOTO UPLOAD */
 .photo-upload {
-  border: 2px dashed var(--bg3); border-radius: 12px;
-  padding: 28px; text-align: center; cursor: pointer;
-  transition: border-color .2s; position: relative;
+  border: 2px dashed var(--line); border-radius: 13px; padding: 28px;
+  text-align: center; cursor: pointer; transition: border-color .2s; position: relative;
 }
-.photo-upload:hover { border-color: var(--accent2); }
+.photo-upload:hover { border-color: var(--accent); }
 .photo-upload input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
 .photo-upload-preview { display: none; }
 .photo-upload-preview img { width: 100%; max-height: 200px; object-fit: contain; border-radius: 8px; margin-top: 12px; }
 
-/* ORDER DETAIL */
-.order-items-list { display: flex; flex-direction: column; gap: 8px; }
-.order-item-row {
-  display: flex; justify-content: space-between;
-  padding: 10px 14px; background: var(--bg);
-  border-radius: 8px; font-size: 14px;
-}
-
-/* SPECS EDITOR */
 .specs-editor { display: flex; flex-direction: column; gap: 8px; }
 .spec-row-edit { display: flex; gap: 8px; align-items: center; }
 .spec-row-edit input {
-  flex: 1; padding: 9px 12px; background: var(--bg);
-  border: 1.5px solid var(--bg3); border-radius: 8px;
-  font-size: 13px; font-family: inherit; color: var(--text); outline: none;
+  flex: 1; padding: 9px 12px; background: var(--bg3); border: 1.5px solid var(--line);
+  border-radius: 9px; font-size: 12.5px; font-family: inherit; color: var(--text); outline: none;
 }
 .spec-row-edit input:focus { border-color: var(--accent); }
-.spec-del-btn { background: none; border: none; cursor: pointer; color: var(--red); font-size: 18px; padding: 4px; opacity: .7; }
+.spec-del-btn { background: none; border: none; cursor: pointer; color: var(--red); font-size: 18px; padding: 4px; opacity: .75; }
 
-/* STATUS SELECT */
 .status-select {
-  padding: 6px 10px; border-radius: 8px; border: 1px solid var(--bg3);
-  font-size: 13px; font-family: inherit; cursor: pointer; background: var(--bg);
+  padding: 6px 10px; border-radius: 9px; border: 1px solid var(--line);
+  font-size: 12.5px; font-family: inherit; cursor: pointer; background: var(--bg3); color: var(--text);
 }
 
-/* TOAST */
 .admin-toast {
-  position: fixed; bottom: 24px; right: 24px;
-  background: var(--accent); color: #fff;
-  padding: 12px 22px; border-radius: 12px;
-  font-size: 14px; font-weight: 600;
-  transform: translateY(80px); opacity: 0;
-  transition: all .3s; z-index: 999;
+  position: fixed; bottom: 24px; right: 24px; background: var(--accent); color: #fff;
+  padding: 12px 22px; border-radius: 13px; font-size: 14px; font-weight: 600;
+  transform: translateY(80px); opacity: 0; transition: all .3s; z-index: 999;
 }
 .admin-toast.show { transform: translateY(0); opacity: 1; }
 
-/* RESPONSIVE */
 @media (max-width: 900px) {
   .sidebar { width: 200px; }
   .main { margin-left: 200px; padding: 24px; }
@@ -242,7 +215,7 @@ tr:hover td { background: var(--bg); }
 <!-- LOGIN -->
 <div id="login-screen">
   <div class="login-box">
-    <div class="login-logo">🖥️</div>
+    <div class="login-logo">🛡️</div>
     <h1>ChiSetupShop</h1>
     <p>Адмін-панель магазину</p>
     <input type="password" class="login-input" id="pass-input" placeholder="Пароль" onkeydown="if(event.key==='Enter')doLogin()">
@@ -254,7 +227,7 @@ tr:hover td { background: var(--bg); }
 <!-- ADMIN -->
 <div id="admin-screen">
   <div class="sidebar">
-    <div class="sidebar-logo">Chi<span>Setup</span></div>
+    <div class="sidebar-logo"><span class="sidebar-logo-icon">⚡</span>ChiSetup</div>
     <button class="nav-item active" id="nav-dashboard" onclick="switchTab('dashboard')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
       Дашборд
@@ -267,7 +240,7 @@ tr:hover td { background: var(--bg); }
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 12l2 2 4-4"/><path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
       Замовлення
     </button>
-    <div class="sidebar-footer">ChiSetupShop v1.0</div>
+    <div class="sidebar-footer">ChiSetupShop v1.1</div>
   </div>
 
   <main class="main">
@@ -276,7 +249,7 @@ tr:hover td { background: var(--bg); }
     <div class="tab active" id="tab-dashboard">
       <div class="page-title">Дашборд</div>
       <div class="page-subtitle">Загальна статистика магазину</div>
-      <div class="stats-grid" id="stats-grid">
+      <div class="stats-grid">
         <div class="stat-card"><div class="stat-label">Товарів</div><div class="stat-val" id="stat-products">—</div></div>
         <div class="stat-card"><div class="stat-label">Замовлень</div><div class="stat-val" id="stat-orders">—</div></div>
         <div class="stat-card"><div class="stat-label">Виручка</div><div class="stat-val" id="stat-revenue">—</div></div>
@@ -360,15 +333,15 @@ tr:hover td { background: var(--bg); }
         <div class="photo-upload" id="photo-drop">
           <input type="file" id="f-photo" accept="image/*" onchange="previewPhoto(this)">
           <div id="photo-placeholder">
-            <div style="font-size:32px;margin-bottom:8px">🖼️</div>
-            <div style="font-size:14px;color:var(--text2)">Натисни або перетягни фото</div>
-            <div style="font-size:12px;color:var(--text3);margin-top:4px">JPG, PNG, WebP до 5 МБ</div>
+            <div style="font-size:30px;margin-bottom:8px">🖼️</div>
+            <div style="font-size:13.5px;color:var(--text2)">Натисни або перетягни фото</div>
+            <div style="font-size:11.5px;color:var(--text3);margin-top:4px">JPG, PNG, WebP до 5 МБ</div>
           </div>
           <div class="photo-upload-preview" id="photo-preview">
             <img id="preview-img" src="" alt="">
           </div>
         </div>
-        <div id="existing-photo" style="display:none;margin-top:8px;font-size:12px;color:var(--text2)"></div>
+        <div id="existing-photo" style="display:none;margin-top:8px;font-size:11.5px;color:var(--text2)"></div>
       </div>
       <div class="modal-actions">
         <button type="button" class="btn btn-secondary" onclick="closeModal()">Скасувати</button>
@@ -386,13 +359,11 @@ let adminToken = localStorage.getItem('admin_token') || '';
 let allProducts = [];
 let allOrders = [];
 
-// ── LOGIN ──
 async function doLogin() {
   const pass = document.getElementById('pass-input').value;
   try {
     const res = await fetch(`${API}/api/admin/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ password: pass })
     });
     const data = await res.json();
@@ -415,65 +386,49 @@ function showAdmin() {
   loadAll();
 }
 
-// Авто-логін якщо токен збережений
 if (adminToken) {
   fetch(`${API}/api/admin/orders`, { headers: { 'x-admin-token': adminToken } })
-    .then(r => r.ok ? showAdmin() : null)
-    .catch(() => {});
+    .then(r => r.ok ? showAdmin() : null).catch(() => {});
 }
 
-// ── LOAD ──
-async function loadAll() {
-  await Promise.all([loadProducts(), loadOrders()]);
-  renderDashboard();
-}
+async function loadAll() { await Promise.all([loadProducts(), loadOrders()]); renderDashboard(); }
 
 async function loadProducts() {
   const res = await fetch(`${API}/api/products`);
   allProducts = await res.json();
   renderProductsTable();
 }
-
 async function loadOrders() {
   const res = await fetch(`${API}/api/admin/orders`, { headers: { 'x-admin-token': adminToken } });
   allOrders = await res.json();
   renderOrdersTable();
 }
 
-// ── DASHBOARD ──
 function renderDashboard() {
   document.getElementById('stat-products').textContent = allProducts.length;
   document.getElementById('stat-orders').textContent = allOrders.length;
   const revenue = allOrders.filter(o => o.status !== 'cancelled').reduce((s,o) => s + o.total, 0);
   document.getElementById('stat-revenue').textContent = revenue.toLocaleString() + ' ₴';
-  const out = allProducts.filter(p => p.stock === 0).length;
-  document.getElementById('stat-out').textContent = out;
+  document.getElementById('stat-out').textContent = allProducts.filter(p => p.stock === 0).length;
 
   const recent = allOrders.slice(0, 8);
   document.getElementById('recent-orders').innerHTML = recent.map(o => `
-    <tr>
-      <td><strong>${o.order_num}</strong></td>
-      <td>${o.customer_name}</td>
-      <td>${o.total.toLocaleString()} ₴</td>
-      <td>${statusBadge(o.status)}</td>
-    </tr>
+    <tr><td><strong>${o.order_num}</strong></td><td>${o.customer_name}</td><td>${o.total.toLocaleString()} ₴</td><td>${statusBadge(o.status)}</td></tr>
   `).join('') || '<tr><td colspan="4" style="text-align:center;color:var(--text3);padding:32px">Замовлень ще немає</td></tr>';
 }
 
 function statusBadge(s) {
   const m = {
-    new: ['orange','🟡 Нове'],
-    confirmed: ['blue','🔵 Підтверджено'],
-    shipped: ['blue','📦 Відправлено'],
-    done: ['green','✅ Виконано'],
-    cancelled: ['red','❌ Скасовано']
+    new: ['orange','🟡 Нове'], confirmed: ['blue','🔵 Підтверджено'],
+    shipped: ['blue','📦 Відправлено'], done: ['green','✅ Виконано'], cancelled: ['red','❌ Скасовано']
   };
   const [cls, label] = m[s] || ['orange', s];
   return `<span class="badge ${cls}">${label}</span>`;
 }
 
-// ── PRODUCTS TABLE ──
-const catNames = { mice:'🖱 Мишки', keyboards:'⌨️ Клавіатури', headphones:'🎧 Навушники', pads:'🎯 Килимки' };
+const catNames = { mice:'Мишки', keyboards:'Клавіатури', headphones:'Навушники', pads:'Килимки' };
+const catColors = { mice:'var(--mice)', keyboards:'var(--keyboards)', headphones:'var(--headphones)', pads:'var(--pads)' };
+const catEmojis = { mice:'🖱️', keyboards:'⌨️', headphones:'🎧', pads:'🎯' };
 
 function renderProductsTable() {
   const tbody = document.getElementById('products-table');
@@ -483,19 +438,13 @@ function renderProductsTable() {
   }
   tbody.innerHTML = allProducts.map(p => `
     <tr>
-      <td>
-        <div class="prod-img-cell">
-          ${p.photo ? `<img src="${API}${p.photo}" alt="">` : catEmoji(p.category)}
-        </div>
-      </td>
+      <td><div class="prod-img-cell">${p.photo ? `<img src="${p.photo}" alt="">` : catEmojis[p.category]||'📦'}</div></td>
       <td><strong>${p.name}</strong></td>
-      <td>${catNames[p.category] || p.category}</td>
+      <td><span class="cat-pill"><span class="cat-pill-dot" style="background:${catColors[p.category]||'var(--text3)'}"></span>${catNames[p.category] || p.category}</span></td>
       <td>${Number(p.price).toLocaleString()} ₴</td>
       <td>
         <div style="display:flex;align-items:center;gap:8px">
-          <input type="number" class="stock-input" value="${p.stock}" min="0"
-            onchange="updateStock(${p.id}, this.value)"
-            title="Змінити кількість">
+          <input type="number" class="stock-input" value="${p.stock}" min="0" onchange="updateStock(${p.id}, this.value)" title="Змінити кількість">
           <span class="badge ${p.stock > 0 ? 'green' : 'red'}">${p.stock > 0 ? 'є' : 'нема'}</span>
         </div>
       </td>
@@ -509,33 +458,22 @@ function renderProductsTable() {
   `).join('');
 }
 
-function catEmoji(cat) {
-  const m = { mice:'🖱️', keyboards:'⌨️', headphones:'🎧', pads:'🎯' };
-  return `<span style="font-size:20px">${m[cat]||'📦'}</span>`;
-}
-
 async function updateStock(id, val) {
   await fetch(`${API}/api/admin/products/${id}/stock`, {
-    method: 'PATCH',
-    headers: { 'Content-Type': 'application/json', 'x-admin-token': adminToken },
+    method: 'PATCH', headers: { 'Content-Type': 'application/json', 'x-admin-token': adminToken },
     body: JSON.stringify({ stock: parseInt(val) })
   });
   toast('Наявність оновлено ✓');
-  await loadProducts();
-  renderDashboard();
+  await loadProducts(); renderDashboard();
 }
 
 async function deleteProduct(id) {
   if (!confirm('Видалити товар?')) return;
-  await fetch(`${API}/api/admin/products/${id}`, {
-    method: 'DELETE', headers: { 'x-admin-token': adminToken }
-  });
+  await fetch(`${API}/api/admin/products/${id}`, { method: 'DELETE', headers: { 'x-admin-token': adminToken } });
   toast('Товар видалено');
-  await loadProducts();
-  renderDashboard();
+  await loadProducts(); renderDashboard();
 }
 
-// ── ORDERS TABLE ──
 const deliveryNames = { np:'Nova Poshta', pickup:'Самовивіз' };
 const paymentNames = { card:'Карта', cod:'Накладений' };
 
@@ -548,13 +486,13 @@ function renderOrdersTable() {
   tbody.innerHTML = allOrders.map(o => `
     <tr>
       <td><strong>${o.order_num}</strong></td>
-      <td style="color:var(--text2);font-size:13px">${new Date(o.created_at).toLocaleString('uk')}</td>
+      <td style="color:var(--text2);font-size:12.5px">${new Date(o.created_at).toLocaleString('uk')}</td>
       <td>${o.customer_name}</td>
       <td>${o.customer_phone}</td>
       <td><strong>${o.total.toLocaleString()} ₴</strong></td>
       <td>
-        <div style="font-size:13px">${deliveryNames[o.delivery_type]||o.delivery_type}</div>
-        ${o.delivery_city ? `<div style="font-size:12px;color:var(--text3)">${o.delivery_city}, ${o.delivery_branch}</div>` : ''}
+        <div style="font-size:12.5px">${deliveryNames[o.delivery_type]||o.delivery_type}</div>
+        ${o.delivery_city ? `<div style="font-size:11.5px;color:var(--text3)">${o.delivery_city}, ${o.delivery_branch}</div>` : ''}
       </td>
       <td>${paymentNames[o.payment_type]||o.payment_type}</td>
       <td>
@@ -572,16 +510,13 @@ function renderOrdersTable() {
 
 async function updateOrderStatus(id, status) {
   await fetch(`${API}/api/admin/orders/${id}`, {
-    method: 'PATCH',
-    headers: { 'Content-Type': 'application/json', 'x-admin-token': adminToken },
+    method: 'PATCH', headers: { 'Content-Type': 'application/json', 'x-admin-token': adminToken },
     body: JSON.stringify({ status })
   });
   toast('Статус оновлено ✓');
-  await loadOrders();
-  renderDashboard();
+  await loadOrders(); renderDashboard();
 }
 
-// ── PRODUCT MODAL ──
 let editingProduct = null;
 let specRows = [];
 
@@ -598,14 +533,13 @@ function openProductModal(product = null) {
   document.getElementById('f-stock').value = product?.stock ?? 0;
   document.getElementById('f-desc').value = product?.description || '';
 
-  // photo
   document.getElementById('photo-preview').style.display = 'none';
   document.getElementById('photo-placeholder').style.display = 'block';
   document.getElementById('f-photo').value = '';
   const existing = document.getElementById('existing-photo');
   if (product?.photo) {
     existing.style.display = 'block';
-    existing.innerHTML = `Поточне фото: <img src="${API}${product.photo}" style="height:40px;border-radius:6px;vertical-align:middle;margin-left:6px">`;
+    existing.innerHTML = `Поточне фото: <img src="${product.photo}" style="height:40px;border-radius:6px;vertical-align:middle;margin-left:6px">`;
   } else {
     existing.style.display = 'none';
   }
@@ -618,10 +552,7 @@ function editProduct(id) {
   const p = allProducts.find(x => x.id === id);
   if (p) openProductModal(p);
 }
-
-function closeModal() {
-  document.getElementById('product-modal').classList.remove('open');
-}
+function closeModal() { document.getElementById('product-modal').classList.remove('open'); }
 
 function renderSpecsEditor() {
   const el = document.getElementById('specs-editor');
@@ -633,7 +564,6 @@ function renderSpecsEditor() {
     </div>
   `).join('');
 }
-
 function addSpec() { specRows.push(['','']); renderSpecsEditor(); }
 function removeSpec(i) { specRows.splice(i, 1); renderSpecsEditor(); }
 
@@ -670,23 +600,17 @@ async function submitProduct(e) {
   const method = id ? 'PUT' : 'POST';
 
   try {
-    const res = await fetch(url, {
-      method, headers: { 'x-admin-token': adminToken }, body: formData
-    });
+    const res = await fetch(url, { method, headers: { 'x-admin-token': adminToken }, body: formData });
     const data = await res.json();
     if (data.success) {
       closeModal();
       toast(id ? 'Товар оновлено ✓' : 'Товар додано ✓');
-      await loadProducts();
-      renderDashboard();
+      await loadProducts(); renderDashboard();
     }
-  } catch(err) {
-    toast('Помилка збереження');
-  }
+  } catch(err) { toast('Помилка збереження'); }
   btn.disabled = false;
 }
 
-// ── TABS ──
 function switchTab(name) {
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
@@ -694,14 +618,12 @@ function switchTab(name) {
   document.getElementById('nav-' + name).classList.add('active');
 }
 
-// ── TOAST ──
 function toast(msg) {
   const t = document.getElementById('admin-toast');
   t.textContent = msg; t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 2500);
 }
 
-// Close modal on overlay click
 document.getElementById('product-modal').addEventListener('click', function(e) {
   if (e.target === this) closeModal();
 });
