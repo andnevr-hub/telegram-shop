@@ -88,7 +88,7 @@ app.get('/api/products', async (req, res) => {
 });
 
 app.post('/api/orders', async (req, res) => {
-  const { name, phone, delivery, city, branch, payment, items, total } = req.body;
+  const { name, phone, delivery, region, city, branch, payment, items, total } = req.body;
   if (!name || !phone || !items || !total) {
     return res.status(400).json({ error: 'Не всі поля заповнені' });
   }
@@ -99,6 +99,7 @@ app.post('/api/orders', async (req, res) => {
       customer_name: name,
       customer_phone: phone,
       delivery_type: delivery,
+      delivery_region: region || '',
       delivery_city: city || '',
       delivery_branch: branch || '',
       payment_type: payment,
@@ -110,7 +111,7 @@ app.post('/api/orders', async (req, res) => {
 
     // Telegram повідомлення
     const itemsList = items.map(i => `• ${i.name} ×${i.qty} = ${(i.price*i.qty).toLocaleString()} ₴`).join('\n');
-    const deliveryText = delivery === 'np' ? `📦 Nova Poshta\n🏙 ${city}, ${branch}` : '🏠 Самовивіз (Київ)';
+    const deliveryText = delivery === 'np' ? `📦 Nova Poshta\n🏙 ${region ? region + ', ' : ''}${city}, ${branch}` : '🏠 Самовивіз (Київ)';
     const paymentText = payment === 'card' ? '💳 Карта (передоплата)' : '📬 Накладений платіж';
     const msg = `🛒 *НОВЕ ЗАМОВЛЕННЯ ${orderNum}*\n\n👤 *Клієнт:* ${name}\n📞 *Телефон:* ${phone}\n\n*Товари:*\n${itemsList}\n\n*Сума:* ${Number(total).toLocaleString()} ₴\n\n*Доставка:* ${deliveryText}\n*Оплата:* ${paymentText}`;
 
