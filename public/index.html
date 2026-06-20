@@ -17,15 +17,16 @@
   --text: #f5f5f7;
   --text2: rgba(245,245,247,0.62);
   --text3: rgba(245,245,247,0.38);
-  --blue: #0a84ff;
-  --blue-dim: rgba(10,132,255,0.18);
-  --pink: #ff6fa3;
-  --pink-dim: rgba(255,111,163,0.2);
-  --green: #32d74b;
-  --green-dim: rgba(50,215,75,0.18);
+  --pink: #f5f5f7;
+  --pink-dim: rgba(245,245,247,0.18);
+  --blue: #f5f5f7;
+  --blue-dim: rgba(245,245,247,0.18);
+  --green: #f5f5f7;
+  --green-dim: rgba(245,245,247,0.18);
   --red: #ff453a;
   --red-dim: rgba(255,69,58,0.18);
-  --mice: #ff6fa3; --keyboards: #32d74b; --headphones: #ff9f0a; --pads: #0a84ff;
+  --mice: #f5f5f7; --keyboards: #c7c7cc; --headphones: #8e8e93; --pads: #aeaeb2;
+  --on-pink: #0a0a0a;
   --r-lg: 26px;
   --r-md: 18px;
   --r-sm: 13px;
@@ -42,11 +43,19 @@ body.light {
   --text: #1c1c1e;
   --text2: rgba(28,28,30,0.62);
   --text3: rgba(28,28,30,0.4);
+  --pink: #1c1c1e;
+  --pink-dim: rgba(28,28,30,0.12);
+  --blue: #1c1c1e;
+  --blue-dim: rgba(28,28,30,0.12);
+  --green: #1c1c1e;
+  --green-dim: rgba(28,28,30,0.12);
+  --mice: #1c1c1e; --keyboards: #48484a; --headphones: #6e6e73; --pads: #8e8e93;
+  --on-pink: #ffffff;
   --sakura-op: 0.55;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-html, body { background: #15080d; }
-body.light { background: #f3e9ec; }
+html, body { background: #050505; }
+body.light { background: #f5f5f7; }
 
 body {
   font-family: var(--font);
@@ -60,25 +69,22 @@ body {
 /* ── SAKURA BACKGROUND ── */
 .bg-fixed {
   position: fixed; inset: 0; z-index: -2; overflow: hidden;
+  background: #050505;
 }
-.bg-fixed svg {
-  position: absolute; top: -6%; right: -18%;
-  width: 92%; height: auto; opacity: var(--sakura-op);
-  filter: blur(0.4px);
+.bg-fixed img {
+  position: absolute; top: 0; right: 0;
+  width: 100%; height: 100%; object-fit: cover; object-position: top right;
+  opacity: var(--sakura-op);
+  filter: grayscale(1) contrast(1.05);
 }
-.bg-fixed .blob {
-  position: absolute; border-radius: 50%; filter: blur(60px);
-}
-.bg-fixed .blob1 { width: 340px; height: 340px; top: -80px; right: -100px; background: radial-gradient(circle, rgba(255,150,190,0.45), transparent 70%); }
-.bg-fixed .blob2 { width: 300px; height: 300px; bottom: 10%; left: -120px; background: radial-gradient(circle, rgba(255,180,200,0.3), transparent 70%); }
-body.light .bg-fixed .blob1 { background: radial-gradient(circle, rgba(255,170,200,0.55), transparent 70%); }
-body.light .bg-fixed .blob2 { background: radial-gradient(circle, rgba(255,200,210,0.45), transparent 70%); }
 .bg-scrim {
   position: fixed; inset: 0; z-index: -1;
-  background: linear-gradient(180deg, rgba(10,5,8,0.35) 0%, rgba(10,5,8,0.55) 45%, rgba(10,5,8,0.8) 100%);
+  backdrop-filter: blur(38px) saturate(1.05);
+  -webkit-backdrop-filter: blur(38px) saturate(1.05);
+  background: linear-gradient(180deg, rgba(5,5,5,0.25) 0%, rgba(5,5,5,0.55) 45%, rgba(5,5,5,0.85) 100%);
 }
 body.light .bg-scrim {
-  background: linear-gradient(180deg, rgba(255,250,251,0.45) 0%, rgba(255,250,251,0.65) 45%, rgba(255,250,251,0.88) 100%);
+  background: linear-gradient(180deg, rgba(255,255,255,0.45) 0%, rgba(255,255,255,0.72) 45%, rgba(255,255,255,0.92) 100%);
 }
 
 /* ── GLASS BASE ── */
@@ -112,7 +118,7 @@ body.light .bg-scrim {
 .nav-btn svg { width: 22px; height: 22px; stroke-width: 1.8; }
 .cart-badge {
   position: absolute; top: -5px; right: -8px;
-  background: var(--pink); color: #fff;
+  background: var(--pink); color: var(--on-pink);
   font-size: 9px; font-weight: 700; width: 16px; height: 16px;
   border-radius: 50%; display: none; align-items: center; justify-content: center;
   box-shadow: 0 0 0 2px var(--glass-strong);
@@ -176,7 +182,7 @@ body.light .bg-scrim {
   display: flex; align-items: center; gap: 7px;
   transition: background .2s, color .2s;
 }
-.cat-btn.active { background: var(--pink); border-color: var(--pink); color: #fff; }
+.cat-btn.active { background: var(--pink); border-color: var(--pink); color: var(--on-pink); }
 .cat-dot { width: 6px; height: 6px; border-radius: 50%; }
 
 /* ── PRODUCTS GRID ── */
@@ -233,7 +239,7 @@ body.dark-mode .stock-badge.in, .stock-badge.in { color: #34d058; }
   display: flex; align-items: center; justify-content: center; gap: 6px;
   transition: background .15s;
 }
-.add-btn:active { background: var(--pink); color: #fff; border-color: var(--pink); }
+.add-btn:active { background: var(--pink); color: var(--on-pink); border-color: var(--pink); }
 .add-btn.disabled { color: var(--text3); pointer-events: none; }
 
 /* ── DETAIL / CAROUSEL ── */
@@ -287,7 +293,7 @@ body.dark-mode .stock-badge.in, .stock-badge.in { color: #34d058; }
 .spec-val { font-weight: 600; }
 .detail-add-btn {
   width: 100%; background: var(--pink); border: none;
-  border-radius: 18px; color: #fff; font-size: 16px;
+  border-radius: 18px; color: var(--on-pink); font-size: 16px;
   font-weight: 700; padding: 17px; cursor: pointer; font-family: var(--font);
   box-shadow: 0 8px 28px var(--pink-dim);
 }
@@ -308,7 +314,7 @@ body.dark-mode .stock-badge.in, .stock-badge.in { color: #34d058; }
 .empty-state p { font-size: 13.5px; color: var(--text2); line-height: 1.6; max-width: 240px; }
 .empty-btn {
   margin-top: 18px; padding: 13px 28px; background: var(--pink);
-  border: none; border-radius: 16px; color: #fff;
+  border: none; border-radius: 16px; color: var(--on-pink);
   font-size: 14px; font-weight: 700; cursor: pointer; font-family: var(--font);
 }
 
@@ -351,7 +357,7 @@ body.dark-mode .stock-badge.in, .stock-badge.in { color: #34d058; }
 }
 .checkout-btn {
   width: 100%; padding: 17px; background: var(--pink);
-  border: none; border-radius: 18px; color: #fff;
+  border: none; border-radius: 18px; color: var(--on-pink);
   font-size: 16px; font-weight: 700; cursor: pointer; font-family: var(--font);
   box-shadow: 0 8px 28px var(--pink-dim);
 }
@@ -365,7 +371,7 @@ body.dark-mode .stock-badge.in, .stock-badge.in { color: #34d058; }
   font-size: 12px; font-weight: 700;
   background: var(--glass-soft); color: var(--text3); border: 1px solid var(--line-soft);
 }
-.step-circle.active { background: var(--pink); color: #fff; border-color: var(--pink); }
+.step-circle.active { background: var(--pink); color: var(--on-pink); border-color: var(--pink); }
 .step-circle.done { background: var(--green); color: #06280c; border-color: var(--green); }
 .step-label { font-size: 9.5px; color: var(--text3); font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
 .step-label.active { color: var(--text); }
@@ -401,7 +407,7 @@ body.dark-mode .stock-badge.in, .stock-badge.in { color: #34d058; }
 
 .next-btn {
   width: 100%; padding: 17px; background: var(--pink);
-  border: none; border-radius: 18px; color: #fff;
+  border: none; border-radius: 18px; color: var(--on-pink);
   font-size: 16px; font-weight: 700; cursor: pointer; font-family: var(--font); margin-top: 8px;
   box-shadow: 0 8px 28px var(--pink-dim);
 }
@@ -423,7 +429,7 @@ body.dark-mode .stock-badge.in, .stock-badge.in { color: #34d058; }
 .success-desc { font-size: 14px; color: var(--text2); line-height: 1.7; }
 .success-btn {
   padding: 14px 30px; background: var(--pink); border: none;
-  border-radius: 16px; color: #fff; font-size: 14.5px; font-weight: 700;
+  border-radius: 16px; color: var(--on-pink); font-size: 14.5px; font-weight: 700;
   cursor: pointer; font-family: var(--font); margin-top: 14px;
 }
 
@@ -437,7 +443,7 @@ body.dark-mode .stock-badge.in, .stock-badge.in { color: #34d058; }
 .account-avatar {
   width: 50px; height: 50px; border-radius: 16px; background: var(--pink);
   display: flex; align-items: center; justify-content: center;
-  font-size: 20px; font-weight: 700; color: #fff; flex-shrink: 0;
+  font-size: 20px; font-weight: 700; color: var(--on-pink); flex-shrink: 0;
 }
 .section-label {
   font-size: 11px; font-weight: 700; color: var(--text3);
@@ -476,61 +482,7 @@ body.dark-mode .stock-badge.in, .stock-badge.in { color: #34d058; }
 
 <!-- SAKURA BACKGROUND -->
 <div class="bg-fixed">
-  <div class="blob blob1"></div>
-  <div class="blob blob2"></div>
-  <svg viewBox="0 0 500 700" xmlns="http://www.w3.org/2000/svg">
-    <defs>
-      <linearGradient id="branchGrad" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0%" stop-color="#3a2420"/>
-        <stop offset="100%" stop-color="#1c1210"/>
-      </linearGradient>
-      <radialGradient id="petalGrad1" cx="35%" cy="30%" r="75%">
-        <stop offset="0%" stop-color="#ffe3ec"/>
-        <stop offset="60%" stop-color="#ffb8d2"/>
-        <stop offset="100%" stop-color="#ff8fb8"/>
-      </radialGradient>
-      <radialGradient id="petalGrad2" cx="35%" cy="30%" r="75%">
-        <stop offset="0%" stop-color="#fff0f5"/>
-        <stop offset="60%" stop-color="#ffc9dc"/>
-        <stop offset="100%" stop-color="#ff9fc0"/>
-      </radialGradient>
-    </defs>
-    <path d="M460 0 C440 60 410 110 430 170 C445 215 470 250 450 310 C435 350 400 380 410 430 C418 465 440 490 420 540" stroke="url(#branchGrad)" stroke-width="9" fill="none" stroke-linecap="round"/>
-    <path d="M430 170 C400 190 370 195 345 230" stroke="url(#branchGrad)" stroke-width="5" fill="none" stroke-linecap="round"/>
-    <path d="M450 310 C415 320 385 340 365 375" stroke="url(#branchGrad)" stroke-width="5" fill="none" stroke-linecap="round"/>
-    <path d="M410 430 C375 445 345 450 320 480" stroke="url(#branchGrad)" stroke-width="5" fill="none" stroke-linecap="round"/>
-    <g id="blossomCluster">
-      <g transform="translate(345,225) scale(1.1)">
-        <ellipse cx="0" cy="-14" rx="11" ry="15" fill="url(#petalGrad1)" transform="rotate(0)"/>
-        <ellipse cx="13" cy="-4" rx="11" ry="15" fill="url(#petalGrad2)" transform="rotate(72)"/>
-        <ellipse cx="8" cy="12" rx="11" ry="15" fill="url(#petalGrad1)" transform="rotate(144)"/>
-        <ellipse cx="-8" cy="12" rx="11" ry="15" fill="url(#petalGrad2)" transform="rotate(216)"/>
-        <ellipse cx="-13" cy="-4" rx="11" ry="15" fill="url(#petalGrad1)" transform="rotate(288)"/>
-        <circle r="5" fill="#ffd866"/>
-      </g>
-    </g>
-    <use href="#blossomCluster" x="-30" y="-10" transform="scale(0.8)"/>
-    <use href="#blossomCluster" x="40" y="20" transform="scale(0.65)"/>
-    <use href="#blossomCluster" transform="translate(365,375) scale(0.95)"/>
-    <use href="#blossomCluster" transform="translate(395,360) scale(0.7)"/>
-    <use href="#blossomCluster" transform="translate(335,400) scale(0.6)"/>
-    <use href="#blossomCluster" transform="translate(320,480) scale(1.05)"/>
-    <use href="#blossomCluster" transform="translate(350,495) scale(0.75)"/>
-    <use href="#blossomCluster" transform="translate(295,510) scale(0.6)"/>
-    <use href="#blossomCluster" transform="translate(430,170) scale(0.85)"/>
-    <use href="#blossomCluster" transform="translate(465,140) scale(0.65)"/>
-    <use href="#blossomCluster" transform="translate(450,70) scale(0.9)"/>
-    <use href="#blossomCluster" transform="translate(420,30) scale(0.7)"/>
-    <use href="#blossomCluster" transform="translate(410,430) scale(0.8)"/>
-    <use href="#blossomCluster" transform="translate(440,455) scale(0.55)"/>
-    <circle cx="120" cy="80" r="3" fill="#ffd9e6" opacity="0.8"/>
-    <circle cx="180" cy="150" r="2.4" fill="#ffd9e6" opacity="0.7"/>
-    <circle cx="90" cy="260" r="2.8" fill="#ffd9e6" opacity="0.75"/>
-    <circle cx="220" cy="340" r="2" fill="#ffd9e6" opacity="0.6"/>
-    <circle cx="150" cy="420" r="3.2" fill="#ffd9e6" opacity="0.8"/>
-    <circle cx="260" cy="500" r="2.2" fill="#ffd9e6" opacity="0.65"/>
-    <circle cx="60" cy="540" r="2.6" fill="#ffd9e6" opacity="0.7"/>
-  </svg>
+  <img src="/images/sakura-bg.jpg" alt="">
 </div>
 <div class="bg-scrim"></div>
 
