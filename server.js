@@ -32,7 +32,7 @@ const upload = multer({
 async function uploadPhoto(file) {
   if (!file) return null;
   const ext = path.extname(file.originalname) || '.jpg';
-  const fileName = `product_${Date.now()}${ext}`;
+  const fileName = `product_${Date.now()}_${Math.random().toString(36).slice(2,8)}${ext}`;
   const { error } = await supabase.storage
     .from(PHOTOS_BUCKET)
     .upload(fileName, file.buffer, { contentType: file.mimetype });
@@ -41,10 +41,22 @@ async function uploadPhoto(file) {
   return data.publicUrl;
 }
 
+async function uploadPhotos(files) {
+  if (!files || !files.length) return [];
+  const urls = await Promise.all(files.map(f => uploadPhoto(f)));
+  return urls.filter(Boolean);
+}
+
 async function deletePhoto(photoUrl) {
   if (!photoUrl) return;
   const fileName = photoUrl.split('/').pop();
   await supabase.storage.from(PHOTOS_BUCKET).remove([fileName]).catch(() => {});
+}
+
+async function deletePhotos(photoUrls) {
+  if (!photoUrls || !photoUrls.length) return;
+  const fileNames = photoUrls.filter(Boolean).map(u => u.split('/').pop());
+  if (fileNames.length) await supabase.storage.from(PHOTOS_BUCKET).remove(fileNames).catch(() => {});
 }
 
 // ── MIDDLEWARE ──
@@ -71,12 +83,12 @@ app.get('/api/products', async (req, res) => {
       .select('*')
       .order('created_at', { ascending: false });
     if (error) throw error;
-    res.json(data.map(p => ({ ...p, specs: p.specs || [] })));
+    res.json(data.map(p => ({ ...p, specs: p.specs || [], photos: p.photos || (p.photo ? [p.photo] : []) })));
   } catch(e) { res.status(500).json({ error: e.message }); }
 });
 
 app.post('/api/orders', async (req, res) => {
-  const { name, phone, delivery, region, city, branch, payment, items, total, telegramId } = req.body;
+  const { name, phone, delivery, city, branch, payment, items, total } = req.body;
   if (!name || !phone || !items || !total) {
     return res.status(400).json({ error: 'Не всі поля заповнені' });
   }
@@ -86,9 +98,7 @@ app.post('/api/orders', async (req, res) => {
       order_num: orderNum,
       customer_name: name,
       customer_phone: phone,
-      telegram_user_id: telegramId ? String(telegramId) : null,
       delivery_type: delivery,
-      delivery_region: region || '',
       delivery_city: city || '',
       delivery_branch: branch || '',
       payment_type: payment,
@@ -100,7 +110,7 @@ app.post('/api/orders', async (req, res) => {
 
     // Telegram повідомлення
     const itemsList = items.map(i => `• ${i.name} ×${i.qty} = ${(i.price*i.qty).toLocaleString()} ₴`).join('\n');
-    const deliveryText = delivery === 'np' ? `📦 Nova Poshta\n🏙 ${region ? region + ', ' : ''}${city}, ${branch}` : '🏠 Самовивіз (Київ)';
+    const deliveryText = delivery === 'np' ? `📦 Nova Poshta\n🏙 ${city}, ${branch}` : '🏠 Самовивіз (Київ)';
     const paymentText = payment === 'card' ? '💳 Карта (передоплата)' : '📬 Накладений платіж';
     const msg = `🛒 *НОВЕ ЗАМОВЛЕННЯ ${orderNum}*\n\n👤 *Клієнт:* ${name}\n📞 *Телефон:* ${phone}\n\n*Товари:*\n${itemsList}\n\n*Сума:* ${Number(total).toLocaleString()} ₴\n\n*Доставка:* ${deliveryText}\n*Оплата:* ${paymentText}`;
 
@@ -110,20 +120,6 @@ app.post('/api/orders', async (req, res) => {
     }
 
     res.json({ success: true, orderNum });
-  } catch(e) { res.status(500).json({ error: e.message }); }
-});
-
-app.get('/api/orders', async (req, res) => {
-  const telegramId = req.query.telegramId;
-  if (!telegramId) return res.json([]);
-  try {
-    const { data, error } = await supabase
-      .from('orders')
-      .select('*')
-      .eq('telegram_user_id', String(telegramId))
-      .order('created_at', { ascending: false });
-    if (error) throw error;
-    res.json(data);
   } catch(e) { res.status(500).json({ error: e.message }); }
 });
 
@@ -160,34 +156,41 @@ app.patch('/api/admin/orders/:id', adminAuth, async (req, res) => {
   } catch(e) { res.status(500).json({ error: e.message }); }
 });
 
-app.post('/api/admin/products', adminAuth, upload.single('photo'), async (req, res) => {
+app.post('/api/admin/products', adminAuth, upload.array('photos', 4), async (req, res) => {
   const { name, category, price, stock, description, specs } = req.body;
   try {
-    const photoUrl = await uploadPhoto(req.file);
+    const photoUrls = await uploadPhotos(req.files);
     const { data, error } = await supabase.from('products').insert({
       name, category,
       price: parseInt(price),
       stock: parseInt(stock),
       description,
       specs: JSON.parse(specs || '[]'),
-      photo: photoUrl
+      photo: photoUrls[0] || null,
+      photos: photoUrls
     }).select().single();
     if (error) throw error;
     res.json({ success: true, id: data.id });
   } catch(e) { res.status(500).json({ error: e.message }); }
 });
 
-app.put('/api/admin/products/:id', adminAuth, upload.single('photo'), async (req, res) => {
-  const { name, category, price, stock, description, specs } = req.body;
+app.put('/api/admin/products/:id', adminAuth, upload.array('photos', 4), async (req, res) => {
+  const { name, category, price, stock, description, specs, keepPhotos } = req.body;
   try {
     const { data: product } = await supabase.from('products').select('*').eq('id', req.params.id).single();
     if (!product) return res.status(404).json({ error: 'Не знайдено' });
 
-    let photoUrl = product.photo;
-    if (req.file) {
-      await deletePhoto(product.photo);
-      photoUrl = await uploadPhoto(req.file);
+    const existingPhotos = product.photos || (product.photo ? [product.photo] : []);
+    // keepPhotos: JSON-масив URL які треба залишити (з тих що вже були)
+    let keptPhotos = existingPhotos;
+    if (typeof keepPhotos === 'string') {
+      try { keptPhotos = JSON.parse(keepPhotos); } catch(_) { keptPhotos = existingPhotos; }
     }
+    const removedPhotos = existingPhotos.filter(p => !keptPhotos.includes(p));
+    if (removedPhotos.length) await deletePhotos(removedPhotos);
+
+    const newPhotoUrls = await uploadPhotos(req.files);
+    const finalPhotos = [...keptPhotos, ...newPhotoUrls].slice(0, 4);
 
     const { error } = await supabase.from('products').update({
       name, category,
@@ -195,7 +198,8 @@ app.put('/api/admin/products/:id', adminAuth, upload.single('photo'), async (req
       stock: parseInt(stock),
       description,
       specs: JSON.parse(specs || '[]'),
-      photo: photoUrl
+      photo: finalPhotos[0] || null,
+      photos: finalPhotos
     }).eq('id', req.params.id);
     if (error) throw error;
     res.json({ success: true });
@@ -205,7 +209,8 @@ app.put('/api/admin/products/:id', adminAuth, upload.single('photo'), async (req
 app.delete('/api/admin/products/:id', adminAuth, async (req, res) => {
   try {
     const { data: product } = await supabase.from('products').select('*').eq('id', req.params.id).single();
-    if (product?.photo) await deletePhoto(product.photo);
+    const photosToDelete = product?.photos || (product?.photo ? [product.photo] : []);
+    if (photosToDelete.length) await deletePhotos(photosToDelete);
     const { error } = await supabase.from('products').delete().eq('id', req.params.id);
     if (error) throw error;
     res.json({ success: true });

@@ -5,118 +5,132 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ChiSetupShop — Адмін</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
-  --bg: #0a0a0b;
-  --bg2: #141416;
-  --bg3: #1e1e21;
-  --bg4: #27272a;
-  --line: #232326;
-  --text: #f4f4f5;
-  --text2: #9a9aa2;
-  --text3: #5c5c64;
-  --accent: #8b6cff;
-  --accent-dim: #8b6cff20;
-  --green: #34d399;
-  --green-dim: #34d39918;
-  --red: #f87171;
-  --red-dim: #f8717118;
-  --orange: #fbbf24;
-  --orange-dim: #fbbf2418;
-  --blue: #38bdf8;
-  --blue-dim: #38bdf818;
-  --mice: #8b6cff; --keyboards: #34d399; --headphones: #fb923c; --pads: #38bdf8;
-  --r: 16px;
-  --font-display: 'Space Grotesk', sans-serif;
-  --font-body: 'Inter', sans-serif;
+  --glass: rgba(28,28,30,0.55);
+  --glass-strong: rgba(28,28,30,0.78);
+  --glass-soft: rgba(255,255,255,0.07);
+  --line: rgba(255,255,255,0.14);
+  --line-soft: rgba(255,255,255,0.08);
+  --text: #f5f5f7;
+  --text2: rgba(245,245,247,0.62);
+  --text3: rgba(245,245,247,0.38);
+  --pink: #ff6fa3;
+  --pink-dim: rgba(255,111,163,0.18);
+  --green: #32d74b;
+  --green-dim: rgba(50,215,75,0.16);
+  --red: #ff453a;
+  --red-dim: rgba(255,69,58,0.16);
+  --orange: #ff9f0a;
+  --orange-dim: rgba(255,159,10,0.16);
+  --blue: #0a84ff;
+  --blue-dim: rgba(10,132,255,0.16);
+  --mice: #ff6fa3; --keyboards: #32d74b; --headphones: #ff9f0a; --pads: #0a84ff;
+  --r: 20px;
+  --font: 'Inter', -apple-system, sans-serif;
+  --blur: 26px;
+  --sakura-op: 0.7;
 }
+body.light {
+  --glass: rgba(255,255,255,0.55);
+  --glass-strong: rgba(255,255,255,0.8);
+  --glass-soft: rgba(20,20,22,0.05);
+  --line: rgba(20,20,22,0.1);
+  --line-soft: rgba(20,20,22,0.06);
+  --text: #1c1c1e;
+  --text2: rgba(28,28,30,0.62);
+  --text3: rgba(28,28,30,0.4);
+  --sakura-op: 0.45;
+}
+html, body { background: #15080d; }
+body.light { background: #f3e9ec; }
 body {
-  font-family: var(--font-body);
-  background: var(--bg); color: var(--text);
-  min-height: 100vh; -webkit-font-smoothing: antialiased;
-  letter-spacing: -0.01em;
+  font-family: var(--font);
+  color: var(--text); min-height: 100vh; -webkit-font-smoothing: antialiased;
+  letter-spacing: -0.01em; position: relative;
 }
+
+/* ── SAKURA BG (reused) ── */
+.bg-fixed { position: fixed; inset: 0; z-index: -2; overflow: hidden; }
+.bg-fixed svg { position: absolute; top: -10%; right: -22%; width: 65%; height: auto; opacity: var(--sakura-op); }
+.bg-fixed .blob { position: absolute; border-radius: 50%; filter: blur(70px); }
+.bg-fixed .blob1 { width: 380px; height: 380px; top: -100px; right: -120px; background: radial-gradient(circle, rgba(255,150,190,0.4), transparent 70%); }
+.bg-fixed .blob2 { width: 320px; height: 320px; bottom: 5%; left: -130px; background: radial-gradient(circle, rgba(255,180,200,0.25), transparent 70%); }
+body.light .bg-fixed .blob1 { background: radial-gradient(circle, rgba(255,170,200,0.5), transparent 70%); }
+body.light .bg-fixed .blob2 { background: radial-gradient(circle, rgba(255,200,210,0.4), transparent 70%); }
+.bg-scrim { position: fixed; inset: 0; z-index: -1; background: linear-gradient(160deg, rgba(10,5,8,0.5) 0%, rgba(10,5,8,0.75) 100%); }
+body.light .bg-scrim { background: linear-gradient(160deg, rgba(255,250,251,0.55) 0%, rgba(255,250,251,0.82) 100%); }
+
+.glass { background: var(--glass); backdrop-filter: blur(var(--blur)) saturate(1.6); -webkit-backdrop-filter: blur(var(--blur)) saturate(1.6); border: 1px solid var(--line); }
 
 /* ── LOGIN ── */
 #login-screen { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
 .login-box {
-  background: var(--bg2); border-radius: 24px; padding: 44px 38px;
-  width: 100%; max-width: 400px; border: 1px solid var(--line); text-align: center;
+  background: var(--glass); backdrop-filter: blur(34px) saturate(1.7); -webkit-backdrop-filter: blur(34px) saturate(1.7);
+  border-radius: 28px; padding: 44px 36px; width: 100%; max-width: 400px; border: 1px solid var(--line); text-align: center;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
 }
-.login-logo {
-  width: 56px; height: 56px; border-radius: 16px; background: var(--accent);
-  display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;
-  font-size: 24px;
-}
-.login-box h1 { font-family: var(--font-display); font-size: 24px; font-weight: 600; margin-bottom: 6px; }
+.login-logo { width: 58px; height: 58px; border-radius: 18px; background: var(--pink); display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 24px; }
+.login-box h1 { font-size: 24px; font-weight: 800; margin-bottom: 6px; }
 .login-box p { color: var(--text2); font-size: 14px; margin-bottom: 28px; }
 .login-input {
-  width: 100%; padding: 14px 16px; background: var(--bg3);
-  border: 1.5px solid var(--line); border-radius: 12px;
-  font-size: 16px; outline: none; font-family: inherit;
-  margin-bottom: 14px; color: var(--text);
+  width: 100%; padding: 14px 16px; background: var(--glass-soft); border: 1.5px solid var(--line);
+  border-radius: 14px; font-size: 16px; outline: none; font-family: inherit; margin-bottom: 14px; color: var(--text);
 }
-.login-input:focus { border-color: var(--accent); }
-.login-btn {
-  width: 100%; padding: 14px; background: var(--accent);
-  border: none; border-radius: 12px; color: #fff;
-  font-size: 16px; font-weight: 600; cursor: pointer; font-family: inherit;
-}
+.login-input:focus { border-color: var(--pink); }
+.login-btn { width: 100%; padding: 14px; background: var(--pink); border: none; border-radius: 14px; color: #fff; font-size: 16px; font-weight: 700; cursor: pointer; font-family: inherit; }
 .login-err { color: var(--red); font-size: 14px; margin-top: 10px; display: none; }
 
 /* ── LAYOUT ── */
 #admin-screen { display: none; }
 .sidebar {
-  width: 240px; background: var(--bg2); border-right: 1px solid var(--line);
-  position: fixed; top: 0; left: 0; bottom: 0;
+  width: 240px; background: var(--glass); backdrop-filter: blur(30px) saturate(1.6); -webkit-backdrop-filter: blur(30px) saturate(1.6);
+  border-right: 1px solid var(--line); position: fixed; top: 0; left: 0; bottom: 0;
   display: flex; flex-direction: column; padding: 26px 16px; z-index: 100;
 }
-.sidebar-logo {
-  font-family: var(--font-display); font-size: 19px; font-weight: 600;
-  padding: 0 8px; margin-bottom: 30px; letter-spacing: -0.02em;
-  display: flex; align-items: center; gap: 10px;
-}
-.sidebar-logo-icon { width: 30px; height: 30px; border-radius: 9px; background: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 14px; }
+.sidebar-logo { font-size: 19px; font-weight: 800; padding: 0 8px; margin-bottom: 30px; letter-spacing: -0.02em; display: flex; align-items: center; gap: 10px; }
+.sidebar-logo-icon { width: 30px; height: 30px; border-radius: 11px; background: var(--pink); display: flex; align-items: center; justify-content: center; font-size: 14px; }
 .nav-item {
-  display: flex; align-items: center; gap: 11px; padding: 11px 14px; border-radius: 11px;
+  display: flex; align-items: center; gap: 11px; padding: 11px 14px; border-radius: 13px;
   cursor: pointer; font-size: 13.5px; font-weight: 500; color: var(--text2);
-  border: none; background: none; font-family: inherit; width: 100%;
-  text-align: left; margin-bottom: 3px;
+  border: none; background: none; font-family: inherit; width: 100%; text-align: left; margin-bottom: 3px;
 }
-.nav-item:hover { background: var(--bg3); }
-.nav-item.active { background: var(--accent); color: #fff; font-weight: 600; }
+.nav-item:hover { background: var(--glass-soft); }
+.nav-item.active { background: var(--pink); color: #fff; font-weight: 600; }
 .nav-item svg { width: 17px; height: 17px; flex-shrink: 0; }
-.sidebar-footer { margin-top: auto; font-size: 11.5px; color: var(--text3); padding: 0 8px; }
+.sidebar-footer { margin-top: auto; font-size: 11.5px; color: var(--text3); padding: 0 8px; display: flex; align-items: center; justify-content: space-between; }
+.theme-toggle-mini {
+  width: 30px; height: 30px; border-radius: 50%; background: var(--glass-soft); border: 1px solid var(--line-soft);
+  display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 14px;
+}
 
 .main { margin-left: 240px; padding: 34px; min-height: 100vh; }
 .tab { display: none; }
 .tab.active { display: block; }
 
-.page-title { font-family: var(--font-display); font-size: 27px; font-weight: 600; letter-spacing: -0.02em; margin-bottom: 6px; }
+.page-title { font-size: 27px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 6px; }
 .page-subtitle { font-size: 13.5px; color: var(--text2); margin-bottom: 30px; }
 
 .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 32px; }
-.stat-card { background: var(--bg2); border-radius: var(--r); padding: 20px; border: 1px solid var(--line); }
+.stat-card { background: var(--glass); backdrop-filter: blur(var(--blur)); -webkit-backdrop-filter: blur(var(--blur)); border-radius: var(--r); padding: 20px; border: 1px solid var(--line); }
 .stat-label { font-size: 11px; color: var(--text3); font-weight: 600; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.06em; }
-.stat-val { font-family: var(--font-display); font-size: 27px; font-weight: 600; letter-spacing: -0.01em; }
+.stat-val { font-size: 27px; font-weight: 800; letter-spacing: -0.01em; }
 .stat-hint { font-size: 11.5px; color: var(--text3); margin-top: 4px; }
 
-.card { background: var(--bg2); border-radius: var(--r); border: 1px solid var(--line); overflow: hidden; }
-.card-header { padding: 20px 22px; border-bottom: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between; }
-.card-title { font-family: var(--font-display); font-size: 16px; font-weight: 600; }
+.card { background: var(--glass); backdrop-filter: blur(var(--blur)); -webkit-backdrop-filter: blur(var(--blur)); border-radius: var(--r); border: 1px solid var(--line); overflow: hidden; }
+.card-header { padding: 20px 22px; border-bottom: 1px solid var(--line-soft); display: flex; align-items: center; justify-content: space-between; }
+.card-title { font-size: 16px; font-weight: 700; }
 table { width: 100%; border-collapse: collapse; }
-th { text-align: left; padding: 12px 20px; font-size: 10.5px; font-weight: 700; color: var(--text3); text-transform: uppercase; letter-spacing: 0.06em; border-bottom: 1px solid var(--line); background: var(--bg3); }
-td { padding: 14px 20px; font-size: 13.5px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+th { text-align: left; padding: 12px 20px; font-size: 10.5px; font-weight: 700; color: var(--text3); text-transform: uppercase; letter-spacing: 0.06em; border-bottom: 1px solid var(--line-soft); background: var(--glass-soft); }
+td { padding: 14px 20px; font-size: 13.5px; border-bottom: 1px solid var(--line-soft); vertical-align: middle; }
 tr:last-child td { border-bottom: none; }
-tr:hover td { background: var(--bg3); }
+tr:hover td { background: var(--glass-soft); }
 
-.prod-img-cell {
-  width: 42px; height: 42px; border-radius: 10px; background: var(--bg3);
-  display: flex; align-items: center; justify-content: center; font-size: 20px; overflow: hidden; flex-shrink: 0;
-}
+.prod-img-cell { width: 42px; height: 42px; border-radius: 12px; background: var(--glass-soft); display: flex; align-items: center; justify-content: center; font-size: 20px; overflow: hidden; flex-shrink: 0; position: relative; }
 .prod-img-cell img { width: 100%; height: 100%; object-fit: cover; }
+.prod-img-count { position: absolute; bottom: 1px; right: 1px; background: rgba(0,0,0,.6); color: #fff; font-size: 8px; font-weight: 700; padding: 1px 4px; border-radius: 6px; }
 
 .badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 20px; font-size: 11.5px; font-weight: 600; }
 .badge.green { background: var(--green-dim); color: var(--green); }
@@ -127,95 +141,129 @@ tr:hover td { background: var(--bg3); }
 .cat-pill { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; }
 .cat-pill-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
 
-.btn {
-  padding: 9px 17px; border-radius: 11px; font-size: 12.5px; font-weight: 600;
-  cursor: pointer; font-family: inherit; border: none; display: inline-flex; align-items: center; gap: 6px;
-}
-.btn-primary { background: var(--accent); color: #fff; }
-.btn-secondary { background: var(--bg3); border: 1px solid var(--line); color: var(--text2); }
+.btn { padding: 9px 17px; border-radius: 13px; font-size: 12.5px; font-weight: 600; cursor: pointer; font-family: inherit; border: none; display: inline-flex; align-items: center; gap: 6px; }
+.btn-primary { background: var(--pink); color: #fff; }
+.btn-secondary { background: var(--glass-soft); border: 1px solid var(--line-soft); color: var(--text2); }
 .btn-danger { background: var(--red-dim); color: var(--red); }
 .btn-sm { padding: 6px 12px; font-size: 11.5px; }
 .btn:hover { opacity: .88; }
 
-.stock-input {
-  width: 64px; padding: 6px 10px; border-radius: 8px; border: 1px solid var(--line);
-  font-size: 13.5px; font-weight: 600; font-family: var(--font-display); text-align: center;
-  background: var(--bg3); color: var(--text);
-}
-.stock-input:focus { outline: none; border-color: var(--accent); }
+.stock-input { width: 64px; padding: 6px 10px; border-radius: 9px; border: 1px solid var(--line); font-size: 13.5px; font-weight: 600; text-align: center; background: var(--glass-soft); color: var(--text); }
+.stock-input:focus { outline: none; border-color: var(--pink); }
 
 .modal-overlay {
-  position: fixed; inset: 0; background: rgba(0,0,0,.5);
-  display: flex; align-items: flex-start; justify-content: center;
-  z-index: 500; padding: 40px 20px; overflow-y: auto; backdrop-filter: blur(4px);
+  position: fixed; inset: 0; background: rgba(0,0,0,.5); display: flex; align-items: flex-start; justify-content: center;
+  z-index: 500; padding: 40px 20px; overflow-y: auto; backdrop-filter: blur(6px);
   opacity: 0; pointer-events: none; transition: opacity .2s;
 }
 .modal-overlay.open { opacity: 1; pointer-events: all; }
 .modal {
-  background: var(--bg2); border-radius: 22px; padding: 28px;
-  width: 100%; max-width: 560px; border: 1px solid var(--line);
-  transform: translateY(20px); transition: transform .2s;
+  background: var(--glass-strong); backdrop-filter: blur(36px) saturate(1.7); -webkit-backdrop-filter: blur(36px) saturate(1.7);
+  border-radius: 26px; padding: 28px; width: 100%; max-width: 600px; border: 1px solid var(--line);
+  transform: translateY(20px); transition: transform .2s; box-shadow: 0 24px 70px rgba(0,0,0,0.35);
 }
 .modal-overlay.open .modal { transform: translateY(0); }
-.modal-title { font-family: var(--font-display); font-size: 20px; font-weight: 600; margin-bottom: 24px; }
+.modal-title { font-size: 20px; font-weight: 800; margin-bottom: 24px; }
 .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 .field { margin-bottom: 16px; }
 .field label { display: block; font-size: 11.5px; color: var(--text2); font-weight: 600; margin-bottom: 7px; text-transform: uppercase; letter-spacing: 0.03em; }
 .field input, .field textarea, .field select {
-  width: 100%; padding: 12px 14px; background: var(--bg3); border: 1.5px solid var(--line);
-  border-radius: 11px; font-size: 14px; font-family: inherit; color: var(--text); outline: none;
+  width: 100%; padding: 12px 14px; background: var(--glass-soft); border: 1.5px solid var(--line);
+  border-radius: 13px; font-size: 14px; font-family: inherit; color: var(--text); outline: none;
 }
-.field input:focus, .field textarea:focus, .field select:focus { border-color: var(--accent); }
+.field input:focus, .field textarea:focus, .field select:focus { border-color: var(--pink); }
 .field textarea { resize: vertical; min-height: 80px; }
 .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 8px; }
 
-.photo-upload {
-  border: 2px dashed var(--line); border-radius: 13px; padding: 28px;
-  text-align: center; cursor: pointer; transition: border-color .2s; position: relative;
+/* Multi-photo grid */
+.photos-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.photo-slot {
+  aspect-ratio: 1; border-radius: 14px; border: 2px dashed var(--line);
+  display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden;
+  background: var(--glass-soft); cursor: pointer;
 }
-.photo-upload:hover { border-color: var(--accent); }
-.photo-upload input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
-.photo-upload-preview { display: none; }
-.photo-upload-preview img { width: 100%; max-height: 200px; object-fit: contain; border-radius: 8px; margin-top: 12px; }
+.photo-slot.filled { border-style: solid; border-color: var(--line-soft); }
+.photo-slot img { width: 100%; height: 100%; object-fit: cover; }
+.photo-slot input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+.photo-slot-icon { font-size: 22px; color: var(--text3); }
+.photo-remove-btn {
+  position: absolute; top: 4px; right: 4px; width: 22px; height: 22px; border-radius: 50%;
+  background: rgba(0,0,0,.55); color: #fff; display: flex; align-items: center; justify-content: center;
+  font-size: 13px; cursor: pointer; z-index: 5; border: none;
+}
+.photo-main-badge {
+  position: absolute; bottom: 4px; left: 4px; background: var(--pink); color: #fff;
+  font-size: 8.5px; font-weight: 700; padding: 2px 6px; border-radius: 8px; z-index: 4;
+}
 
 .specs-editor { display: flex; flex-direction: column; gap: 8px; }
 .spec-row-edit { display: flex; gap: 8px; align-items: center; }
-.spec-row-edit input {
-  flex: 1; padding: 9px 12px; background: var(--bg3); border: 1.5px solid var(--line);
-  border-radius: 9px; font-size: 12.5px; font-family: inherit; color: var(--text); outline: none;
-}
-.spec-row-edit input:focus { border-color: var(--accent); }
+.spec-row-edit input { flex: 1; padding: 9px 12px; background: var(--glass-soft); border: 1.5px solid var(--line); border-radius: 10px; font-size: 12.5px; font-family: inherit; color: var(--text); outline: none; }
+.spec-row-edit input:focus { border-color: var(--pink); }
 .spec-del-btn { background: none; border: none; cursor: pointer; color: var(--red); font-size: 18px; padding: 4px; opacity: .75; }
 
-.status-select {
-  padding: 6px 10px; border-radius: 9px; border: 1px solid var(--line);
-  font-size: 12.5px; font-family: inherit; cursor: pointer; background: var(--bg3); color: var(--text);
-}
+.status-select { padding: 6px 10px; border-radius: 10px; border: 1px solid var(--line); font-size: 12.5px; font-family: inherit; cursor: pointer; background: var(--glass-soft); color: var(--text); }
 
 .admin-toast {
-  position: fixed; bottom: 24px; right: 24px; background: var(--accent); color: #fff;
-  padding: 12px 22px; border-radius: 13px; font-size: 14px; font-weight: 600;
+  position: fixed; bottom: 24px; right: 24px; background: var(--glass-strong); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+  border: 1px solid var(--line); color: var(--text);
+  padding: 12px 22px; border-radius: 16px; font-size: 14px; font-weight: 600;
   transform: translateY(80px); opacity: 0; transition: all .3s; z-index: 999;
 }
 .admin-toast.show { transform: translateY(0); opacity: 1; }
 
 @media (max-width: 900px) {
-  .sidebar { width: 200px; }
-  .main { margin-left: 200px; padding: 24px; }
-  .stats-grid { grid-template-columns: 1fr 1fr; }
+  .sidebar { width: 200px; } .main { margin-left: 200px; padding: 24px; } .stats-grid { grid-template-columns: 1fr 1fr; }
 }
 @media (max-width: 680px) {
-  .sidebar { display: none; }
-  .main { margin-left: 0; padding: 16px; }
+  .sidebar { display: none; } .main { margin-left: 0; padding: 16px; }
 }
 </style>
 </head>
 <body>
 
+<div class="bg-fixed">
+  <div class="blob blob1"></div>
+  <div class="blob blob2"></div>
+  <svg viewBox="0 0 500 700" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="branchGrad" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#3a2420"/><stop offset="100%" stop-color="#1c1210"/>
+      </linearGradient>
+      <radialGradient id="petalGrad1" cx="35%" cy="30%" r="75%">
+        <stop offset="0%" stop-color="#ffe3ec"/><stop offset="60%" stop-color="#ffb8d2"/><stop offset="100%" stop-color="#ff8fb8"/>
+      </radialGradient>
+      <radialGradient id="petalGrad2" cx="35%" cy="30%" r="75%">
+        <stop offset="0%" stop-color="#fff0f5"/><stop offset="60%" stop-color="#ffc9dc"/><stop offset="100%" stop-color="#ff9fc0"/>
+      </radialGradient>
+    </defs>
+    <path d="M460 0 C440 60 410 110 430 170 C445 215 470 250 450 310 C435 350 400 380 410 430" stroke="url(#branchGrad)" stroke-width="9" fill="none" stroke-linecap="round"/>
+    <path d="M430 170 C400 190 370 195 345 230" stroke="url(#branchGrad)" stroke-width="5" fill="none" stroke-linecap="round"/>
+    <path d="M450 310 C415 320 385 340 365 375" stroke="url(#branchGrad)" stroke-width="5" fill="none" stroke-linecap="round"/>
+    <g id="blossomCluster2">
+      <g transform="translate(345,225) scale(1.1)">
+        <ellipse cx="0" cy="-14" rx="11" ry="15" fill="url(#petalGrad1)"/>
+        <ellipse cx="13" cy="-4" rx="11" ry="15" fill="url(#petalGrad2)" transform="rotate(72)"/>
+        <ellipse cx="8" cy="12" rx="11" ry="15" fill="url(#petalGrad1)" transform="rotate(144)"/>
+        <ellipse cx="-8" cy="12" rx="11" ry="15" fill="url(#petalGrad2)" transform="rotate(216)"/>
+        <ellipse cx="-13" cy="-4" rx="11" ry="15" fill="url(#petalGrad1)" transform="rotate(288)"/>
+        <circle r="5" fill="#ffd866"/>
+      </g>
+    </g>
+    <use href="#blossomCluster2" x="-30" y="-10" transform="scale(0.8)"/>
+    <use href="#blossomCluster2" x="40" y="20" transform="scale(0.65)"/>
+    <use href="#blossomCluster2" transform="translate(365,375) scale(0.95)"/>
+    <use href="#blossomCluster2" transform="translate(430,170) scale(0.85)"/>
+    <use href="#blossomCluster2" transform="translate(450,70) scale(0.9)"/>
+    <use href="#blossomCluster2" transform="translate(410,430) scale(0.8)"/>
+  </svg>
+</div>
+<div class="bg-scrim"></div>
+
 <!-- LOGIN -->
 <div id="login-screen">
   <div class="login-box">
-    <div class="login-logo">🛡️</div>
+    <div class="login-logo">🌸</div>
     <h1>ChiSetupShop</h1>
     <p>Адмін-панель магазину</p>
     <input type="password" class="login-input" id="pass-input" placeholder="Пароль" onkeydown="if(event.key==='Enter')doLogin()">
@@ -240,12 +288,13 @@ tr:hover td { background: var(--bg3); }
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 12l2 2 4-4"/><path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
       Замовлення
     </button>
-    <div class="sidebar-footer">ChiSetupShop v1.1</div>
+    <div class="sidebar-footer">
+      <span>v2.0</span>
+      <button class="theme-toggle-mini" id="theme-btn">☾</button>
+    </div>
   </div>
 
   <main class="main">
-
-    <!-- DASHBOARD -->
     <div class="tab active" id="tab-dashboard">
       <div class="page-title">Дашборд</div>
       <div class="page-subtitle">Загальна статистика магазину</div>
@@ -262,7 +311,6 @@ tr:hover td { background: var(--bg3); }
       </div>
     </div>
 
-    <!-- PRODUCTS -->
     <div class="tab" id="tab-products">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
         <div class="page-title">Товари</div>
@@ -275,7 +323,6 @@ tr:hover td { background: var(--bg3); }
       </div>
     </div>
 
-    <!-- ORDERS -->
     <div class="tab" id="tab-orders">
       <div class="page-title">Замовлення</div>
       <div class="page-subtitle">Всі замовлення від клієнтів</div>
@@ -284,7 +331,6 @@ tr:hover td { background: var(--bg3); }
         <tbody id="orders-table"></tbody></table>
       </div>
     </div>
-
   </main>
 </div>
 
@@ -295,10 +341,7 @@ tr:hover td { background: var(--bg3); }
     <form id="product-form" onsubmit="submitProduct(event)">
       <input type="hidden" id="edit-id">
       <div class="form-row">
-        <div class="field">
-          <label>Назва товару</label>
-          <input type="text" id="f-name" placeholder="ATK F1 V2" required>
-        </div>
+        <div class="field"><label>Назва товару</label><input type="text" id="f-name" placeholder="ATK F1 V2" required></div>
         <div class="field">
           <label>Категорія</label>
           <select id="f-cat" required>
@@ -310,38 +353,18 @@ tr:hover td { background: var(--bg3); }
         </div>
       </div>
       <div class="form-row">
-        <div class="field">
-          <label>Ціна (₴)</label>
-          <input type="number" id="f-price" placeholder="2900" required min="1">
-        </div>
-        <div class="field">
-          <label>В наявності (кількість)</label>
-          <input type="number" id="f-stock" placeholder="1" required min="0">
-        </div>
+        <div class="field"><label>Ціна (₴)</label><input type="number" id="f-price" placeholder="2900" required min="1"></div>
+        <div class="field"><label>В наявності (кількість)</label><input type="number" id="f-stock" placeholder="1" required min="0"></div>
       </div>
-      <div class="field">
-        <label>Опис</label>
-        <textarea id="f-desc" placeholder="Короткий опис товару…"></textarea>
-      </div>
+      <div class="field"><label>Опис</label><textarea id="f-desc" placeholder="Короткий опис товару…"></textarea></div>
       <div class="field">
         <label>Характеристики</label>
         <div class="specs-editor" id="specs-editor"></div>
         <button type="button" class="btn btn-secondary btn-sm" style="margin-top:8px" onclick="addSpec()">+ Додати рядок</button>
       </div>
       <div class="field">
-        <label>Фото товару</label>
-        <div class="photo-upload" id="photo-drop">
-          <input type="file" id="f-photo" accept="image/*" onchange="previewPhoto(this)">
-          <div id="photo-placeholder">
-            <div style="font-size:30px;margin-bottom:8px">🖼️</div>
-            <div style="font-size:13.5px;color:var(--text2)">Натисни або перетягни фото</div>
-            <div style="font-size:11.5px;color:var(--text3);margin-top:4px">JPG, PNG, WebP до 5 МБ</div>
-          </div>
-          <div class="photo-upload-preview" id="photo-preview">
-            <img id="preview-img" src="" alt="">
-          </div>
-        </div>
-        <div id="existing-photo" style="display:none;margin-top:8px;font-size:11.5px;color:var(--text2)"></div>
+        <label>Фото товару (до 4 шт.) — перше фото буде головним</label>
+        <div class="photos-grid" id="photos-grid"></div>
       </div>
       <div class="modal-actions">
         <button type="button" class="btn btn-secondary" onclick="closeModal()">Скасувати</button>
@@ -359,13 +382,20 @@ let adminToken = localStorage.getItem('admin_token') || '';
 let allProducts = [];
 let allOrders = [];
 
+// ── THEME ──
+const themeBtn = document.getElementById('theme-btn');
+if (localStorage.getItem('theme') === 'light') { document.body.classList.add('light'); themeBtn.textContent = '☀'; }
+themeBtn.onclick = () => {
+  document.body.classList.toggle('light');
+  const light = document.body.classList.contains('light');
+  localStorage.setItem('theme', light ? 'light' : 'dark');
+  themeBtn.textContent = light ? '☀' : '☾';
+};
+
 async function doLogin() {
   const pass = document.getElementById('pass-input').value;
   try {
-    const res = await fetch(`${API}/api/admin/login`, {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ password: pass })
-    });
+    const res = await fetch(`${API}/api/admin/login`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ password: pass }) });
     const data = await res.json();
     if (data.success) {
       adminToken = data.token;
@@ -379,20 +409,16 @@ async function doLogin() {
     document.getElementById('login-err').style.display = 'block';
   }
 }
-
 function showAdmin() {
   document.getElementById('login-screen').style.display = 'none';
   document.getElementById('admin-screen').style.display = 'block';
   loadAll();
 }
-
 if (adminToken) {
-  fetch(`${API}/api/admin/orders`, { headers: { 'x-admin-token': adminToken } })
-    .then(r => r.ok ? showAdmin() : null).catch(() => {});
+  fetch(`${API}/api/admin/orders`, { headers: { 'x-admin-token': adminToken } }).then(r => r.ok ? showAdmin() : null).catch(() => {});
 }
 
 async function loadAll() { await Promise.all([loadProducts(), loadOrders()]); renderDashboard(); }
-
 async function loadProducts() {
   const res = await fetch(`${API}/api/products`);
   allProducts = await res.json();
@@ -410,18 +436,13 @@ function renderDashboard() {
   const revenue = allOrders.filter(o => o.status !== 'cancelled').reduce((s,o) => s + o.total, 0);
   document.getElementById('stat-revenue').textContent = revenue.toLocaleString() + ' ₴';
   document.getElementById('stat-out').textContent = allProducts.filter(p => p.stock === 0).length;
-
   const recent = allOrders.slice(0, 8);
   document.getElementById('recent-orders').innerHTML = recent.map(o => `
     <tr><td><strong>${o.order_num}</strong></td><td>${o.customer_name}</td><td>${o.total.toLocaleString()} ₴</td><td>${statusBadge(o.status)}</td></tr>
   `).join('') || '<tr><td colspan="4" style="text-align:center;color:var(--text3);padding:32px">Замовлень ще немає</td></tr>';
 }
-
 function statusBadge(s) {
-  const m = {
-    new: ['orange','🟡 Нове'], confirmed: ['blue','🔵 Підтверджено'],
-    shipped: ['blue','📦 Відправлено'], done: ['green','✅ Виконано'], cancelled: ['red','❌ Скасовано']
-  };
+  const m = { new: ['orange','🟡 Нове'], confirmed: ['blue','🔵 Підтверджено'], shipped: ['blue','📦 Відправлено'], done: ['green','✅ Виконано'], cancelled: ['red','❌ Скасовано'] };
   const [cls, label] = m[s] || ['orange', s];
   return `<span class="badge ${cls}">${label}</span>`;
 }
@@ -430,15 +451,20 @@ const catNames = { mice:'Мишки', keyboards:'Клавіатури', headphon
 const catColors = { mice:'var(--mice)', keyboards:'var(--keyboards)', headphones:'var(--headphones)', pads:'var(--pads)' };
 const catEmojis = { mice:'🖱️', keyboards:'⌨️', headphones:'🎧', pads:'🎯' };
 
+function getPhotosOf(p) {
+  if (Array.isArray(p.photos) && p.photos.length) return p.photos;
+  if (p.photo) return [p.photo];
+  return [];
+}
+
 function renderProductsTable() {
   const tbody = document.getElementById('products-table');
-  if (!allProducts.length) {
-    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:40px">Товарів ще немає. Додай перший!</td></tr>';
-    return;
-  }
-  tbody.innerHTML = allProducts.map(p => `
+  if (!allProducts.length) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:40px">Товарів ще немає. Додай перший!</td></tr>'; return; }
+  tbody.innerHTML = allProducts.map(p => {
+    const photos = getPhotosOf(p);
+    return `
     <tr>
-      <td><div class="prod-img-cell">${p.photo ? `<img src="${p.photo}" alt="">` : catEmojis[p.category]||'📦'}</div></td>
+      <td><div class="prod-img-cell">${photos[0] ? `<img src="${photos[0]}" alt="">` : catEmojis[p.category]||'📦'}${photos.length > 1 ? `<span class="prod-img-count">${photos.length}</span>` : ''}</div></td>
       <td><strong>${p.name}</strong></td>
       <td><span class="cat-pill"><span class="cat-pill-dot" style="background:${catColors[p.category]||'var(--text3)'}"></span>${catNames[p.category] || p.category}</span></td>
       <td>${Number(p.price).toLocaleString()} ₴</td>
@@ -455,18 +481,14 @@ function renderProductsTable() {
         </div>
       </td>
     </tr>
-  `).join('');
+  `}).join('');
 }
 
 async function updateStock(id, val) {
-  await fetch(`${API}/api/admin/products/${id}/stock`, {
-    method: 'PATCH', headers: { 'Content-Type': 'application/json', 'x-admin-token': adminToken },
-    body: JSON.stringify({ stock: parseInt(val) })
-  });
+  await fetch(`${API}/api/admin/products/${id}/stock`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', 'x-admin-token': adminToken }, body: JSON.stringify({ stock: parseInt(val) }) });
   toast('Наявність оновлено ✓');
   await loadProducts(); renderDashboard();
 }
-
 async function deleteProduct(id) {
   if (!confirm('Видалити товар?')) return;
   await fetch(`${API}/api/admin/products/${id}`, { method: 'DELETE', headers: { 'x-admin-token': adminToken } });
@@ -479,16 +501,12 @@ const paymentNames = { card:'Карта', cod:'Накладений' };
 
 function renderOrdersTable() {
   const tbody = document.getElementById('orders-table');
-  if (!allOrders.length) {
-    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--text3);padding:40px">Замовлень ще немає</td></tr>';
-    return;
-  }
+  if (!allOrders.length) { tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--text3);padding:40px">Замовлень ще немає</td></tr>'; return; }
   tbody.innerHTML = allOrders.map(o => `
     <tr>
       <td><strong>${o.order_num}</strong></td>
       <td style="color:var(--text2);font-size:12.5px">${new Date(o.created_at).toLocaleString('uk')}</td>
-      <td>${o.customer_name}</td>
-      <td>${o.customer_phone}</td>
+      <td>${o.customer_name}</td><td>${o.customer_phone}</td>
       <td><strong>${o.total.toLocaleString()} ₴</strong></td>
       <td>
         <div style="font-size:12.5px">${deliveryNames[o.delivery_type]||o.delivery_type}</div>
@@ -507,22 +525,24 @@ function renderOrdersTable() {
     </tr>
   `).join('');
 }
-
 async function updateOrderStatus(id, status) {
-  await fetch(`${API}/api/admin/orders/${id}`, {
-    method: 'PATCH', headers: { 'Content-Type': 'application/json', 'x-admin-token': adminToken },
-    body: JSON.stringify({ status })
-  });
+  await fetch(`${API}/api/admin/orders/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', 'x-admin-token': adminToken }, body: JSON.stringify({ status }) });
   toast('Статус оновлено ✓');
   await loadOrders(); renderDashboard();
 }
 
+// ── PRODUCT MODAL with multi-photo support ──
 let editingProduct = null;
 let specRows = [];
+// photoSlots: масив з 4 елементів, кожен або null, або {type:'existing', url} або {type:'new', file, previewUrl}
+let photoSlots = [null, null, null, null];
 
 function openProductModal(product = null) {
   editingProduct = product;
   specRows = product ? (typeof product.specs === 'string' ? JSON.parse(product.specs) : product.specs) || [] : [];
+
+  const existingPhotos = product ? getPhotosOf(product) : [];
+  photoSlots = [0,1,2,3].map(i => existingPhotos[i] ? { type: 'existing', url: existingPhotos[i] } : null);
 
   document.getElementById('modal-title').textContent = product ? 'Редагувати товар' : 'Новий товар';
   document.getElementById('submit-btn').textContent = product ? 'Зберегти зміни' : 'Додати товар';
@@ -533,26 +553,48 @@ function openProductModal(product = null) {
   document.getElementById('f-stock').value = product?.stock ?? 0;
   document.getElementById('f-desc').value = product?.description || '';
 
-  document.getElementById('photo-preview').style.display = 'none';
-  document.getElementById('photo-placeholder').style.display = 'block';
-  document.getElementById('f-photo').value = '';
-  const existing = document.getElementById('existing-photo');
-  if (product?.photo) {
-    existing.style.display = 'block';
-    existing.innerHTML = `Поточне фото: <img src="${product.photo}" style="height:40px;border-radius:6px;vertical-align:middle;margin-left:6px">`;
-  } else {
-    existing.style.display = 'none';
-  }
-
   renderSpecsEditor();
+  renderPhotosGrid();
   document.getElementById('product-modal').classList.add('open');
 }
-
-function editProduct(id) {
-  const p = allProducts.find(x => x.id === id);
-  if (p) openProductModal(p);
-}
+function editProduct(id) { const p = allProducts.find(x => x.id === id); if (p) openProductModal(p); }
 function closeModal() { document.getElementById('product-modal').classList.remove('open'); }
+
+function renderPhotosGrid() {
+  const grid = document.getElementById('photos-grid');
+  grid.innerHTML = photoSlots.map((slot, i) => {
+    if (!slot) {
+      return `<label class="photo-slot">
+        <input type="file" accept="image/*" onchange="onPhotoSelected(${i}, this)">
+        <span class="photo-slot-icon">+</span>
+      </label>`;
+    }
+    const src = slot.type === 'existing' ? slot.url : slot.previewUrl;
+    return `<div class="photo-slot filled">
+      <img src="${src}" alt="">
+      ${i === 0 ? '<span class="photo-main-badge">Головне</span>' : ''}
+      <button type="button" class="photo-remove-btn" onclick="removePhotoSlot(${i})">×</button>
+    </div>`;
+  }).join('');
+}
+
+function onPhotoSelected(index, input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    photoSlots[index] = { type: 'new', file, previewUrl: e.target.result };
+    renderPhotosGrid();
+  };
+  reader.readAsDataURL(file);
+}
+function removePhotoSlot(index) {
+  photoSlots[index] = null;
+  // стискаємо масив щоб не було дірок між фото
+  const compact = photoSlots.filter(Boolean);
+  photoSlots = [0,1,2,3].map(i => compact[i] || null);
+  renderPhotosGrid();
+}
 
 function renderSpecsEditor() {
   const el = document.getElementById('specs-editor');
@@ -567,18 +609,6 @@ function renderSpecsEditor() {
 function addSpec() { specRows.push(['','']); renderSpecsEditor(); }
 function removeSpec(i) { specRows.splice(i, 1); renderSpecsEditor(); }
 
-function previewPhoto(input) {
-  const file = input.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = e => {
-    document.getElementById('preview-img').src = e.target.result;
-    document.getElementById('photo-preview').style.display = 'block';
-    document.getElementById('photo-placeholder').style.display = 'none';
-  };
-  reader.readAsDataURL(file);
-}
-
 async function submitProduct(e) {
   e.preventDefault();
   const btn = document.getElementById('submit-btn');
@@ -592,8 +622,10 @@ async function submitProduct(e) {
   formData.append('description', document.getElementById('f-desc').value);
   formData.append('specs', JSON.stringify(specRows.filter(r => r[0] || r[1])));
 
-  const photoFile = document.getElementById('f-photo').files[0];
-  if (photoFile) formData.append('photo', photoFile);
+  const filledSlots = photoSlots.filter(Boolean);
+  const keepPhotos = filledSlots.filter(s => s.type === 'existing').map(s => s.url);
+  formData.append('keepPhotos', JSON.stringify(keepPhotos));
+  filledSlots.filter(s => s.type === 'new').forEach(s => formData.append('photos', s.file));
 
   const id = document.getElementById('edit-id').value;
   const url = id ? `${API}/api/admin/products/${id}` : `${API}/api/admin/products`;
@@ -606,8 +638,11 @@ async function submitProduct(e) {
       closeModal();
       toast(id ? 'Товар оновлено ✓' : 'Товар додано ✓');
       await loadProducts(); renderDashboard();
+    } else {
+      toast('Помилка: ' + (data.error || 'невідома'));
     }
   } catch(err) { toast('Помилка збереження'); }
+  btn.textContent = id ? 'Зберегти зміни' : 'Додати товар';
   btn.disabled = false;
 }
 
@@ -617,16 +652,12 @@ function switchTab(name) {
   document.getElementById('tab-' + name).classList.add('active');
   document.getElementById('nav-' + name).classList.add('active');
 }
-
 function toast(msg) {
   const t = document.getElementById('admin-toast');
   t.textContent = msg; t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 2500);
 }
-
-document.getElementById('product-modal').addEventListener('click', function(e) {
-  if (e.target === this) closeModal();
-});
+document.getElementById('product-modal').addEventListener('click', function(e) { if (e.target === this) closeModal(); });
 </script>
 </body>
 </html>
