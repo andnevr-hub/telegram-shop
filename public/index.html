@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>ChiSetupShop</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/2.44.0/iconfont/tabler-icons.min.css">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
@@ -79,12 +80,12 @@ body {
 }
 .bg-scrim {
   position: fixed; inset: 0; z-index: -1;
-  backdrop-filter: blur(38px) saturate(1.05);
-  -webkit-backdrop-filter: blur(38px) saturate(1.05);
-  background: linear-gradient(180deg, rgba(5,5,5,0.25) 0%, rgba(5,5,5,0.55) 45%, rgba(5,5,5,0.85) 100%);
+  backdrop-filter: blur(18px) saturate(1.05);
+  -webkit-backdrop-filter: blur(18px) saturate(1.05);
+  background: linear-gradient(180deg, rgba(5,5,5,0.1) 0%, rgba(5,5,5,0.35) 45%, rgba(5,5,5,0.7) 100%);
 }
 body.light .bg-scrim {
-  background: linear-gradient(180deg, rgba(255,255,255,0.45) 0%, rgba(255,255,255,0.72) 45%, rgba(255,255,255,0.92) 100%);
+  background: linear-gradient(180deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.5) 45%, rgba(255,255,255,0.82) 100%);
 }
 
 /* ── GLASS BASE ── */
@@ -597,11 +598,11 @@ body.dark-mode .stock-badge.in, .stock-badge.in { color: #34d058; }
 const API = window.location.origin;
 
 const CATS = [
-  { id:'all', label:'Все', color: null, icon: '◆' },
-  { id:'mice', label:'Мишки', color: 'var(--mice)', icon: '🖱️' },
-  { id:'keyboards', label:'Клавіатури', color: 'var(--keyboards)', icon: '⌨️' },
-  { id:'headphones', label:'Навушники', color: 'var(--headphones)', icon: '🎧' },
-  { id:'pads', label:'Килимки', color: 'var(--pads)', icon: '🎯' },
+  { id:'all', label:'Все', color: null, icon: null },
+  { id:'mice', label:'Мишки', color: 'var(--mice)', icon: 'ti-mouse-2' },
+  { id:'keyboards', label:'Клавіатури', color: 'var(--keyboards)', icon: 'ti-keyboard' },
+  { id:'headphones', label:'Навушники', color: 'var(--headphones)', icon: 'ti-headphones' },
+  { id:'pads', label:'Килимки', color: 'var(--pads)', icon: 'ti-square' },
 ];
 
 let products = [];
@@ -687,7 +688,7 @@ function emojiForCat(cat) { return CATS.find(x => x.id === cat)?.icon || '📦';
 function renderCats() {
   document.getElementById('cats').innerHTML = CATS.map(c => `
     <button class="cat-btn ${c.id === currentCat ? 'active' : ''}" onclick="selectCat('${c.id}')">
-      ${c.color ? `<span class="cat-dot" style="background:${c.color}"></span>` : ''}${c.label}
+      ${c.icon ? `<i class="ti ${c.icon}" style="font-size:15px" aria-hidden="true"></i>` : ''}${c.label}
     </button>
   `).join('');
 }
