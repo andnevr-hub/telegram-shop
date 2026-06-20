@@ -83,7 +83,63 @@ app.get('/api/products', async (req, res) => {
       .select('*')
       .order('created_at', { ascending: false });
     if (error) throw error;
-    res.json(data.map(p => ({ ...p, specs: p.specs || [], photos: p.photos || (p.photo ? [p.photo] : []) })));
+
+    // Підвантажуємо рейтинги одним запитом і рахуємо середнє/кількість на товар
+    const { data: ratingsData } = await supabase.from('ratings').select('product_id, stars');
+    const ratingsMap = {};
+    (ratingsData || []).forEach(r => {
+      if (!ratingsMap[r.product_id]) ratingsMap[r.product_id] = { sum: 0, count: 0 };
+      ratingsMap[r.product_id].sum += r.stars;
+      ratingsMap[r.product_id].count += 1;
+    });
+
+    res.json(data.map(p => {
+      const r = ratingsMap[p.id];
+      return {
+        ...p,
+        specs: p.specs || [],
+        photos: p.photos || (p.photo ? [p.photo] : []),
+        rating_avg: r ? +(r.sum / r.count).toFixed(1) : null,
+        rating_count: r ? r.count : 0
+      };
+    }));
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
+
+app.get('/api/products/:id/rating', async (req, res) => {
+  const telegramId = req.query.telegramId;
+  try {
+    const { data: ratingsData } = await supabase.from('ratings').select('stars').eq('product_id', req.params.id);
+    const count = ratingsData?.length || 0;
+    const avg = count ? +(ratingsData.reduce((s, r) => s + r.stars, 0) / count).toFixed(1) : null;
+
+    let myRating = null;
+    if (telegramId) {
+      const { data: mine } = await supabase.from('ratings').select('stars')
+        .eq('product_id', req.params.id).eq('telegram_user_id', String(telegramId)).maybeSingle();
+      myRating = mine?.stars || null;
+    }
+    res.json({ avg, count, myRating });
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
+
+app.post('/api/products/:id/rating', async (req, res) => {
+  const { stars, telegramId } = req.body;
+  if (!telegramId) return res.status(400).json({ error: 'Потрібен Telegram ID' });
+  const starsNum = parseInt(stars);
+  if (!starsNum || starsNum < 1 || starsNum > 5) return res.status(400).json({ error: 'Оцінка має бути від 1 до 5' });
+  try {
+    const { error } = await supabase.from('ratings').upsert({
+      product_id: req.params.id,
+      telegram_user_id: String(telegramId),
+      stars: starsNum
+    }, { onConflict: 'product_id,telegram_user_id' });
+    if (error) throw error;
+
+    const { data: ratingsData } = await supabase.from('ratings').select('stars').eq('product_id', req.params.id);
+    const count = ratingsData.length;
+    const avg = +(ratingsData.reduce((s, r) => s + r.stars, 0) / count).toFixed(1);
+    res.json({ success: true, avg, count });
   } catch(e) { res.status(500).json({ error: e.message }); }
 });
 

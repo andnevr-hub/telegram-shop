@@ -390,6 +390,37 @@ body.dark-mode .stock-badge.in, .stock-badge.in { color: #34d058; }
   font-size: 16px; font-weight: 700; cursor: pointer; font-family: var(--font); margin-top: 8px;
   box-shadow: 0 8px 28px var(--pink-dim);
 }
+.checkout-nav-row { display: flex; gap: 10px; margin-top: 8px; }
+.checkout-nav-row .next-btn { margin-top: 0; flex: 1; }
+.back-btn {
+  flex: 0 0 auto; padding: 17px 20px; background: var(--glass);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--line); border-radius: 18px; color: var(--text);
+  font-size: 15px; font-weight: 600; cursor: pointer; font-family: var(--font);
+}
+
+/* ── RATINGS ── */
+.rating-mini {
+  display: flex; align-items: center; gap: 4px; font-size: 12.5px;
+  color: #ffb020; font-weight: 600; margin-top: 2px;
+}
+.rating-mini i { font-size: 13px; }
+.rating-mini-count { color: var(--text2); font-weight: 500; }
+.rating-block {
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
+  padding: 18px; margin-top: 14px;
+  background: var(--glass); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--line); border-radius: var(--r-md);
+}
+.rating-stars { display: flex; gap: 6px; }
+.rating-star {
+  font-size: 30px; cursor: pointer; color: var(--line);
+  transition: color .15s, transform .1s;
+}
+.rating-star.filled { color: #ffb020; }
+.rating-star:active { transform: scale(0.9); }
+.rating-summary { font-size: 13px; color: var(--text2); text-align: center; }
+.rating-summary strong { color: var(--text); }
 
 /* ── SUCCESS ── */
 .success-page {
@@ -497,6 +528,7 @@ body.dark-mode .stock-badge.in, .stock-badge.in { color: #34d058; }
     <div class="detail-price" id="detail-price"></div>
     <div class="detail-desc" id="detail-desc"></div>
     <div class="detail-specs" id="detail-specs"></div>
+    <div id="rating-block"></div>
     <button class="detail-add-btn" id="detail-add-btn" onclick="addFromDetail()">Додати в кошик</button>
   </div>
 </div>
@@ -587,6 +619,7 @@ let checkoutStep = 1;
 let checkoutData = {};
 let orders = [];
 let carouselIndex = 0;
+let telegramId = null;
 
 // ── THEME ──
 const themeBtn = document.getElementById('theme-btn');
@@ -608,6 +641,7 @@ window.onload = async () => {
     tg.expand();
     const u = tg.initDataUnsafe?.user;
     if (u) {
+      telegramId = u.id;
       document.getElementById('account-name').textContent = u.first_name + (u.last_name ? ' ' + u.last_name : '');
       document.getElementById('account-username').textContent = '@' + (u.username || 'username');
       document.getElementById('account-avatar').textContent = u.first_name[0];
@@ -688,12 +722,13 @@ function renderProducts() {
     <div class="product-card" onclick="openProduct(${p.id})">
       <div class="product-img">
         ${imgTag(photos[0], iconForCat(p.category))}
-        <span class="stock-badge ${p.stock > 0 ? 'in' : 'out'}">${p.stock > 0 ? 'В наявності' : 'Немає'}</span>
+        <span class="stock-badge ${p.stock > 0 ? 'in' : 'out'}">${p.stock > 0 ? `В наявності: ${p.stock}` : 'Немає'}</span>
         ${photos.length > 1 ? `<span class="photo-count"><i class="ti ti-photo"></i> ${photos.length}</span>` : ''}
       </div>
       <div class="product-info">
         <span class="product-cat-label" style="color:${catColor(p.category)}">${catLabel(p.category)}</span>
         <div class="product-name">${p.name}</div>
+        ${p.rating_count > 0 ? `<div class="rating-mini"><i class="ti ti-star-filled"></i> ${p.rating_avg} <span class="rating-mini-count">(${p.rating_count})</span></div>` : ''}
         <div class="product-price">${Number(p.price).toLocaleString()} ₴</div>
         <button class="add-btn ${p.stock === 0 ? 'disabled' : ''}" onclick="event.stopPropagation();addToCart(${p.id})">В кошик</button>
       </div>
@@ -763,10 +798,57 @@ function openProduct(id) {
   `).join('') || '';
   const btn = document.getElementById('detail-add-btn');
   btn.className = 'detail-add-btn' + (p.stock === 0 ? ' disabled' : '');
-  btn.textContent = p.stock > 0 ? 'Додати в кошик' : 'Немає в наявності';
+  btn.textContent = p.stock > 0 ? `Додати в кошик (в наявності: ${p.stock})` : 'Немає в наявності';
+  loadRating(p.id);
   showPage('detail');
 }
 function addFromDetail() { if (currentProduct && currentProduct.stock > 0) addToCart(currentProduct.id); }
+
+async function loadRating(productId) {
+  const el = document.getElementById('rating-block');
+  el.innerHTML = `<div class="rating-block"><div class="rating-summary">Завантаження…</div></div>`;
+  try {
+    const res = await fetch(`${API}/api/products/${productId}/rating${telegramId ? '?telegramId=' + telegramId : ''}`);
+    const data = await res.json();
+    renderRatingBlock(productId, data);
+  } catch(e) {
+    el.innerHTML = '';
+  }
+}
+
+function renderRatingBlock(productId, { avg, count, myRating }) {
+  const el = document.getElementById('rating-block');
+  const stars = [1,2,3,4,5].map(n => `
+    <span class="rating-star ${n <= (myRating||0) ? 'filled' : ''}" onclick="rateProduct(${productId}, ${n})">★</span>
+  `).join('');
+  el.innerHTML = `
+    <div class="rating-block">
+      <div class="rating-stars">${stars}</div>
+      <div class="rating-summary">
+        ${myRating ? `<strong>Твоя оцінка: ${myRating} ★</strong><br>` : 'Оціни цей товар'}
+        ${count > 0 ? `Середня оцінка: <strong>${avg} ★</strong> (${count} ${count===1?'відгук':'відгуків'})` : 'Поки немає відгуків'}
+      </div>
+    </div>
+  `;
+}
+
+async function rateProduct(productId, stars) {
+  if (!telegramId) { showToast('Відкрий магазин через Telegram, щоб оцінити товар'); return; }
+  try {
+    const res = await fetch(`${API}/api/products/${productId}/rating`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ stars, telegramId })
+    });
+    const data = await res.json();
+    if (!data.success) throw new Error();
+    renderRatingBlock(productId, { avg: data.avg, count: data.count, myRating: stars });
+    if (window.Telegram?.WebApp?.HapticFeedback) window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
+    showToast('Дякуємо за оцінку!');
+  } catch(e) {
+    showToast('Не вдалось зберегти оцінку');
+  }
+}
 
 function addToCart(id) {
   const p = products.find(x => x.id === id);
@@ -848,7 +930,10 @@ function renderCheckoutStep() {
       <input class="form-input" id="inp-name" placeholder="Іван Іваненко" value="${checkoutData.name||''}">
       <div class="form-label">Номер телефону</div>
       <input class="form-input" id="inp-phone" placeholder="+380 00 000 0000" type="tel" value="${checkoutData.phone||''}">
-      <button class="next-btn" onclick="nextStep1()">Далі →</button>
+      <div class="checkout-nav-row">
+        <button class="back-btn" onclick="showPage('cart')">← Назад</button>
+        <button class="next-btn" onclick="nextStep1()">Далі →</button>
+      </div>
     </div>`;
   } else if (checkoutStep === 2) {
     el.innerHTML = `<div class="checkout-form">
@@ -872,7 +957,10 @@ function renderCheckoutStep() {
         <div class="form-label">Відділення або поштомат</div>
         <input class="form-input" id="inp-branch" placeholder="Відділення №1" value="${checkoutData.branch||''}">
       `:''}
-      <button class="next-btn" onclick="nextStep2()">Далі →</button>
+      <div class="checkout-nav-row">
+        <button class="back-btn" onclick="prevStep()">← Назад</button>
+        <button class="next-btn" onclick="nextStep2()">Далі →</button>
+      </div>
     </div>`;
   } else if (checkoutStep === 3) {
     el.innerHTML = `<div class="checkout-form">
@@ -888,7 +976,10 @@ function renderCheckoutStep() {
           <div class="radio ${checkoutData.payment==='cod'?'checked':''}"></div>
         </div>
       </div>
-      <button class="next-btn" onclick="nextStep3()">Підтвердити замовлення ✓</button>
+      <div class="checkout-nav-row">
+        <button class="back-btn" onclick="prevStep()">← Назад</button>
+        <button class="next-btn" onclick="nextStep3()">Підтвердити замовлення ✓</button>
+      </div>
     </div>`;
   } else if (checkoutStep === 4) {
     placeOrder();
@@ -932,6 +1023,16 @@ function nextStep1() {
   if (!isValid) { showToast('Введіть повний номер телефону (10 цифр), напр. 0991234567'); return; }
   checkoutData.name = name; checkoutData.phone = phone;
   checkoutStep = 2; renderCheckoutStep();
+}
+function prevStep() {
+  // Зберігаємо те, що людина встигла ввести на поточному кроці, перед поверненням назад
+  if (checkoutStep === 2) {
+    checkoutData.region = document.getElementById('inp-region')?.value.trim() ?? checkoutData.region;
+    checkoutData.city = document.getElementById('inp-city')?.value.trim() ?? checkoutData.city;
+    checkoutData.branch = document.getElementById('inp-branch')?.value.trim() ?? checkoutData.branch;
+  }
+  checkoutStep = Math.max(1, checkoutStep - 1);
+  renderCheckoutStep();
 }
 function nextStep2() {
   if (!checkoutData.delivery) { showToast('Оберіть спосіб доставки'); return; }
