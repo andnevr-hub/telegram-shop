@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>ChiSetupShop</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/2.44.0/iconfont/tabler-icons.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/3.35.0/tabler-icons.min.css">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
@@ -926,6 +926,9 @@ function nextStep1() {
   const name = document.getElementById('inp-name').value.trim();
   const phone = document.getElementById('inp-phone').value.trim();
   if (!name || !phone) { showToast('Заповніть всі поля'); return; }
+  const digits = phone.replace(/\D/g, '');
+  const isValid = /^0\d{9}$/.test(digits) || /^380\d{9}$/.test(digits);
+  if (!isValid) { showToast('Введіть повний номер телефону (10 цифр), напр. 0991234567'); return; }
   checkoutData.name = name; checkoutData.phone = phone;
   checkoutStep = 2; renderCheckoutStep();
 }
