@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ChiSetupShop — Адмін</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/3.35.0/tabler-icons.min.css">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
@@ -17,21 +18,21 @@
   --text: #f5f5f7;
   --text2: rgba(245,245,247,0.62);
   --text3: rgba(245,245,247,0.38);
-  --pink: #ff6fa3;
-  --pink-dim: rgba(255,111,163,0.18);
+  --pink: #f5f5f7;
+  --pink-dim: rgba(245,245,247,0.18);
+  --on-pink: #0a0a0a;
   --green: #32d74b;
   --green-dim: rgba(50,215,75,0.16);
   --red: #ff453a;
   --red-dim: rgba(255,69,58,0.16);
   --orange: #ff9f0a;
   --orange-dim: rgba(255,159,10,0.16);
-  --blue: #0a84ff;
-  --blue-dim: rgba(10,132,255,0.16);
-  --mice: #ff6fa3; --keyboards: #32d74b; --headphones: #ff9f0a; --pads: #0a84ff;
+  --blue: #f5f5f7;
+  --blue-dim: rgba(245,245,247,0.16);
+  --mice: #f5f5f7; --keyboards: #c7c7cc; --headphones: #8e8e93; --pads: #aeaeb2;
   --r: 20px;
   --font: 'Inter', -apple-system, sans-serif;
   --blur: 26px;
-  --sakura-op: 0.7;
 }
 body.light {
   --glass: rgba(255,255,255,0.55);
@@ -42,26 +43,20 @@ body.light {
   --text: #1c1c1e;
   --text2: rgba(28,28,30,0.62);
   --text3: rgba(28,28,30,0.4);
-  --sakura-op: 0.45;
+  --pink: #1c1c1e;
+  --pink-dim: rgba(28,28,30,0.12);
+  --on-pink: #ffffff;
+  --blue: #1c1c1e;
+  --blue-dim: rgba(28,28,30,0.12);
+  --mice: #1c1c1e; --keyboards: #48484a; --headphones: #6e6e73; --pads: #8e8e93;
 }
-html, body { background: #15080d; }
-body.light { background: #f3e9ec; }
+html, body { background: #050505; }
+body.light { background: #f5f5f7; }
 body {
   font-family: var(--font);
   color: var(--text); min-height: 100vh; -webkit-font-smoothing: antialiased;
   letter-spacing: -0.01em; position: relative;
 }
-
-/* ── SAKURA BG (reused) ── */
-.bg-fixed { position: fixed; inset: 0; z-index: -2; overflow: hidden; }
-.bg-fixed svg { position: absolute; top: -10%; right: -22%; width: 65%; height: auto; opacity: var(--sakura-op); }
-.bg-fixed .blob { position: absolute; border-radius: 50%; filter: blur(70px); }
-.bg-fixed .blob1 { width: 380px; height: 380px; top: -100px; right: -120px; background: radial-gradient(circle, rgba(255,150,190,0.4), transparent 70%); }
-.bg-fixed .blob2 { width: 320px; height: 320px; bottom: 5%; left: -130px; background: radial-gradient(circle, rgba(255,180,200,0.25), transparent 70%); }
-body.light .bg-fixed .blob1 { background: radial-gradient(circle, rgba(255,170,200,0.5), transparent 70%); }
-body.light .bg-fixed .blob2 { background: radial-gradient(circle, rgba(255,200,210,0.4), transparent 70%); }
-.bg-scrim { position: fixed; inset: 0; z-index: -1; background: linear-gradient(160deg, rgba(10,5,8,0.5) 0%, rgba(10,5,8,0.75) 100%); }
-body.light .bg-scrim { background: linear-gradient(160deg, rgba(255,250,251,0.55) 0%, rgba(255,250,251,0.82) 100%); }
 
 .glass { background: var(--glass); backdrop-filter: blur(var(--blur)) saturate(1.6); -webkit-backdrop-filter: blur(var(--blur)) saturate(1.6); border: 1px solid var(--line); }
 
@@ -72,7 +67,7 @@ body.light .bg-scrim { background: linear-gradient(160deg, rgba(255,250,251,0.55
   border-radius: 28px; padding: 44px 36px; width: 100%; max-width: 400px; border: 1px solid var(--line); text-align: center;
   box-shadow: 0 20px 60px rgba(0,0,0,0.3);
 }
-.login-logo { width: 58px; height: 58px; border-radius: 18px; background: var(--pink); display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 24px; }
+.login-logo { width: 58px; height: 58px; border-radius: 18px; background: var(--pink); display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 24px; color: var(--on-pink); }
 .login-box h1 { font-size: 24px; font-weight: 800; margin-bottom: 6px; }
 .login-box p { color: var(--text2); font-size: 14px; margin-bottom: 28px; }
 .login-input {
@@ -80,7 +75,7 @@ body.light .bg-scrim { background: linear-gradient(160deg, rgba(255,250,251,0.55
   border-radius: 14px; font-size: 16px; outline: none; font-family: inherit; margin-bottom: 14px; color: var(--text);
 }
 .login-input:focus { border-color: var(--pink); }
-.login-btn { width: 100%; padding: 14px; background: var(--pink); border: none; border-radius: 14px; color: #fff; font-size: 16px; font-weight: 700; cursor: pointer; font-family: inherit; }
+.login-btn { width: 100%; padding: 14px; background: var(--pink); border: none; border-radius: 14px; color: var(--on-pink); font-size: 16px; font-weight: 700; cursor: pointer; font-family: inherit; }
 .login-err { color: var(--red); font-size: 14px; margin-top: 10px; display: none; }
 
 /* ── LAYOUT ── */
@@ -91,14 +86,14 @@ body.light .bg-scrim { background: linear-gradient(160deg, rgba(255,250,251,0.55
   display: flex; flex-direction: column; padding: 26px 16px; z-index: 100;
 }
 .sidebar-logo { font-size: 19px; font-weight: 800; padding: 0 8px; margin-bottom: 30px; letter-spacing: -0.02em; display: flex; align-items: center; gap: 10px; }
-.sidebar-logo-icon { width: 30px; height: 30px; border-radius: 11px; background: var(--pink); display: flex; align-items: center; justify-content: center; font-size: 14px; }
+.sidebar-logo-icon { width: 30px; height: 30px; border-radius: 11px; background: var(--pink); display: flex; align-items: center; justify-content: center; font-size: 14px; color: var(--on-pink); }
 .nav-item {
   display: flex; align-items: center; gap: 11px; padding: 11px 14px; border-radius: 13px;
   cursor: pointer; font-size: 13.5px; font-weight: 500; color: var(--text2);
   border: none; background: none; font-family: inherit; width: 100%; text-align: left; margin-bottom: 3px;
 }
 .nav-item:hover { background: var(--glass-soft); }
-.nav-item.active { background: var(--pink); color: #fff; font-weight: 600; }
+.nav-item.active { background: var(--pink); color: var(--on-pink); font-weight: 600; }
 .nav-item svg { width: 17px; height: 17px; flex-shrink: 0; }
 .sidebar-footer { margin-top: auto; font-size: 11.5px; color: var(--text3); padding: 0 8px; display: flex; align-items: center; justify-content: space-between; }
 .theme-toggle-mini {
@@ -142,7 +137,7 @@ tr:hover td { background: var(--glass-soft); }
 .cat-pill-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
 
 .btn { padding: 9px 17px; border-radius: 13px; font-size: 12.5px; font-weight: 600; cursor: pointer; font-family: inherit; border: none; display: inline-flex; align-items: center; gap: 6px; }
-.btn-primary { background: var(--pink); color: #fff; }
+.btn-primary { background: var(--pink); color: var(--on-pink); }
 .btn-secondary { background: var(--glass-soft); border: 1px solid var(--line-soft); color: var(--text2); }
 .btn-danger { background: var(--red-dim); color: var(--red); }
 .btn-sm { padding: 6px 12px; font-size: 11.5px; }
@@ -192,7 +187,7 @@ tr:hover td { background: var(--glass-soft); }
   font-size: 13px; cursor: pointer; z-index: 5; border: none;
 }
 .photo-main-badge {
-  position: absolute; bottom: 4px; left: 4px; background: var(--pink); color: #fff;
+  position: absolute; bottom: 4px; left: 4px; background: var(--pink); color: var(--on-pink);
   font-size: 8.5px; font-weight: 700; padding: 2px 6px; border-radius: 8px; z-index: 4;
 }
 
@@ -222,48 +217,10 @@ tr:hover td { background: var(--glass-soft); }
 </head>
 <body>
 
-<div class="bg-fixed">
-  <div class="blob blob1"></div>
-  <div class="blob blob2"></div>
-  <svg viewBox="0 0 500 700" xmlns="http://www.w3.org/2000/svg">
-    <defs>
-      <linearGradient id="branchGrad" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0%" stop-color="#3a2420"/><stop offset="100%" stop-color="#1c1210"/>
-      </linearGradient>
-      <radialGradient id="petalGrad1" cx="35%" cy="30%" r="75%">
-        <stop offset="0%" stop-color="#ffe3ec"/><stop offset="60%" stop-color="#ffb8d2"/><stop offset="100%" stop-color="#ff8fb8"/>
-      </radialGradient>
-      <radialGradient id="petalGrad2" cx="35%" cy="30%" r="75%">
-        <stop offset="0%" stop-color="#fff0f5"/><stop offset="60%" stop-color="#ffc9dc"/><stop offset="100%" stop-color="#ff9fc0"/>
-      </radialGradient>
-    </defs>
-    <path d="M460 0 C440 60 410 110 430 170 C445 215 470 250 450 310 C435 350 400 380 410 430" stroke="url(#branchGrad)" stroke-width="9" fill="none" stroke-linecap="round"/>
-    <path d="M430 170 C400 190 370 195 345 230" stroke="url(#branchGrad)" stroke-width="5" fill="none" stroke-linecap="round"/>
-    <path d="M450 310 C415 320 385 340 365 375" stroke="url(#branchGrad)" stroke-width="5" fill="none" stroke-linecap="round"/>
-    <g id="blossomCluster2">
-      <g transform="translate(345,225) scale(1.1)">
-        <ellipse cx="0" cy="-14" rx="11" ry="15" fill="url(#petalGrad1)"/>
-        <ellipse cx="13" cy="-4" rx="11" ry="15" fill="url(#petalGrad2)" transform="rotate(72)"/>
-        <ellipse cx="8" cy="12" rx="11" ry="15" fill="url(#petalGrad1)" transform="rotate(144)"/>
-        <ellipse cx="-8" cy="12" rx="11" ry="15" fill="url(#petalGrad2)" transform="rotate(216)"/>
-        <ellipse cx="-13" cy="-4" rx="11" ry="15" fill="url(#petalGrad1)" transform="rotate(288)"/>
-        <circle r="5" fill="#ffd866"/>
-      </g>
-    </g>
-    <use href="#blossomCluster2" x="-30" y="-10" transform="scale(0.8)"/>
-    <use href="#blossomCluster2" x="40" y="20" transform="scale(0.65)"/>
-    <use href="#blossomCluster2" transform="translate(365,375) scale(0.95)"/>
-    <use href="#blossomCluster2" transform="translate(430,170) scale(0.85)"/>
-    <use href="#blossomCluster2" transform="translate(450,70) scale(0.9)"/>
-    <use href="#blossomCluster2" transform="translate(410,430) scale(0.8)"/>
-  </svg>
-</div>
-<div class="bg-scrim"></div>
-
 <!-- LOGIN -->
 <div id="login-screen">
   <div class="login-box">
-    <div class="login-logo">🌸</div>
+    <div class="login-logo"><i class="ti ti-shopping-bag"></i></div>
     <h1>ChiSetupShop</h1>
     <p>Адмін-панель магазину</p>
     <input type="password" class="login-input" id="pass-input" placeholder="Пароль" onkeydown="if(event.key==='Enter')doLogin()">
@@ -275,7 +232,7 @@ tr:hover td { background: var(--glass-soft); }
 <!-- ADMIN -->
 <div id="admin-screen">
   <div class="sidebar">
-    <div class="sidebar-logo"><span class="sidebar-logo-icon">⚡</span>ChiSetup</div>
+    <div class="sidebar-logo"><span class="sidebar-logo-icon"><i class="ti ti-shopping-bag"></i></span>ChiSetup</div>
     <button class="nav-item active" id="nav-dashboard" onclick="switchTab('dashboard')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
       Дашборд
@@ -290,7 +247,7 @@ tr:hover td { background: var(--glass-soft); }
     </button>
     <div class="sidebar-footer">
       <span>v2.0</span>
-      <button class="theme-toggle-mini" id="theme-btn">☾</button>
+      <button class="theme-toggle-mini" id="theme-btn"><i class="ti ti-moon"></i></button>
     </div>
   </div>
 
@@ -384,12 +341,12 @@ let allOrders = [];
 
 // ── THEME ──
 const themeBtn = document.getElementById('theme-btn');
-if (localStorage.getItem('theme') === 'light') { document.body.classList.add('light'); themeBtn.textContent = '☀'; }
+if (localStorage.getItem('theme') === 'light') { document.body.classList.add('light'); themeBtn.innerHTML = '<i class="ti ti-sun"></i>'; }
 themeBtn.onclick = () => {
   document.body.classList.toggle('light');
   const light = document.body.classList.contains('light');
   localStorage.setItem('theme', light ? 'light' : 'dark');
-  themeBtn.textContent = light ? '☀' : '☾';
+  themeBtn.innerHTML = light ? '<i class="ti ti-sun"></i>' : '<i class="ti ti-moon"></i>';
 };
 
 async function doLogin() {
@@ -442,14 +399,20 @@ function renderDashboard() {
   `).join('') || '<tr><td colspan="4" style="text-align:center;color:var(--text3);padding:32px">Замовлень ще немає</td></tr>';
 }
 function statusBadge(s) {
-  const m = { new: ['orange','🟡 Нове'], confirmed: ['blue','🔵 Підтверджено'], shipped: ['blue','📦 Відправлено'], done: ['green','✅ Виконано'], cancelled: ['red','❌ Скасовано'] };
-  const [cls, label] = m[s] || ['orange', s];
-  return `<span class="badge ${cls}">${label}</span>`;
+  const m = {
+    new: ['orange', 'ti-clock', 'Нове'],
+    confirmed: ['blue', 'ti-check', 'Підтверджено'],
+    shipped: ['blue', 'ti-truck-delivery', 'Відправлено'],
+    done: ['green', 'ti-circle-check', 'Виконано'],
+    cancelled: ['red', 'ti-x', 'Скасовано']
+  };
+  const [cls, icon, label] = m[s] || ['orange', 'ti-clock', s];
+  return `<span class="badge ${cls}"><i class="ti ${icon}"></i> ${label}</span>`;
 }
 
 const catNames = { mice:'Мишки', keyboards:'Клавіатури', headphones:'Навушники', pads:'Килимки' };
 const catColors = { mice:'var(--mice)', keyboards:'var(--keyboards)', headphones:'var(--headphones)', pads:'var(--pads)' };
-const catEmojis = { mice:'🖱️', keyboards:'⌨️', headphones:'🎧', pads:'🎯' };
+const catIcons = { mice:'ti-mouse-2', keyboards:'ti-keyboard', headphones:'ti-headphones', pads:'ti-square' };
 
 function getPhotosOf(p) {
   if (Array.isArray(p.photos) && p.photos.length) return p.photos;
@@ -464,7 +427,7 @@ function renderProductsTable() {
     const photos = getPhotosOf(p);
     return `
     <tr>
-      <td><div class="prod-img-cell">${photos[0] ? `<img src="${photos[0]}" alt="">` : catEmojis[p.category]||'📦'}${photos.length > 1 ? `<span class="prod-img-count">${photos.length}</span>` : ''}</div></td>
+      <td><div class="prod-img-cell">${photos[0] ? `<img src="${photos[0]}" alt="">` : `<i class="ti ${catIcons[p.category]||'ti-package'}" style="font-size:18px;color:var(--text3)"></i>`}${photos.length > 1 ? `<span class="prod-img-count">${photos.length}</span>` : ''}</div></td>
       <td><strong>${p.name}</strong></td>
       <td><span class="cat-pill"><span class="cat-pill-dot" style="background:${catColors[p.category]||'var(--text3)'}"></span>${catNames[p.category] || p.category}</span></td>
       <td>${Number(p.price).toLocaleString()} ₴</td>
@@ -476,8 +439,8 @@ function renderProductsTable() {
       </td>
       <td>
         <div style="display:flex;gap:6px">
-          <button class="btn btn-secondary btn-sm" onclick="editProduct(${p.id})">✏️ Редагувати</button>
-          <button class="btn btn-danger btn-sm" onclick="deleteProduct(${p.id})">🗑</button>
+          <button class="btn btn-secondary btn-sm" onclick="editProduct(${p.id})"><i class="ti ti-edit"></i> Редагувати</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteProduct(${p.id})"><i class="ti ti-trash"></i></button>
         </div>
       </td>
     </tr>
