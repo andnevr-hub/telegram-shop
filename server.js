@@ -10,7 +10,37 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // ── TELEGRAM BOT ──
-const bot = new TelegramBot(process.env.BOT_TOKEN || 'placeholder', { polling: false });
+const hasRealToken = process.env.BOT_TOKEN && process.env.BOT_TOKEN !== 'placeholder';
+const bot = new TelegramBot(process.env.BOT_TOKEN || 'placeholder', { polling: hasRealToken });
+const APP_URL = process.env.APP_URL || '';
+
+if (hasRealToken) {
+  bot.deleteWebHook().catch(() => {});
+
+  bot.onText(/\/start/, (msg) => {
+    const chatId = msg.chat.id;
+    const firstName = msg.from?.first_name || 'друже';
+
+    const welcomeText =
+      `Привіт, ${firstName}! 👋\n\n` +
+      `Це *Aki.Shop* — магазин гейм-обладнання прямо в Telegram: мишки, клавіатури, навушники та килимки для твого ідеального сетапу.\n\n` +
+      `Що тут можна зробити:\n` +
+      `🛒 Переглянути каталог і додати товари в кошик\n` +
+      `📦 Оформити замовлення з доставкою Nova Poshta або самовивозом\n` +
+      `⭐ Залишити оцінку товару після покупки\n` +
+      `📋 Стежити за статусом своїх замовлень в розділі «Акаунт»\n\n` +
+      `Натискай кнопку нижче, щоб відкрити магазин 👇`;
+
+    bot.sendMessage(chatId, welcomeText, {
+      parse_mode: 'Markdown',
+      reply_markup: {
+        inline_keyboard: [[
+          { text: '🛍 Відкрити магазин', web_app: { url: APP_URL } }
+        ]]
+      }
+    }).catch(err => console.error('Telegram /start error:', err.message));
+  });
+}
 
 // ── SUPABASE ──
 const supabase = createClient(
