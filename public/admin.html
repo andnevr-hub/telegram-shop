@@ -284,7 +284,7 @@ tr:hover td { background: var(--glass-soft); }
       <div class="page-title">Замовлення</div>
       <div class="page-subtitle">Всі замовлення від клієнтів</div>
       <div class="card">
-        <table><thead><tr><th>№</th><th>Дата</th><th>Клієнт</th><th>Телефон</th><th>Сума</th><th>Доставка</th><th>Оплата</th><th>Статус</th></tr></thead>
+        <table><thead><tr><th>№</th><th>Дата</th><th>Клієнт</th><th>Телефон</th><th>Сума</th><th>Доставка</th><th>Оплата</th><th>Статус</th><th>Дії</th></tr></thead>
         <tbody id="orders-table"></tbody></table>
       </div>
     </div>
@@ -464,7 +464,7 @@ const paymentNames = { card:'Карта', cod:'Накладений' };
 
 function renderOrdersTable() {
   const tbody = document.getElementById('orders-table');
-  if (!allOrders.length) { tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--text3);padding:40px">Замовлень ще немає</td></tr>'; return; }
+  if (!allOrders.length) { tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--text3);padding:40px">Замовлень ще немає</td></tr>'; return; }
   tbody.innerHTML = allOrders.map(o => `
     <tr>
       <td><strong>${o.order_num}</strong></td>
@@ -485,8 +485,15 @@ function renderOrdersTable() {
           <option value="cancelled" ${o.status==='cancelled'?'selected':''}>❌ Скасовано</option>
         </select>
       </td>
+      <td><button class="btn btn-danger btn-sm" onclick="deleteOrder(${o.id})"><i class="ti ti-trash"></i></button></td>
     </tr>
   `).join('');
+}
+async function deleteOrder(id) {
+  if (!confirm('Видалити це замовлення? Дію неможливо скасувати.')) return;
+  await fetch(`${API}/api/admin/orders/${id}`, { method: 'DELETE', headers: { 'x-admin-token': adminToken } });
+  toast('Замовлення видалено');
+  await loadOrders(); renderDashboard();
 }
 async function updateOrderStatus(id, status) {
   await fetch(`${API}/api/admin/orders/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', 'x-admin-token': adminToken }, body: JSON.stringify({ status }) });

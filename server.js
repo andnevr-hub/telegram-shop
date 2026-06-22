@@ -113,68 +113,16 @@ app.get('/api/products', async (req, res) => {
       .select('*')
       .order('created_at', { ascending: false });
     if (error) throw error;
-
-    // Підвантажуємо рейтинги одним запитом і рахуємо середнє/кількість на товар
-    const { data: ratingsData } = await supabase.from('ratings').select('product_id, stars');
-    const ratingsMap = {};
-    (ratingsData || []).forEach(r => {
-      if (!ratingsMap[r.product_id]) ratingsMap[r.product_id] = { sum: 0, count: 0 };
-      ratingsMap[r.product_id].sum += r.stars;
-      ratingsMap[r.product_id].count += 1;
-    });
-
-    res.json(data.map(p => {
-      const r = ratingsMap[p.id];
-      return {
-        ...p,
-        specs: p.specs || [],
-        photos: p.photos || (p.photo ? [p.photo] : []),
-        rating_avg: r ? +(r.sum / r.count).toFixed(1) : null,
-        rating_count: r ? r.count : 0
-      };
-    }));
-  } catch(e) { res.status(500).json({ error: e.message }); }
-});
-
-app.get('/api/products/:id/rating', async (req, res) => {
-  const telegramId = req.query.telegramId;
-  try {
-    const { data: ratingsData } = await supabase.from('ratings').select('stars').eq('product_id', req.params.id);
-    const count = ratingsData?.length || 0;
-    const avg = count ? +(ratingsData.reduce((s, r) => s + r.stars, 0) / count).toFixed(1) : null;
-
-    let myRating = null;
-    if (telegramId) {
-      const { data: mine } = await supabase.from('ratings').select('stars')
-        .eq('product_id', req.params.id).eq('telegram_user_id', String(telegramId)).maybeSingle();
-      myRating = mine?.stars || null;
-    }
-    res.json({ avg, count, myRating });
-  } catch(e) { res.status(500).json({ error: e.message }); }
-});
-
-app.post('/api/products/:id/rating', async (req, res) => {
-  const { stars, telegramId } = req.body;
-  if (!telegramId) return res.status(400).json({ error: 'Потрібен Telegram ID' });
-  const starsNum = parseInt(stars);
-  if (!starsNum || starsNum < 1 || starsNum > 5) return res.status(400).json({ error: 'Оцінка має бути від 1 до 5' });
-  try {
-    const { error } = await supabase.from('ratings').upsert({
-      product_id: req.params.id,
-      telegram_user_id: String(telegramId),
-      stars: starsNum
-    }, { onConflict: 'product_id,telegram_user_id' });
-    if (error) throw error;
-
-    const { data: ratingsData } = await supabase.from('ratings').select('stars').eq('product_id', req.params.id);
-    const count = ratingsData.length;
-    const avg = +(ratingsData.reduce((s, r) => s + r.stars, 0) / count).toFixed(1);
-    res.json({ success: true, avg, count });
+    res.json(data.map(p => ({
+      ...p,
+      specs: p.specs || [],
+      photos: p.photos || (p.photo ? [p.photo] : [])
+    })));
   } catch(e) { res.status(500).json({ error: e.message }); }
 });
 
 app.post('/api/orders', async (req, res) => {
-  const { name, phone, delivery, region, city, branch, payment, items, total } = req.body;
+  const { name, phone, delivery, region, city, branch, payment, items, total, telegramId } = req.body;
   if (!name || !phone || !items || !total) {
     return res.status(400).json({ error: 'Не всі поля заповнені' });
   }
@@ -184,6 +132,7 @@ app.post('/api/orders', async (req, res) => {
       order_num: orderNum,
       customer_name: name,
       customer_phone: phone,
+      telegram_user_id: telegramId ? String(telegramId) : null,
       delivery_type: delivery,
       delivery_region: region || '',
       delivery_city: city || '',
@@ -207,6 +156,20 @@ app.post('/api/orders', async (req, res) => {
     }
 
     res.json({ success: true, orderNum });
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
+
+app.get('/api/orders', async (req, res) => {
+  const telegramId = req.query.telegramId;
+  if (!telegramId) return res.json([]);
+  try {
+    const { data, error } = await supabase
+      .from('orders')
+      .select('*')
+      .eq('telegram_user_id', String(telegramId))
+      .order('created_at', { ascending: false });
+    if (error) throw error;
+    res.json(data);
   } catch(e) { res.status(500).json({ error: e.message }); }
 });
 
@@ -238,6 +201,14 @@ app.patch('/api/admin/orders/:id', adminAuth, async (req, res) => {
   const { status } = req.body;
   try {
     const { error } = await supabase.from('orders').update({ status }).eq('id', req.params.id);
+    if (error) throw error;
+    res.json({ success: true });
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
+
+app.delete('/api/admin/orders/:id', adminAuth, async (req, res) => {
+  try {
+    const { error } = await supabase.from('orders').delete().eq('id', req.params.id);
     if (error) throw error;
     res.json({ success: true });
   } catch(e) { res.status(500).json({ error: e.message }); }

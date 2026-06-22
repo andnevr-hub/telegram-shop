@@ -92,7 +92,13 @@ body {
   letter-spacing: 0.01em;
   transition: color .2s;
 }
-.nav-btn.active { color: var(--pink); }
+.nav-btn-icon-wrap {
+  width: 38px; height: 26px; border-radius: 13px;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .2s;
+}
+.nav-btn.active .nav-btn-icon-wrap { background: var(--glass-soft); }
+.nav-btn.active { color: var(--text); font-weight: 700; }
 .nav-btn svg { width: 22px; height: 22px; stroke-width: 1.8; }
 .cart-badge {
   position: absolute; top: -5px; right: -8px;
@@ -136,9 +142,9 @@ body {
 }
 
 /* ── SEARCH + CATS ── */
-.search-wrap { padding: 4px 18px 14px; position: relative; }
+.search-wrap { padding: 4px 18px 14px; position: relative; display: flex; gap: 8px; align-items: center; }
 .search-input {
-  width: 100%; background: var(--glass); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  flex: 1; min-width: 0; background: var(--glass); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
   border: 1px solid var(--line);
   border-radius: 18px; padding: 14px 16px 14px 44px; color: var(--text);
   font-size: 15px; outline: none; font-family: var(--font);
@@ -148,6 +154,30 @@ body {
   color: var(--text3); pointer-events: none;
 }
 .search-input::placeholder { color: var(--text3); }
+.filter-btn {
+  flex-shrink: 0; width: 48px; height: 48px; border-radius: 16px;
+  background: var(--glass); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--line); color: var(--text); font-size: 19px;
+  display: flex; align-items: center; justify-content: center; cursor: pointer;
+}
+.filter-btn.active { background: var(--pink); color: var(--on-pink); border-color: var(--pink); }
+
+.filter-panel {
+  display: none; flex-direction: column; gap: 14px;
+  margin: 0 18px 16px; padding: 16px;
+  background: var(--glass); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--line); border-radius: var(--r-md);
+}
+.filter-panel.open { display: flex; }
+.filter-row { display: flex; flex-direction: column; gap: 8px; }
+.filter-label { font-size: 12px; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: 0.04em; }
+.filter-chip-group { display: flex; gap: 8px; flex-wrap: wrap; }
+.filter-chip {
+  padding: 8px 14px; border-radius: 12px; font-size: 12.5px; font-weight: 600;
+  background: var(--glass-soft); border: 1px solid var(--line); color: var(--text2);
+  cursor: pointer; font-family: var(--font);
+}
+.filter-chip.active { background: var(--pink); color: var(--on-pink); border-color: var(--pink); }
 
 .cats { display: flex; gap: 8px; padding: 0 18px 18px; overflow-x: auto; scrollbar-width: none; }
 .cats::-webkit-scrollbar { display: none; }
@@ -399,29 +429,6 @@ body.dark-mode .stock-badge.in, .stock-badge.in { color: #34d058; }
   font-size: 15px; font-weight: 600; cursor: pointer; font-family: var(--font);
 }
 
-/* ── RATINGS ── */
-.rating-mini {
-  display: flex; align-items: center; gap: 4px; font-size: 12.5px;
-  color: #ffb020; font-weight: 600; margin-top: 2px;
-}
-.rating-mini i { font-size: 13px; }
-.rating-mini-count { color: var(--text2); font-weight: 500; }
-.rating-block {
-  display: flex; flex-direction: column; align-items: center; gap: 10px;
-  padding: 18px; margin-top: 14px;
-  background: var(--glass); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-  border: 1px solid var(--line); border-radius: var(--r-md);
-}
-.rating-stars { display: flex; gap: 6px; }
-.rating-star {
-  font-size: 30px; cursor: pointer; color: var(--line);
-  transition: color .15s, transform .1s;
-}
-.rating-star.filled { color: #ffb020; }
-.rating-star:active { transform: scale(0.9); }
-.rating-summary { font-size: 13px; color: var(--text2); text-align: center; }
-.rating-summary strong { color: var(--text); }
-
 /* ── SUCCESS ── */
 .success-page {
   display: flex; flex-direction: column; align-items: center;
@@ -501,6 +508,24 @@ body.dark-mode .stock-badge.in, .stock-badge.in { color: #34d058; }
   <div class="search-wrap">
     <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
     <input class="search-input" type="text" id="search-input" placeholder="Пошук товарів…" oninput="filterProducts()">
+    <button class="filter-btn" id="filter-btn" onclick="toggleFilterPanel()"><i class="ti ti-adjustments-horizontal"></i></button>
+  </div>
+  <div class="filter-panel" id="filter-panel">
+    <div class="filter-row">
+      <span class="filter-label">Сортування за ціною</span>
+      <div class="filter-chip-group">
+        <button class="filter-chip active" data-sort="none" onclick="setSortOrder('none')">Без сортування</button>
+        <button class="filter-chip" data-sort="asc" onclick="setSortOrder('asc')">Дешевші спершу</button>
+        <button class="filter-chip" data-sort="desc" onclick="setSortOrder('desc')">Дорожчі спершу</button>
+      </div>
+    </div>
+    <div class="filter-row">
+      <span class="filter-label">Наявність</span>
+      <div class="filter-chip-group">
+        <button class="filter-chip active" data-stock="all" onclick="setStockFilter('all')">Усі товари</button>
+        <button class="filter-chip" data-stock="in" onclick="setStockFilter('in')">Лише в наявності</button>
+      </div>
+    </div>
   </div>
   <div class="cats" id="cats"></div>
   <div class="products-grid" id="products-grid">
@@ -528,7 +553,6 @@ body.dark-mode .stock-badge.in, .stock-badge.in { color: #34d058; }
     <div class="detail-price" id="detail-price"></div>
     <div class="detail-desc" id="detail-desc"></div>
     <div class="detail-specs" id="detail-specs"></div>
-    <div id="rating-block"></div>
     <button class="detail-add-btn" id="detail-add-btn" onclick="addFromDetail()">Додати в кошик</button>
   </div>
 </div>
@@ -559,7 +583,7 @@ body.dark-mode .stock-badge.in, .stock-badge.in { color: #34d058; }
 
 <!-- ACCOUNT -->
 <div class="page" id="page-account">
-  <div class="page-header"><span class="page-title">Акаунт</span><div></div></div>
+  <div class="page-header"><span class="page-title">Профіль</span><div></div></div>
   <div style="padding:0 18px">
     <div class="account-card">
       <div class="account-avatar" id="account-avatar">А</div>
@@ -582,19 +606,19 @@ body.dark-mode .stock-badge.in, .stock-badge.in { color: #34d058; }
 <!-- NAV -->
 <nav class="nav">
   <button class="nav-btn active" id="nav-shop" onclick="showPage('shop')">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    <div class="nav-btn-icon-wrap"><i class="ti ti-building-store" style="font-size:21px"></i></div>
     Магазин
   </button>
   <button class="nav-btn" id="nav-cart" onclick="showPage('cart')">
-    <div style="position:relative">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg>
+    <div class="nav-btn-icon-wrap" style="position:relative">
+      <i class="ti ti-shopping-cart" style="font-size:21px"></i>
       <div class="cart-badge" id="cart-badge">0</div>
     </div>
     Кошик
   </button>
   <button class="nav-btn" id="nav-account" onclick="showPage('account')">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-    Акаунт
+    <div class="nav-btn-icon-wrap"><i class="ti ti-user" style="font-size:21px"></i></div>
+    Профіль
   </button>
 </nav>
 
@@ -620,6 +644,8 @@ let checkoutData = {};
 let orders = [];
 let carouselIndex = 0;
 let telegramId = null;
+let sortOrder = 'none';
+let stockFilter = 'all';
 
 // ── THEME ──
 const themeBtn = document.getElementById('theme-btn');
@@ -674,6 +700,7 @@ function getPhotos(p) {
 }
 
 function showPage(name) {
+  haptic();
   prevPage = currentPage;
   currentPage = name;
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -682,7 +709,7 @@ function showPage(name) {
   const navMap = { shop:'nav-shop', cart:'nav-cart', account:'nav-account' };
   if (navMap[name]) document.getElementById(navMap[name]).classList.add('active');
   if (name === 'cart') renderCart();
-  if (name === 'account') renderOrders();
+  if (name === 'account') loadOrders();
   window.scrollTo(0, 0);
 }
 function goBack() { showPage(prevPage === 'cart' ? 'shop' : (prevPage || 'shop')); }
@@ -698,7 +725,7 @@ function renderCats() {
     </button>
   `).join('');
 }
-function selectCat(id) { currentCat = id; renderCats(); renderProducts(); }
+function selectCat(id) { haptic(); currentCat = id; renderCats(); renderProducts(); }
 
 function imgTag(photo, icon, size) {
   if (photo) return `<img src="${photo}" alt="" loading="lazy">`;
@@ -708,10 +735,13 @@ function imgTag(photo, icon, size) {
 function renderProducts() {
   const q = document.getElementById('search-input').value.toLowerCase();
   const grid = document.getElementById('products-grid');
-  const filtered = products.filter(p =>
+  let filtered = products.filter(p =>
     (currentCat === 'all' || p.category === currentCat) &&
-    p.name.toLowerCase().includes(q)
+    p.name.toLowerCase().includes(q) &&
+    (stockFilter === 'all' || p.stock > 0)
   );
+  if (sortOrder === 'asc') filtered = filtered.slice().sort((a,b) => a.price - b.price);
+  else if (sortOrder === 'desc') filtered = filtered.slice().sort((a,b) => b.price - a.price);
   if (!filtered.length) {
     grid.innerHTML = `<div style="grid-column:1/-1" class="empty-state"><div class="empty-icon">⌕</div><h3>Нічого не знайдено</h3></div>`;
     return;
@@ -728,7 +758,6 @@ function renderProducts() {
       <div class="product-info">
         <span class="product-cat-label" style="color:${catColor(p.category)}">${catLabel(p.category)}</span>
         <div class="product-name">${p.name}</div>
-        ${p.rating_count > 0 ? `<div class="rating-mini"><i class="ti ti-star-filled"></i> ${p.rating_avg} <span class="rating-mini-count">(${p.rating_count})</span></div>` : ''}
         <div class="product-price">${Number(p.price).toLocaleString()} ₴</div>
         <button class="add-btn ${p.stock === 0 ? 'disabled' : ''}" onclick="event.stopPropagation();addToCart(${p.id})">В кошик</button>
       </div>
@@ -736,6 +765,26 @@ function renderProducts() {
   `}).join('');
 }
 function filterProducts() { renderProducts(); }
+
+function toggleFilterPanel() {
+  haptic();
+  const panel = document.getElementById('filter-panel');
+  const btn = document.getElementById('filter-btn');
+  panel.classList.toggle('open');
+  btn.classList.toggle('active', panel.classList.contains('open'));
+}
+function setSortOrder(v) {
+  haptic();
+  sortOrder = v;
+  document.querySelectorAll('[data-sort]').forEach(el => el.classList.toggle('active', el.dataset.sort === v));
+  renderProducts();
+}
+function setStockFilter(v) {
+  haptic();
+  stockFilter = v;
+  document.querySelectorAll('[data-stock]').forEach(el => el.classList.toggle('active', el.dataset.stock === v));
+  renderProducts();
+}
 
 function renderCarousel(photos) {
   carouselIndex = 0;
@@ -798,57 +847,10 @@ function openProduct(id) {
   `).join('') || '';
   const btn = document.getElementById('detail-add-btn');
   btn.className = 'detail-add-btn' + (p.stock === 0 ? ' disabled' : '');
-  btn.textContent = p.stock > 0 ? `Додати в кошик (в наявності: ${p.stock})` : 'Немає в наявності';
-  loadRating(p.id);
+  btn.textContent = p.stock > 0 ? 'Додати в кошик' : 'Немає в наявності';
   showPage('detail');
 }
 function addFromDetail() { if (currentProduct && currentProduct.stock > 0) addToCart(currentProduct.id); }
-
-async function loadRating(productId) {
-  const el = document.getElementById('rating-block');
-  el.innerHTML = `<div class="rating-block"><div class="rating-summary">Завантаження…</div></div>`;
-  try {
-    const res = await fetch(`${API}/api/products/${productId}/rating${telegramId ? '?telegramId=' + telegramId : ''}`);
-    const data = await res.json();
-    renderRatingBlock(productId, data);
-  } catch(e) {
-    el.innerHTML = '';
-  }
-}
-
-function renderRatingBlock(productId, { avg, count, myRating }) {
-  const el = document.getElementById('rating-block');
-  const stars = [1,2,3,4,5].map(n => `
-    <span class="rating-star ${n <= (myRating||0) ? 'filled' : ''}" onclick="rateProduct(${productId}, ${n})">★</span>
-  `).join('');
-  el.innerHTML = `
-    <div class="rating-block">
-      <div class="rating-stars">${stars}</div>
-      <div class="rating-summary">
-        ${myRating ? `<strong>Твоя оцінка: ${myRating} ★</strong><br>` : 'Оціни цей товар'}
-        ${count > 0 ? `Середня оцінка: <strong>${avg} ★</strong> (${count} ${count===1?'відгук':'відгуків'})` : 'Поки немає відгуків'}
-      </div>
-    </div>
-  `;
-}
-
-async function rateProduct(productId, stars) {
-  if (!telegramId) { showToast('Відкрий магазин через Telegram, щоб оцінити товар'); return; }
-  try {
-    const res = await fetch(`${API}/api/products/${productId}/rating`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ stars, telegramId })
-    });
-    const data = await res.json();
-    if (!data.success) throw new Error();
-    renderRatingBlock(productId, { avg: data.avg, count: data.count, myRating: stars });
-    if (window.Telegram?.WebApp?.HapticFeedback) window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
-    showToast('Дякуємо за оцінку!');
-  } catch(e) {
-    showToast('Не вдалось зберегти оцінку');
-  }
-}
 
 function addToCart(id) {
   const p = products.find(x => x.id === id);
@@ -857,12 +859,17 @@ function addToCart(id) {
   else cart[id] = { product: p, qty: 1 };
   updateBadge();
   showToast('✓ Додано до кошика');
-  if (window.Telegram?.WebApp?.HapticFeedback) window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
+  haptic();
 }
-function removeFromCart(id) { delete cart[id]; updateBadge(); renderCart(); }
+function removeFromCart(id) { haptic(); delete cart[id]; updateBadge(); renderCart(); }
 function changeQty(id, d) {
   if (!cart[id]) return;
-  cart[id].qty += d;
+  const p = products.find(x => x.id === id);
+  const max = p ? p.stock : 999;
+  const newQty = cart[id].qty + d;
+  if (d > 0 && newQty > max) { showToast(`Доступно лише ${max} шт.`); return; }
+  haptic();
+  cart[id].qty = newQty;
   if (cart[id].qty <= 0) delete cart[id];
   updateBadge(); renderCart();
 }
@@ -992,13 +999,13 @@ async function placeOrder() {
     const res = await fetch(`${API}/api/orders`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: checkoutData.name, phone: checkoutData.phone, delivery: checkoutData.delivery, region: checkoutData.region, city: checkoutData.city, branch: checkoutData.branch, payment: checkoutData.payment, items, total: cartTotal() })
+      body: JSON.stringify({ name: checkoutData.name, phone: checkoutData.phone, delivery: checkoutData.delivery, region: checkoutData.region, city: checkoutData.city, branch: checkoutData.branch, payment: checkoutData.payment, items, total: cartTotal(), telegramId })
     });
     const data = await res.json();
     if (!data.success) throw new Error();
     const orderNum = data.orderNum;
-    orders.unshift({ num: orderNum, items: Object.values(cart), total: cartTotal(), date: new Date() });
     cart = {}; updateBadge();
+    loadOrders();
     setStep(4);
     document.getElementById('checkout-body').innerHTML = `
       <div class="success-page">
@@ -1021,10 +1028,12 @@ function nextStep1() {
   const digits = phone.replace(/\D/g, '');
   const isValid = /^0\d{9}$/.test(digits) || /^380\d{9}$/.test(digits);
   if (!isValid) { showToast('Введіть повний номер телефону (10 цифр), напр. 0991234567'); return; }
+  haptic();
   checkoutData.name = name; checkoutData.phone = phone;
   checkoutStep = 2; renderCheckoutStep();
 }
 function prevStep() {
+  haptic();
   // Зберігаємо те, що людина встигла ввести на поточному кроці, перед поверненням назад
   if (checkoutStep === 2) {
     checkoutData.region = document.getElementById('inp-region')?.value.trim() ?? checkoutData.region;
@@ -1042,31 +1051,64 @@ function nextStep2() {
     checkoutData.branch = document.getElementById('inp-branch')?.value.trim();
     if (!checkoutData.region || !checkoutData.city || !checkoutData.branch) { showToast('Вкажіть область, місто і відділення'); return; }
   }
+  haptic();
   checkoutStep = 3; renderCheckoutStep();
 }
 function nextStep3() {
   if (!checkoutData.payment) { showToast('Оберіть спосіб оплати'); return; }
+  haptic();
   checkoutStep = 4; renderCheckoutStep();
 }
-function selectDelivery(t) { checkoutData.delivery = t; renderCheckoutStep(); }
-function selectPayment(t) { checkoutData.payment = t; renderCheckoutStep(); }
+function selectDelivery(t) { haptic(); checkoutData.delivery = t; renderCheckoutStep(); }
+function selectPayment(t) { haptic(); checkoutData.payment = t; renderCheckoutStep(); }
+
+const STATUS_LABELS = {
+  new: { text: 'Нове', color: 'var(--text2)' },
+  confirmed: { text: 'Підтверджено', color: 'var(--blue)' },
+  shipped: { text: 'Відправлено', color: 'var(--blue)' },
+  done: { text: 'Виконано', color: 'var(--green)' },
+  cancelled: { text: 'Скасовано', color: 'var(--red)' }
+};
+
+async function loadOrders() {
+  if (!telegramId) { renderOrders(); return; }
+  try {
+    const res = await fetch(`${API}/api/orders?telegramId=${telegramId}`);
+    orders = await res.json();
+  } catch(e) {
+    orders = [];
+  }
+  renderOrders();
+}
 
 function renderOrders() {
   const el = document.getElementById('orders-list');
   if (!orders.length) {
-    el.innerHTML = `<div class="empty-state" style="padding:60px 20px"><div class="empty-icon"><i class="ti ti-package"></i></div><h3>Замовлень немає</h3><p>Оформіть перше замовлення</p></div>`;
+    el.innerHTML = `<div class="empty-state" style="padding:60px 20px">
+      <div class="empty-icon"><i class="ti ti-package"></i></div>
+      <h3>Замовлень немає</h3>
+      <p>Оформіть перше замовлення з каталогу</p>
+      <button class="empty-btn" onclick="showPage('shop')">До каталогу</button>
+    </div>`;
     return;
   }
-  el.innerHTML = orders.map(o => `
+  el.innerHTML = orders.map(o => {
+    const st = STATUS_LABELS[o.status] || STATUS_LABELS.new;
+    return `
     <div class="order-card">
       <div style="display:flex;justify-content:space-between;margin-bottom:8px">
-        <span style="font-weight:700">${o.num}</span>
-        <span style="font-size:11.5px;color:var(--green);font-weight:600">✓ Оформлено</span>
+        <span style="font-weight:700">${o.order_num}</span>
+        <span style="font-size:11.5px;color:${st.color};font-weight:600">${st.text}</span>
       </div>
-      <div style="font-size:12.5px;color:var(--text2)">${o.items.map(i=>i.product.name).join(', ')}</div>
-      <div style="font-size:17px;font-weight:800;margin-top:8px">${o.total.toLocaleString()} ₴</div>
+      <div style="font-size:12.5px;color:var(--text2)">${(o.items||[]).map(i=>i.name).join(', ')}</div>
+      <div style="font-size:17px;font-weight:800;margin-top:8px">${Number(o.total).toLocaleString()} ₴</div>
     </div>
-  `).join('');
+  `;
+  }).join('');
+}
+
+function haptic(style) {
+  if (window.Telegram?.WebApp?.HapticFeedback) window.Telegram.WebApp.HapticFeedback.impactOccurred(style || 'light');
 }
 
 function showToast(msg) {
