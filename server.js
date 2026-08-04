@@ -147,7 +147,7 @@ app.post('/api/orders', async (req, res) => {
     // Telegram повідомлення
     const itemsList = items.map(i => `• ${i.name} ×${i.qty} = ${(i.price*i.qty).toLocaleString()} ₴`).join('\n');
     const deliveryText = delivery === 'np' ? `📦 Nova Poshta\n🏙 ${region ? region + ', ' : ''}${city}, ${branch}` : '🏠 Самовивіз (Київ)';
-    const paymentText = payment === 'card' ? '💳 Карта (передоплата)' : '📬 Накладений платіж';
+    const paymentText = payment === 'deposit' ? '💳 Передоплата 100 грн (доплата при отриманні)' : '🏦 Повна оплата на рахунок ФОП';
     const msg = `🛒 *НОВЕ ЗАМОВЛЕННЯ ${orderNum}*\n\n👤 *Клієнт:* ${name}\n📞 *Телефон:* ${phone}\n\n*Товари:*\n${itemsList}\n\n*Сума:* ${Number(total).toLocaleString()} ₴\n\n*Доставка:* ${deliveryText}\n*Оплата:* ${paymentText}`;
 
     if (process.env.ADMIN_CHAT_ID && process.env.BOT_TOKEN !== 'placeholder') {

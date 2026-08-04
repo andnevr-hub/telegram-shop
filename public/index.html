@@ -26,7 +26,6 @@
   --green-dim: rgba(245,245,247,0.18);
   --red: #ff453a;
   --red-dim: rgba(255,69,58,0.18);
-  --mice: #f5f5f7; --keyboards: #c7c7cc; --headphones: #8e8e93; --pads: #aeaeb2;
   --on-pink: #0a0a0a;
   --r-lg: 26px;
   --r-md: 18px;
@@ -49,7 +48,6 @@ body.light {
   --blue-dim: rgba(28,28,30,0.12);
   --green: #1c1c1e;
   --green-dim: rgba(28,28,30,0.12);
-  --mice: #1c1c1e; --keyboards: #48484a; --headphones: #6e6e73; --pads: #8e8e93;
   --on-pink: #ffffff;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
@@ -527,7 +525,7 @@ body.dark-mode .stock-badge.in, .stock-badge.in { color: #34d058; }
       </div>
     </div>
   </div>
-  <div class="cats" id="cats"></div>
+  <div class="cats" id="cats" style="display:none"></div>
   <div class="products-grid" id="products-grid">
     <div class="glass" style="border-radius:26px;overflow:hidden">
       <div class="skeleton" style="aspect-ratio:1;width:100%"></div>
@@ -627,10 +625,6 @@ const API = window.location.origin;
 
 const CATS = [
   { id:'all', label:'Все', color: null, icon: null },
-  { id:'mice', label:'Мишки', color: 'var(--mice)', icon: 'ti-mouse-2' },
-  { id:'keyboards', label:'Клавіатури', color: 'var(--keyboards)', icon: 'ti-keyboard' },
-  { id:'headphones', label:'Навушники', color: 'var(--headphones)', icon: 'ti-headphones' },
-  { id:'pads', label:'Килимки', color: 'var(--pads)', icon: 'ti-square' },
 ];
 
 let products = [];
@@ -972,15 +966,21 @@ function renderCheckoutStep() {
   } else if (checkoutStep === 3) {
     el.innerHTML = `<div class="checkout-form">
       <div style="display:flex;flex-direction:column;gap:10px">
-        <div class="delivery-option ${checkoutData.payment==='card'?'selected':''}" onclick="selectPayment('card')">
+        <div class="delivery-option ${checkoutData.payment==='deposit'?'selected':''}" onclick="selectPayment('deposit')">
           <div class="delivery-opt-icon"><i class="ti ti-credit-card"></i></div>
-          <div class="delivery-opt-info"><div class="delivery-opt-name">Карта (передоплата)</div><div class="delivery-opt-desc">PrivatBank / Monobank</div></div>
-          <div class="radio ${checkoutData.payment==='card'?'checked':''}"></div>
+          <div class="delivery-opt-info">
+            <div class="delivery-opt-name">Передоплата 100 грн</div>
+            <div class="delivery-opt-desc">Бронь товару + страховка доставки (вираховується зі вартості). Доплата при отриманні · Передоплата 100 ₴</div>
+          </div>
+          <div class="radio ${checkoutData.payment==='deposit'?'checked':''}"></div>
         </div>
-        <div class="delivery-option ${checkoutData.payment==='cod'?'selected':''}" onclick="selectPayment('cod')">
-          <div class="delivery-opt-icon"><i class="ti ti-truck-delivery"></i></div>
-          <div class="delivery-opt-info"><div class="delivery-opt-name">Накладений платіж</div><div class="delivery-opt-desc">+2% комісія НП при отриманні</div></div>
-          <div class="radio ${checkoutData.payment==='cod'?'checked':''}"></div>
+        <div class="delivery-option ${checkoutData.payment==='fop'?'selected':''}" onclick="selectPayment('fop')">
+          <div class="delivery-opt-icon"><i class="ti ti-building-bank"></i></div>
+          <div class="delivery-opt-info">
+            <div class="delivery-opt-name">Повна оплата на рахунок ФОП</div>
+            <div class="delivery-opt-desc">Оплата всієї суми замовлення на карту по реквізитах.</div>
+          </div>
+          <div class="radio ${checkoutData.payment==='fop'?'checked':''}"></div>
         </div>
       </div>
       <div class="checkout-nav-row">
