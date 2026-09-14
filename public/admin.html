@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Aki.Shop — Адмін</title>
+<title>YOAKE° — Адмін</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/3.35.0/tabler-icons.min.css">
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
@@ -220,8 +220,8 @@ tr:hover td { background: var(--glass-soft); }
 <!-- LOGIN -->
 <div id="login-screen">
   <div class="login-box">
-    <div class="login-logo"><i class="ti ti-shopping-bag"></i></div>
-    <h1>Aki.Shop</h1>
+    <div class="login-logo"><i class="ti ti-bulb"></i></div>
+    <h1>YOAKE°</h1>
     <p>Адмін-панель магазину</p>
     <input type="password" class="login-input" id="pass-input" placeholder="Пароль" onkeydown="if(event.key==='Enter')doLogin()">
     <button class="login-btn" onclick="doLogin()">Увійти</button>
@@ -232,7 +232,7 @@ tr:hover td { background: var(--glass-soft); }
 <!-- ADMIN -->
 <div id="admin-screen">
   <div class="sidebar">
-    <div class="sidebar-logo"><span class="sidebar-logo-icon"><i class="ti ti-shopping-bag"></i></span>Aki.Shop</div>
+    <div class="sidebar-logo"><span class="sidebar-logo-icon"><i class="ti ti-bulb"></i></span>YOAKE°</div>
     <button class="nav-item active" id="nav-dashboard" onclick="switchTab('dashboard')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
       Дашборд
@@ -320,7 +320,7 @@ tr:hover td { background: var(--glass-soft); }
         <button type="button" class="btn btn-secondary btn-sm" style="margin-top:8px" onclick="addSpec()">+ Додати рядок</button>
       </div>
       <div class="field">
-        <label>Фото товару (до 4 шт.) — перше фото буде головним</label>
+        <label>Фото (до 4 шт.) — 1-ше: лампа вимкнена · 2-ге: увімкнена (для тумблера світла)</label>
         <div class="photos-grid" id="photos-grid"></div>
       </div>
       <div class="modal-actions">
@@ -402,6 +402,7 @@ function statusBadge(s) {
   const m = {
     new: ['orange', 'ti-clock', 'Нове'],
     confirmed: ['blue', 'ti-check', 'Підтверджено'],
+    printing: ['orange', 'ti-printer', 'Друкується'],
     shipped: ['blue', 'ti-truck-delivery', 'Відправлено'],
     done: ['green', 'ti-circle-check', 'Виконано'],
     cancelled: ['red', 'ti-x', 'Скасовано']
@@ -478,10 +479,11 @@ function renderOrdersTable() {
       <td>${paymentNames[o.payment_type]||o.payment_type}</td>
       <td>
         <select class="status-select" onchange="updateOrderStatus(${o.id}, this.value)">
-          <option value="new" ${o.status==='new'?'selected':''}>🟡 Нове</option>
+          <option value="new" ${o.status==='new'?'selected':''}>🟡 Прийнято</option>
           <option value="confirmed" ${o.status==='confirmed'?'selected':''}>🔵 Підтверджено</option>
+          <option value="printing" ${o.status==='printing'?'selected':''}>🖨 Друкується</option>
           <option value="shipped" ${o.status==='shipped'?'selected':''}>📦 Відправлено</option>
-          <option value="done" ${o.status==='done'?'selected':''}>✅ Виконано</option>
+          <option value="done" ${o.status==='done'?'selected':''}>🎉 Отримано</option>
           <option value="cancelled" ${o.status==='cancelled'?'selected':''}>❌ Скасовано</option>
         </select>
       </td>

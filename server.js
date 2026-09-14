@@ -23,19 +23,19 @@ if (hasRealToken) {
 
     const welcomeText =
       `Привіт, ${firstName}! 👋\n\n` +
-      `Це *Aki.Shop* — магазин гейм-обладнання прямо в Telegram: мишки, клавіатури, навушники та килимки для твого ідеального сетапу.\n\n` +
+      `Це *YOAKE°* — 3D-друковані лампи ручної роботи.\n\n` +
       `Що тут можна зробити:\n` +
-      `🛒 Переглянути каталог і додати товари в кошик\n` +
+      `🛒 Обрати лампу з каталогу\n` +
       `📦 Оформити замовлення з доставкою Nova Poshta або самовивозом\n` +
-      `⭐ Залишити оцінку товару після покупки\n` +
-      `📋 Стежити за статусом своїх замовлень в розділі «Акаунт»\n\n` +
+      `💡 Кожна лампа друкується під замовлення\n` +
+      `📋 Стежити за статусом замовлення в розділі «Профіль»\n\n` +
       `Натискай кнопку нижче, щоб відкрити магазин 👇`;
 
     bot.sendMessage(chatId, welcomeText, {
       parse_mode: 'Markdown',
       reply_markup: {
         inline_keyboard: [[
-          { text: '🛍 Відкрити магазин', web_app: { url: APP_URL } }
+          { text: '💡 Переглянути лампи', web_app: { url: APP_URL } }
         ]]
       }
     }).catch(err => console.error('Telegram /start error:', err.message));
@@ -197,11 +197,33 @@ app.get('/api/admin/orders', adminAuth, async (req, res) => {
   } catch(e) { res.status(500).json({ error: e.message }); }
 });
 
+// Тексти сповіщень клієнту при зміні статусу замовлення
+const STATUS_MESSAGES = {
+  new:       (n) => `📥 *Замовлення ${n}*\n\nМи прийняли твоє замовлення. Скоро підтвердимо деталі.`,
+  confirmed: (n) => `✅ *Замовлення ${n} підтверджено*\n\nБеремо в роботу. Повідомимо, коли лампа піде на друк.`,
+  printing:  (n) => `🖨 *Замовлення ${n} друкується*\n\nТвоя лампа зараз на принтері. Це займе кілька днів.`,
+  shipped:   (n) => `📦 *Замовлення ${n} відправлено*\n\nПосилка вже в дорозі. ТТН надішлемо окремо.`,
+  done:      (n) => `🎉 *Замовлення ${n} отримано*\n\nДякуємо за покупку! Будемо раді фото лампи у тебе вдома.`,
+  cancelled: (n) => `❌ *Замовлення ${n} скасовано*\n\nЯкщо це помилка — напиши нам, розберемось.`
+};
+
 app.patch('/api/admin/orders/:id', adminAuth, async (req, res) => {
   const { status } = req.body;
   try {
-    const { error } = await supabase.from('orders').update({ status }).eq('id', req.params.id);
+    const { data, error } = await supabase
+      .from('orders')
+      .update({ status })
+      .eq('id', req.params.id)
+      .select('order_num, telegram_user_id')
+      .single();
     if (error) throw error;
+
+    // Сповіщаємо клієнта в Telegram, якщо він оформляв замовлення через Mini App
+    if (hasRealToken && data?.telegram_user_id && STATUS_MESSAGES[status]) {
+      bot.sendMessage(data.telegram_user_id, STATUS_MESSAGES[status](data.order_num), { parse_mode: 'Markdown' })
+        .catch(err => console.error('Notify error:', err.message));
+    }
+
     res.json({ success: true });
   } catch(e) { res.status(500).json({ error: e.message }); }
 });
