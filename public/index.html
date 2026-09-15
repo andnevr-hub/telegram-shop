@@ -966,8 +966,11 @@ function updateColorLabel() {
 }
 
 function applyColorFilter(color) {
+  // Перефарбовуємо лише 1-ше фото — воно продуктове, з вирізаним фоном.
+  // Живі знімки в інтер'єрі (2-ге і далі) чіпати не можна: фільтр зафарбує і кімнату.
   const f = color ? colorFilter(color.hex) : 'none';
-  document.querySelectorAll('#detail-carousel img').forEach(img => { img.style.filter = f; });
+  const imgs = document.querySelectorAll('#detail-carousel img');
+  imgs.forEach((img, i) => { img.style.filter = i === 0 ? f : 'none'; });
 }
 
 function addFromDetail() { if (currentProduct) addToCart(currentProduct.id, selectedColor); }
