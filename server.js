@@ -116,7 +116,8 @@ app.get('/api/products', async (req, res) => {
     res.json(data.map(p => ({
       ...p,
       specs: p.specs || [],
-      photos: p.photos || (p.photo ? [p.photo] : [])
+      photos: p.photos || (p.photo ? [p.photo] : []),
+      colors: p.colors || []
     })));
   } catch(e) { res.status(500).json({ error: e.message }); }
 });
@@ -237,7 +238,7 @@ app.delete('/api/admin/orders/:id', adminAuth, async (req, res) => {
 });
 
 app.post('/api/admin/products', adminAuth, upload.array('photos', 4), async (req, res) => {
-  const { name, category, price, stock, description, specs } = req.body;
+  const { name, category, price, stock, description, specs, colors } = req.body;
   try {
     const photoUrls = await uploadPhotos(req.files);
     const { data, error } = await supabase.from('products').insert({
@@ -247,7 +248,8 @@ app.post('/api/admin/products', adminAuth, upload.array('photos', 4), async (req
       description,
       specs: JSON.parse(specs || '[]'),
       photo: photoUrls[0] || null,
-      photos: photoUrls
+      photos: photoUrls,
+      colors: colors ? JSON.parse(colors) : []
     }).select().single();
     if (error) throw error;
     res.json({ success: true, id: data.id });
@@ -255,7 +257,7 @@ app.post('/api/admin/products', adminAuth, upload.array('photos', 4), async (req
 });
 
 app.put('/api/admin/products/:id', adminAuth, upload.array('photos', 4), async (req, res) => {
-  const { name, category, price, stock, description, specs, keepPhotos } = req.body;
+  const { name, category, price, stock, description, specs, keepPhotos, colors } = req.body;
   try {
     const { data: product } = await supabase.from('products').select('*').eq('id', req.params.id).single();
     if (!product) return res.status(404).json({ error: 'Не знайдено' });
@@ -279,7 +281,8 @@ app.put('/api/admin/products/:id', adminAuth, upload.array('photos', 4), async (
       description,
       specs: JSON.parse(specs || '[]'),
       photo: finalPhotos[0] || null,
-      photos: finalPhotos
+      photos: finalPhotos,
+      colors: colors ? JSON.parse(colors) : []
     }).eq('id', req.params.id);
     if (error) throw error;
     res.json({ success: true });

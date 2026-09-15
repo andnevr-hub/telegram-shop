@@ -190,6 +190,19 @@ tr:hover td { background: var(--glass-soft); }
 }
 
 .specs-editor { display: flex; flex-direction: column; gap: 8px; }
+.colors-editor { display: flex; flex-direction: column; gap: 8px; }
+.color-row-edit { display: flex; gap: 8px; align-items: center; }
+.color-row-edit input[type=text] { flex: 1; }
+.color-row-edit input[type=number] { width: 80px; }
+.color-row-edit input[type=color] {
+  width: 42px; height: 38px; padding: 2px; border-radius: 10px; cursor: pointer;
+  border: 1px solid var(--line); background: var(--glass-soft); flex-shrink: 0;
+}
+.color-del-btn {
+  width: 32px; height: 32px; border-radius: 9px; border: 1px solid var(--line);
+  background: var(--red-dim); color: var(--red); cursor: pointer; font-size: 17px;
+  flex-shrink: 0; line-height: 1;
+}
 .spec-row-edit { display: flex; gap: 8px; align-items: center; }
 .spec-row-edit input { flex: 1; padding: 9px 12px; background: var(--glass-soft); border: 1.5px solid var(--line); border-radius: 10px; font-size: 12.5px; font-family: inherit; color: var(--text); outline: none; }
 .spec-row-edit input:focus { border-color: var(--pink); }
@@ -305,6 +318,15 @@ tr:hover td { background: var(--glass-soft); }
         <label>Характеристики</label>
         <div class="specs-editor" id="specs-editor"></div>
         <button type="button" class="btn btn-secondary btn-sm" style="margin-top:8px" onclick="addSpec()">+ Додати рядок</button>
+      </div>
+      <div class="field">
+        <label>Кольори лампи</label>
+        <div style="font-size:12px;color:var(--text3);margin:-4px 0 10px;line-height:1.5">
+          Фото завантажуєш одне — магазин сам перефарбує лампу в кожен доданий колір.
+          Обери відтінок піпеткою так, щоб він збігався з реальним філаментом.
+        </div>
+        <div class="colors-editor" id="colors-editor"></div>
+        <button type="button" class="btn btn-secondary btn-sm" style="margin-top:8px" onclick="addColor()">+ Додати колір</button>
       </div>
       <div class="field">
         <label>Фото (до 4 шт.)</label>
@@ -497,12 +519,14 @@ async function updateOrderStatus(id, status) {
 // ── PRODUCT MODAL with multi-photo support ──
 let editingProduct = null;
 let specRows = [];
+let colorRows = [];
 // photoSlots: масив з 4 елементів, кожен або null, або {type:'existing', url} або {type:'new', file, previewUrl}
 let photoSlots = [null, null, null, null];
 
 function openProductModal(product = null) {
   editingProduct = product;
   specRows = product ? (typeof product.specs === 'string' ? JSON.parse(product.specs) : product.specs) || [] : [];
+  colorRows = product ? (typeof product.colors === 'string' ? JSON.parse(product.colors) : product.colors) || [] : [];
 
   const existingPhotos = product ? getPhotosOf(product) : [];
   photoSlots = [0,1,2,3].map(i => existingPhotos[i] ? { type: 'existing', url: existingPhotos[i] } : null);
@@ -517,6 +541,7 @@ function openProductModal(product = null) {
   document.getElementById('f-desc').value = product?.description || '';
 
   renderSpecsEditor();
+  renderColorsEditor();
   renderPhotosGrid();
   document.getElementById('product-modal').classList.add('open');
 }
@@ -570,6 +595,20 @@ function renderSpecsEditor() {
   `).join('');
 }
 function addSpec() { specRows.push(['','']); renderSpecsEditor(); }
+
+function renderColorsEditor() {
+  const el = document.getElementById('colors-editor');
+  el.innerHTML = colorRows.map((c, i) => `
+    <div class="color-row-edit">
+      <input type="color" value="${c.hex || '#0d7f8f'}" onchange="colorRows[${i}].hex=this.value">
+      <input type="text" placeholder="Назва (напр. Forest Green)" value="${c.name || ''}" onchange="colorRows[${i}].name=this.value">
+      <input type="number" min="0" placeholder="шт." value="${c.stock ?? 0}" onchange="colorRows[${i}].stock=parseInt(this.value)||0">
+      <button type="button" class="color-del-btn" onclick="removeColor(${i})">×</button>
+    </div>
+  `).join('') || '<div style="font-size:12.5px;color:var(--text3)">Кольорів ще немає. Якщо не додати жодного — лампа продаватиметься в кольорі з фото.</div>';
+}
+function addColor() { colorRows.push({ hex:'#0d7f8f', name:'', stock:0 }); renderColorsEditor(); }
+function removeColor(i) { colorRows.splice(i,1); renderColorsEditor(); }
 function removeSpec(i) { specRows.splice(i, 1); renderSpecsEditor(); }
 
 async function submitProduct(e) {
@@ -584,6 +623,7 @@ async function submitProduct(e) {
   formData.append('stock', document.getElementById('f-stock').value);
   formData.append('description', document.getElementById('f-desc').value);
   formData.append('specs', JSON.stringify(specRows.filter(r => r[0] || r[1])));
+  formData.append('colors', JSON.stringify(colorRows.filter(c => c.name && c.hex)));
 
   const filledSlots = photoSlots.filter(Boolean);
   const keepPhotos = filledSlots.filter(s => s.type === 'existing').map(s => s.url);

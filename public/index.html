@@ -170,6 +170,35 @@ body.light .splash-logo { color: #0a0a0a; }
 }
 .brand { font-weight: 900; letter-spacing: -0.04em; }
 
+.mini-swatches { display: flex; gap: 5px; align-items: center; margin: 4px 0 2px; }
+.mini-swatch {
+  width: 11px; height: 11px; border-radius: 50%;
+  box-shadow: 0 0 0 1px var(--line) inset;
+}
+.mini-more { font-size: 10.5px; color: var(--text3); font-weight: 600; }
+
+/* ── COLOR SWATCHES ── */
+.color-picker { margin: 4px 0 20px; }
+.color-picker-label {
+  font-size: 11px; font-weight: 700; color: var(--text3);
+  text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 10px;
+}
+.color-swatches { display: flex; gap: 10px; flex-wrap: wrap; }
+.swatch {
+  width: 38px; height: 38px; border-radius: 50%; cursor: pointer;
+  border: 2px solid transparent; box-shadow: 0 0 0 1px var(--line) inset;
+  padding: 0; flex-shrink: 0; position: relative;
+  transition: transform .12s;
+}
+.swatch.active { border-color: var(--text); }
+.swatch:active { transform: scale(.9); }
+.swatch.out::after {
+  content: ''; position: absolute; inset: 40% -4px auto -4px; height: 2px;
+  background: var(--red); transform: rotate(-45deg);
+}
+.color-current { font-size: 13.5px; color: var(--text2); margin-top: 10px; }
+.color-current b { color: var(--text); font-weight: 600; }
+
 /* ── CATS ── */
 .cats { display: flex; gap: 8px; padding: 0 18px 18px; overflow-x: auto; scrollbar-width: none; }
 .cats::-webkit-scrollbar { display: none; }
@@ -577,6 +606,11 @@ body.light .st-cancelled { color: #d63027; }
     <span class="detail-cat-label" id="detail-cat-label"></span>
     <div class="detail-name" id="detail-name"></div>
     <div class="detail-price" id="detail-price"></div>
+    <div class="color-picker" id="color-picker" style="display:none">
+      <div class="color-picker-label">Колір</div>
+      <div class="color-swatches" id="color-swatches"></div>
+      <div class="color-current" id="color-current"></div>
+    </div>
     <div id="detail-desc-block">
       <div class="detail-section-label">Про лампу</div>
       <div class="detail-desc" id="detail-desc"></div>
@@ -669,6 +703,7 @@ let checkoutData = {};
 let orders = [];
 let carouselIndex = 0;
 let telegramId = null;
+let selectedColor = null;
 
 // ── THEME ──
 const themeBtn = document.getElementById('theme-btn');
@@ -769,18 +804,24 @@ function renderProducts() {
     const photos = getPhotos(p);
     return `
     <div class="product-card" onclick="openProduct(${p.id})">
-      <div class="product-img">
+      <div class="product-img"${(() => { const cs=getColors(p); const c=cs.find(x=>(x.stock??0)>0)||cs[0]; return c?` data-filter="${colorFilter(c.hex)}"`:''; })()}>
         ${imgTag(photos[0], iconForCat(p.category))}
         <span class="stock-badge ${p.stock > 0 ? 'in' : 'out'}">${p.stock > 0 ? `В наявності: ${p.stock}` : 'Немає'}</span>
         ${photos.length > 1 ? `<span class="photo-count"><i class="ti ti-photo"></i> ${photos.length}</span>` : ''}
       </div>
       <div class="product-info">
         <div class="product-name">${p.name}</div>
+        ${(() => { const cs = getColors(p); return cs.length ? `<div class="mini-swatches">${cs.slice(0,5).map(c=>`<span class="mini-swatch" style="background:${c.hex}"></span>`).join('')}${cs.length>5?`<span class="mini-more">+${cs.length-5}</span>`:''}</div>` : ''; })()}
         <div class="product-price">${Number(p.price).toLocaleString()} ₴</div>
         <button class="add-btn ${p.stock === 0 ? 'disabled' : ''}" onclick="event.stopPropagation();addToCart(${p.id})">В кошик</button>
       </div>
     </div>
   `}).join('');
+  // Обкладинки перефарбовуємо після вставки в DOM
+  grid.querySelectorAll('.product-img[data-filter]').forEach(el => {
+    const img = el.querySelector('img');
+    if (img) img.style.filter = el.dataset.filter;
+  });
 }
 
 function renderCarousel(photos) {
@@ -871,32 +912,101 @@ function openProduct(id) {
   document.getElementById('detail-specs').innerHTML = specs.map(([l,v]) => `
     <div class="spec-row"><span class="spec-label">${l}</span><span class="spec-val">${v}</span></div>
   `).join('') || '';
+  renderColorPicker(p);
   const btn = document.getElementById('detail-add-btn');
   btn.className = 'detail-add-btn' + (p.stock === 0 ? ' disabled' : '');
   btn.textContent = p.stock > 0 ? 'Додати в кошик' : 'Немає в наявності';
   showPage('detail');
 }
-function addFromDetail() { if (currentProduct && currentProduct.stock > 0) addToCart(currentProduct.id); }
+function getColors(p) {
+  const c = typeof p.colors === 'string' ? JSON.parse(p.colors) : (p.colors || []);
+  return Array.isArray(c) ? c : [];
+}
 
-function addToCart(id) {
+function renderColorPicker(p) {
+  const wrap = document.getElementById('color-picker');
+  const colors = getColors(p);
+  if (!colors.length) {
+    wrap.style.display = 'none';
+    selectedColor = null;
+    applyColorFilter(null);
+    return;
+  }
+  wrap.style.display = '';
+  const firstAvailable = colors.findIndex(c => (c.stock ?? 0) > 0);
+  selectedColor = colors[firstAvailable >= 0 ? firstAvailable : 0];
+  document.getElementById('color-swatches').innerHTML = colors.map((c, i) => `
+    <button class="swatch ${c === selectedColor ? 'active' : ''} ${(c.stock ?? 0) === 0 ? 'out' : ''}"
+      style="background:${c.hex}" aria-label="${c.name}" onclick="selectColor(${i})"></button>
+  `).join('');
+  updateColorLabel();
+  applyColorFilter(selectedColor);
+}
+
+function selectColor(i) {
+  haptic();
+  const colors = getColors(currentProduct);
+  selectedColor = colors[i];
+  document.querySelectorAll('#color-swatches .swatch').forEach((el, n) => {
+    el.classList.toggle('active', n === i);
+  });
+  updateColorLabel();
+  applyColorFilter(selectedColor);
+  const btn = document.getElementById('detail-add-btn');
+  const out = (selectedColor.stock ?? 0) === 0;
+  btn.className = 'detail-add-btn' + (out ? ' disabled' : '');
+  btn.textContent = out ? 'Немає в наявності' : 'Додати в кошик';
+}
+
+function updateColorLabel() {
+  const el = document.getElementById('color-current');
+  if (!selectedColor) { el.textContent = ''; return; }
+  const st = selectedColor.stock ?? 0;
+  el.innerHTML = `<b>${selectedColor.name}</b>` + (st > 0 ? ` · в наявності: ${st}` : ' · немає в наявності');
+}
+
+function applyColorFilter(color) {
+  const f = color ? colorFilter(color.hex) : 'none';
+  document.querySelectorAll('#detail-carousel img').forEach(img => { img.style.filter = f; });
+}
+
+function addFromDetail() { if (currentProduct) addToCart(currentProduct.id, selectedColor); }
+
+// Ключ позиції кошика: товар + колір, щоб різні кольори були окремими рядками
+function cartKey(id, color) { return color ? `${id}::${color.name}` : `${id}`; }
+
+function stockFor(p, color) {
+  if (color) return color.stock ?? 0;
+  return p.stock;
+}
+
+function addToCart(id, color) {
   const p = products.find(x => x.id === id);
-  if (!p || p.stock === 0) return;
-  if (cart[id]) cart[id].qty = Math.min(cart[id].qty + 1, p.stock);
-  else cart[id] = { product: p, qty: 1 };
+  if (!p) return;
+  // З картки каталогу колір не обраний — беремо перший доступний
+  if (color === undefined) {
+    const colors = getColors(p);
+    color = colors.length ? (colors.find(c => (c.stock ?? 0) > 0) || colors[0]) : null;
+  }
+  const max = stockFor(p, color);
+  if (max === 0) { showToast('Немає в наявності'); return; }
+  const k = cartKey(id, color);
+  if (cart[k]) cart[k].qty = Math.min(cart[k].qty + 1, max);
+  else cart[k] = { product: p, color: color, qty: 1 };
   updateBadge();
   showToast('✓ Додано до кошика');
   haptic();
 }
-function removeFromCart(id) { haptic(); delete cart[id]; updateBadge(); renderCart(); }
-function changeQty(id, d) {
-  if (!cart[id]) return;
-  const p = products.find(x => x.id === id);
-  const max = p ? p.stock : 999;
-  const newQty = cart[id].qty + d;
+function removeFromCart(k) { haptic(); delete cart[k]; updateBadge(); renderCart(); }
+function changeQty(k, d) {
+  if (!cart[k]) return;
+  const it = cart[k];
+  const max = stockFor(it.product, it.color);
+  const newQty = it.qty + d;
   if (d > 0 && newQty > max) { showToast(`Доступно лише ${max} шт.`); return; }
   haptic();
-  cart[id].qty = newQty;
-  if (cart[id].qty <= 0) delete cart[id];
+  it.qty = newQty;
+  if (it.qty <= 0) delete cart[k];
   updateBadge(); renderCart();
 }
 function updateBadge() {
@@ -918,19 +1028,22 @@ function renderCart() {
     </div>`;
     return;
   }
-  const list = items.map(i => `
+  const list = Object.entries(cart).map(([k, i]) => `
     <div class="cart-item">
-      <div class="cart-item-icon">${imgTag(getPhotos(i.product)[0], iconForCat(i.product.category), '26px')}</div>
+      <div class="cart-item-icon" ${i.color ? `style="filter:${colorFilter(i.color.hex)}"` : ''}>${imgTag(getPhotos(i.product)[0], iconForCat(i.product.category), '26px')}</div>
       <div class="cart-item-info">
         <div class="cart-item-name">${i.product.name}</div>
+        ${i.color ? `<div style="font-size:12px;color:var(--text2);display:flex;align-items:center;gap:6px;margin-top:2px">
+          <span style="width:10px;height:10px;border-radius:50%;background:${i.color.hex};box-shadow:0 0 0 1px var(--line)"></span>${i.color.name}
+        </div>` : ''}
         <div class="cart-item-price">${(i.product.price * i.qty).toLocaleString()} ₴</div>
         <div class="cart-item-qty">
-          <button class="qty-btn" onclick="changeQty(${i.product.id},-1)">−</button>
+          <button class="qty-btn" onclick="changeQty('${k}',-1)">−</button>
           <span class="qty-num">${i.qty}</span>
-          <button class="qty-btn" onclick="changeQty(${i.product.id},1)">+</button>
+          <button class="qty-btn" onclick="changeQty('${k}',1)">+</button>
         </div>
       </div>
-      <button class="remove-btn" onclick="removeFromCart(${i.product.id})"><i class="ti ti-x"></i></button>
+      <button class="remove-btn" onclick="removeFromCart('${k}')"><i class="ti ti-x"></i></button>
     </div>
   `).join('');
   const total = cartTotal();
@@ -1026,7 +1139,7 @@ function renderCheckoutStep() {
 }
 
 async function placeOrder() {
-  const items = Object.values(cart).map(i => ({ id: i.product.id, name: i.product.name, price: i.product.price, qty: i.qty }));
+  const items = Object.values(cart).map(i => ({ id: i.product.id, name: i.product.name + (i.color ? ` · ${i.color.name}` : ''), price: i.product.price, qty: i.qty }));
   try {
     const res = await fetch(`${API}/api/orders`, {
       method: 'POST',
@@ -1150,6 +1263,34 @@ function openSocial(url) {
   haptic();
   if (window.Telegram?.WebApp?.openLink) window.Telegram.WebApp.openLink(url);
   else window.open(url, '_blank');
+}
+
+// Перефарбування фото лампи: беремо світлотінь з оригіналу і задаємо потрібний колір.
+// grayscale прибирає оригінальний колір, sepia дає базу (~35°), далі крутимо до цілі.
+function hexToHsl(hex) {
+  const r = parseInt(hex.slice(1,3),16)/255, g = parseInt(hex.slice(3,5),16)/255, b = parseInt(hex.slice(5,7),16)/255;
+  const mx = Math.max(r,g,b), mn = Math.min(r,g,b), d = mx-mn;
+  let h = 0;
+  if (d) {
+    if (mx===r) h = ((g-b)/d + (g<b?6:0));
+    else if (mx===g) h = (b-r)/d + 2;
+    else h = (r-g)/d + 4;
+    h *= 60;
+  }
+  const l = (mx+mn)/2;
+  const sat = d === 0 ? 0 : d/(1-Math.abs(2*l-1));
+  return { h, s: sat, l };
+}
+function colorFilter(hex) {
+  const { h, s, l } = hexToHsl(hex);
+  if (s < 0.12) {
+    // Білий / сірий / чорний — колір крутити нічого, працюємо яскравістю
+    return `grayscale(1) brightness(${(0.45 + l * 1.05).toFixed(2)})`;
+  }
+  const rot = Math.round(h - 35);
+  const sat = (s * 3.2).toFixed(2);
+  const bri = (0.72 + l * 0.75).toFixed(2);
+  return `grayscale(1) sepia(1) hue-rotate(${rot}deg) saturate(${sat}) brightness(${bri})`;
 }
 
 function haptic(style) {
