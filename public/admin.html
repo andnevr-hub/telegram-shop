@@ -29,7 +29,6 @@
   --orange-dim: rgba(255,159,10,0.16);
   --blue: #f5f5f7;
   --blue-dim: rgba(245,245,247,0.16);
-  --mice: #f5f5f7; --keyboards: #c7c7cc; --headphones: #8e8e93; --pads: #aeaeb2;
   --r: 20px;
   --font: 'Inter', -apple-system, sans-serif;
   --blur: 26px;
@@ -48,7 +47,6 @@ body.light {
   --on-pink: #ffffff;
   --blue: #1c1c1e;
   --blue-dim: rgba(28,28,30,0.12);
-  --mice: #1c1c1e; --keyboards: #48484a; --headphones: #6e6e73; --pads: #8e8e93;
 }
 html, body { background: #050505; }
 body.light { background: #f5f5f7; }
@@ -275,7 +273,7 @@ tr:hover td { background: var(--glass-soft); }
       </div>
       <div class="page-subtitle">Керування каталогом</div>
       <div class="card">
-        <table><thead><tr><th style="width:50px"></th><th>Назва</th><th>Категорія</th><th>Ціна</th><th>Наявність</th><th>Дії</th></tr></thead>
+        <table><thead><tr><th style="width:50px"></th><th>Назва</th><th>Ціна</th><th>Наявність</th><th>Дії</th></tr></thead>
         <tbody id="products-table"></tbody></table>
       </div>
     </div>
@@ -297,18 +295,7 @@ tr:hover td { background: var(--glass-soft); }
     <div class="modal-title" id="modal-title">Новий товар</div>
     <form id="product-form" onsubmit="submitProduct(event)">
       <input type="hidden" id="edit-id">
-      <div class="form-row">
-        <div class="field"><label>Назва товару</label><input type="text" id="f-name" placeholder="ATK F1 V2" required></div>
-        <div class="field">
-          <label>Категорія</label>
-          <select id="f-cat" required>
-            <option value="mice">🖱 Мишки</option>
-            <option value="keyboards">⌨️ Клавіатури</option>
-            <option value="headphones">🎧 Навушники</option>
-            <option value="pads">🎯 Килимки</option>
-          </select>
-        </div>
-      </div>
+      <div class="field"><label>Назва моделі</label><input type="text" id="f-name" placeholder="YOAKE 01 · RIDGE" required></div>
       <div class="form-row">
         <div class="field"><label>Ціна (₴)</label><input type="number" id="f-price" placeholder="2900" required min="1"></div>
         <div class="field"><label>В наявності (кількість)</label><input type="number" id="f-stock" placeholder="1" required min="0"></div>
@@ -320,7 +307,12 @@ tr:hover td { background: var(--glass-soft); }
         <button type="button" class="btn btn-secondary btn-sm" style="margin-top:8px" onclick="addSpec()">+ Додати рядок</button>
       </div>
       <div class="field">
-        <label>Фото (до 4 шт.) — 1-ше: лампа вимкнена · 2-ге: увімкнена (для тумблера світла)</label>
+        <label>Фото (до 4 шт.)</label>
+        <div style="font-size:12px;color:var(--text3);margin:-4px 0 10px;line-height:1.5">
+          <b style="color:var(--text2)">1-ше фото</b> — лампа вимкнена на однотонному фоні (це обкладинка в каталозі)<br>
+          <b style="color:var(--text2)">2-ге фото</b> — та сама лампа зі світлом (з'явиться по кнопці «Увімкнути світло»)<br>
+          Далі — будь-які додаткові ракурси. Найкраще працює PNG із прозорим фоном.
+        </div>
         <div class="photos-grid" id="photos-grid"></div>
       </div>
       <div class="modal-actions">
@@ -411,9 +403,9 @@ function statusBadge(s) {
   return `<span class="badge ${cls}"><i class="ti ${icon}"></i> ${label}</span>`;
 }
 
-const catNames = { mice:'Мишки', keyboards:'Клавіатури', headphones:'Навушники', pads:'Килимки' };
-const catColors = { mice:'var(--mice)', keyboards:'var(--keyboards)', headphones:'var(--headphones)', pads:'var(--pads)' };
-const catIcons = { mice:'ti-mouse-2', keyboards:'ti-keyboard', headphones:'ti-headphones', pads:'ti-square' };
+
+
+
 
 function getPhotosOf(p) {
   if (Array.isArray(p.photos) && p.photos.length) return p.photos;
@@ -423,14 +415,13 @@ function getPhotosOf(p) {
 
 function renderProductsTable() {
   const tbody = document.getElementById('products-table');
-  if (!allProducts.length) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:40px">Товарів ще немає. Додай перший!</td></tr>'; return; }
+  if (!allProducts.length) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text3);padding:40px">Ламп ще немає. Додай першу!</td></tr>'; return; }
   tbody.innerHTML = allProducts.map(p => {
     const photos = getPhotosOf(p);
     return `
     <tr>
-      <td><div class="prod-img-cell">${photos[0] ? `<img src="${photos[0]}" alt="">` : `<i class="ti ${catIcons[p.category]||'ti-package'}" style="font-size:18px;color:var(--text3)"></i>`}${photos.length > 1 ? `<span class="prod-img-count">${photos.length}</span>` : ''}</div></td>
+      <td><div class="prod-img-cell">${photos[0] ? `<img src="${photos[0]}" alt="">` : `<i class="ti ti-bulb" style="font-size:18px;color:var(--text3)"></i>`}${photos.length > 1 ? `<span class="prod-img-count">${photos.length}</span>` : ''}</div></td>
       <td><strong>${p.name}</strong></td>
-      <td><span class="cat-pill"><span class="cat-pill-dot" style="background:${catColors[p.category]||'var(--text3)'}"></span>${catNames[p.category] || p.category}</span></td>
       <td>${Number(p.price).toLocaleString()} ₴</td>
       <td>
         <div style="display:flex;align-items:center;gap:8px">
@@ -520,7 +511,7 @@ function openProductModal(product = null) {
   document.getElementById('submit-btn').textContent = product ? 'Зберегти зміни' : 'Додати товар';
   document.getElementById('edit-id').value = product?.id || '';
   document.getElementById('f-name').value = product?.name || '';
-  document.getElementById('f-cat').value = product?.category || 'mice';
+  
   document.getElementById('f-price').value = product?.price || '';
   document.getElementById('f-stock').value = product?.stock ?? 0;
   document.getElementById('f-desc').value = product?.description || '';
@@ -588,7 +579,7 @@ async function submitProduct(e) {
 
   const formData = new FormData();
   formData.append('name', document.getElementById('f-name').value);
-  formData.append('category', document.getElementById('f-cat').value);
+  formData.append('category', 'lamps');
   formData.append('price', document.getElementById('f-price').value);
   formData.append('stock', document.getElementById('f-stock').value);
   formData.append('description', document.getElementById('f-desc').value);
