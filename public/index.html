@@ -28,7 +28,7 @@
   --red-dim: rgba(255,69,58,0.18);
   --mice: #f5f5f7; --keyboards: #c7c7cc; --headphones: #8e8e93; --pads: #aeaeb2;
   --on-pink: #0a0a0a;
-  --photo-bg: #1a1a1c;
+  --photo-bg: #ededeb;
   --r-lg: 26px;
   --r-md: 18px;
   --r-sm: 13px;
@@ -52,7 +52,7 @@ body.light {
   --green-dim: rgba(28,28,30,0.12);
   --mice: #1c1c1e; --keyboards: #48484a; --headphones: #6e6e73; --pads: #8e8e93;
   --on-pink: #ffffff;
-  --photo-bg: #f0f0f0;
+  --photo-bg: #f2f2f0;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 html, body { background: #050505; }
@@ -170,7 +170,7 @@ body.light .splash-logo { color: #0a0a0a; }
 }
 .brand { font-weight: 900; letter-spacing: -0.04em; }
 
-.mini-swatches { display: flex; gap: 5px; align-items: center; margin: 4px 0 2px; }
+.mini-swatches { display: flex; gap: 5px; align-items: center; justify-content: center; margin: 6px 0 5px; }
 .mini-swatch {
   width: 11px; height: 11px; border-radius: 50%;
   box-shadow: 0 0 0 1px var(--line) inset;
@@ -215,22 +215,19 @@ body.light .splash-logo { color: #0a0a0a; }
 .cat-dot { width: 6px; height: 6px; border-radius: 50%; }
 
 /* ── PRODUCTS GRID ── */
-.products-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 13px; padding: 0 18px; }
+.products-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 26px 14px; padding: 0 18px 10px; }
 .product-card {
-  background: var(--glass);
-  backdrop-filter: blur(var(--blur)) saturate(1.6);
-  -webkit-backdrop-filter: blur(var(--blur)) saturate(1.6);
-  border-radius: var(--r-lg);
-  overflow: hidden; cursor: pointer; position: relative;
-  border: 1px solid var(--line);
+  background: none; border: none; box-shadow: none;
+  cursor: pointer; position: relative;
   transition: transform .15s;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.12);
 }
+.product-card:active { transform: scale(.985); }
 .product-card:active { transform: scale(0.97); }
 .product-img {
   width: 100%; aspect-ratio: 1; background: var(--photo-bg);
   display: flex; align-items: center; justify-content: center;
   font-size: 44px; position: relative; overflow: hidden;
+  border-radius: 18px;
 }
 .product-img img {
   width: 100%; height: 100%; object-fit: contain;
@@ -252,18 +249,20 @@ body.dark-mode .stock-badge.in, .stock-badge.in { color: #34d058; }
   backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); color: #fff;
   display: flex; align-items: center; gap: 3px;
 }
-.product-info { padding: 12px 13px 14px; }
+.product-info { padding: 11px 2px 0; text-align: center; }
 .product-cat-label {
   font-size: 10px; font-weight: 700; text-transform: uppercase;
   letter-spacing: 0.06em; margin-bottom: 5px; display: block;
 }
 .product-name {
-  font-size: 13px; font-weight: 600; line-height: 1.35; margin-bottom: 8px;
+  font-size: 13.5px; font-weight: 500; line-height: 1.3; margin-bottom: 3px;
+  letter-spacing: 0.01em;
   display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
-  min-height: 35px;
 }
-.product-price { font-size: 17px; font-weight: 800; letter-spacing: -0.01em; }
+.product-price { font-size: 13px; font-weight: 400; color: var(--text2); letter-spacing: 0.01em; }
+.product-sold { font-size: 11px; color: var(--text3); letter-spacing: 0.06em; text-transform: uppercase; margin-top: 2px; }
 .add-btn {
+  display: none;
   margin-top: 10px; width: 100%; background: var(--glass-soft);
   border: 1px solid var(--line-soft); border-radius: var(--r-sm); color: var(--text);
   font-size: 12.5px; font-weight: 600; padding: 10px;
@@ -296,23 +295,6 @@ body.dark-mode .stock-badge.in, .stock-badge.in { color: #34d058; }
 }
 .carousel-arrow.prev { left: 12px; }
 .carousel-arrow.next { right: 12px; }
-.light-toggle {
-  position: absolute; left: 50%; bottom: 46px; transform: translateX(-50%);
-  display: inline-flex; align-items: center; gap: 7px;
-  padding: 10px 16px; border-radius: 999px;
-  background: rgba(0,0,0,.55); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255,255,255,.18); color: #f5f5f7;
-  font-size: 13px; font-weight: 600; font-family: var(--font);
-  cursor: pointer; white-space: nowrap; z-index: 4;
-  transition: background .25s, border-color .25s, color .25s, box-shadow .25s;
-}
-.light-toggle i { font-size: 16px; }
-.light-toggle.on {
-  background: rgba(255,196,84,.92); border-color: rgba(255,214,130,.9); color: #2a1c00;
-  box-shadow: 0 0 26px rgba(255,190,70,.5);
-}
-.light-toggle:active { transform: translateX(-50%) scale(.96); }
-
 .carousel-dots {
   position: absolute; bottom: 14px; left: 0; right: 0;
   display: flex; justify-content: center; gap: 6px; z-index: 4;
@@ -810,14 +792,13 @@ function renderProducts() {
         return c.photo ? ` data-src="${c.photo}"` : ` data-filter="${colorFilter(c.hex)}"`;
       })()}>
         ${imgTag(photos[0], iconForCat(p.category))}
-        <span class="stock-badge ${p.stock > 0 ? 'in' : 'out'}">${p.stock > 0 ? `В наявності: ${p.stock}` : 'Немає'}</span>
-        ${photos.length > 1 ? `<span class="photo-count"><i class="ti ti-photo"></i> ${photos.length}</span>` : ''}
       </div>
       <div class="product-info">
         <div class="product-name">${p.name}</div>
-        ${(() => { const cs = getColors(p); return cs.length ? `<div class="mini-swatches">${cs.slice(0,5).map(c=>`<span class="mini-swatch" style="background:${c.hex}"></span>`).join('')}${cs.length>5?`<span class="mini-more">+${cs.length-5}</span>`:''}</div>` : ''; })()}
-        <div class="product-price">${Number(p.price).toLocaleString()} ₴</div>
-        <button class="add-btn ${p.stock === 0 ? 'disabled' : ''}" onclick="event.stopPropagation();addToCart(${p.id})">В кошик</button>
+        ${(() => { const cs = getColors(p); return cs.length ? `<div class="mini-swatches">${cs.slice(0,6).map(c=>`<span class="mini-swatch" style="background:${c.hex}"></span>`).join('')}${cs.length>6?`<span class="mini-more">+${cs.length-6}</span>`:''}</div>` : ''; })()}
+        ${p.stock > 0
+          ? `<div class="product-price">${Number(p.price).toLocaleString()} ₴</div>`
+          : `<div class="product-sold">Sold out</div>`}
       </div>
     </div>
   `}).join('');
@@ -847,32 +828,11 @@ function renderCarousel(photos) {
       <button class="carousel-arrow prev" onclick="carouselMove(-1)">‹</button>
       <button class="carousel-arrow next" onclick="carouselMove(1)">›</button>
       <div class="carousel-dots">${photos.map((_,i) => `<div class="carousel-dot ${i===0?'active':''}" data-i="${i}"></div>`).join('')}</div>
-      <button class="light-toggle" id="light-toggle" onclick="toggleLight()">
-        <i class="ti ti-bulb-off"></i><span>Увімкнути світло</span>
-      </button>
     ` : ''}
   `;
   el.dataset.count = photos.length;
 }
 
-// Тумблер світла: фото №1 — лампа вимкнена, фото №2 — увімкнена
-function toggleLight() {
-  haptic();
-  const count = parseInt(document.getElementById('detail-carousel').dataset.count || '1');
-  if (count < 2) return;
-  carouselIndex = carouselIndex === 0 ? 1 : 0;
-  updateCarousel();
-}
-
-function updateLightToggle() {
-  const btn = document.getElementById('light-toggle');
-  if (!btn) return;
-  const on = carouselIndex === 1;
-  btn.classList.toggle('on', on);
-  btn.innerHTML = on
-    ? '<i class="ti ti-bulb"></i><span>Вимкнути світло</span>'
-    : '<i class="ti ti-bulb-off"></i><span>Увімкнути світло</span>';
-}
 function carouselMove(dir) {
   const count = parseInt(document.getElementById('detail-carousel').dataset.count || '1');
   carouselIndex = Math.max(0, Math.min(count - 1, carouselIndex + dir));
@@ -884,7 +844,6 @@ function updateCarousel() {
   const count = parseInt(document.getElementById('detail-carousel').dataset.count || '1');
   track.style.transform = `translateX(-${carouselIndex * (100/count)}%)`;
   document.querySelectorAll('.carousel-dot').forEach((d,i) => d.classList.toggle('active', i === carouselIndex));
-  updateLightToggle();
 }
 
 let touchStartX = 0;
@@ -974,20 +933,9 @@ function updateColorLabel() {
 }
 
 function applyColorFilter(color) {
-  const imgs = document.querySelectorAll('#detail-carousel img');
-  if (!imgs.length) return;
-  const first = imgs[0];
-  if (color && color.photo) {
-    // Є готове фото цього кольору — підставляємо його, фільтр не потрібен
-    if (!first.dataset.orig) first.dataset.orig = first.src;
-    first.src = color.photo;
-    first.style.filter = 'none';
-  } else {
-    // Фото немає — перефарбовуємо головне. Живі знімки (2-ге і далі) не чіпаємо.
-    if (first.dataset.orig) first.src = first.dataset.orig;
-    first.style.filter = color ? colorFilter(color.hex) : 'none';
-  }
-  for (let i = 1; i < imgs.length; i++) imgs[i].style.filter = 'none';
+  // Карусель на сторінці товару показує лише живі фото в інтер'єрі —
+  // їх не перефарбовуємо. PNG кольору працює як обкладинка в каталозі й мініатюра свотча.
+  document.querySelectorAll('#detail-carousel img').forEach(img => { img.style.filter = 'none'; });
 }
 
 function addFromDetail() { if (currentProduct) addToCart(currentProduct.id, selectedColor); }
