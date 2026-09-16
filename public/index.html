@@ -28,7 +28,7 @@
   --red-dim: rgba(255,69,58,0.18);
   --mice: #f5f5f7; --keyboards: #c7c7cc; --headphones: #8e8e93; --pads: #aeaeb2;
   --on-pink: #0a0a0a;
-  --photo-bg: #ededeb;
+  --photo-bg: #dcdcd8;
   --r-lg: 26px;
   --r-md: 18px;
   --r-sm: 13px;
@@ -55,7 +55,7 @@ body.light {
   --photo-bg: #f2f2f0;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-html, body { background: #050505; }
+html, body { background: #0b0b0d; }
 body.light { background: #f5f5f7; }
 
 body {
@@ -227,8 +227,10 @@ body.light .splash-logo { color: #0a0a0a; }
   width: 100%; aspect-ratio: 1; background: var(--photo-bg);
   display: flex; align-items: center; justify-content: center;
   font-size: 44px; position: relative; overflow: hidden;
-  border-radius: 18px;
+  border-radius: 20px;
+  box-shadow: 0 2px 18px rgba(0,0,0,.28);
 }
+body.light .product-img { box-shadow: 0 2px 14px rgba(0,0,0,.07); }
 .product-img img {
   width: 100%; height: 100%; object-fit: contain;
   position: absolute; top: 0; left: 0; padding: 10px;
@@ -260,7 +262,10 @@ body.dark-mode .stock-badge.in, .stock-badge.in { color: #34d058; }
   display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
 }
 .product-price { font-size: 13px; font-weight: 400; color: var(--text2); letter-spacing: 0.01em; }
-.product-sold { font-size: 11px; color: var(--text3); letter-spacing: 0.06em; text-transform: uppercase; margin-top: 2px; }
+.product-sold { font-size: 11px; color: var(--text3); letter-spacing: 0.04em; margin-top: 3px; }
+.detail-stock { font-size: 13px; margin: 6px 0 18px; letter-spacing: 0.01em; }
+.detail-stock.in { color: var(--green); }
+.detail-stock.out { color: var(--text3); }
 .add-btn {
   display: none;
   margin-top: 10px; width: 100%; background: var(--glass-soft);
@@ -278,6 +283,7 @@ body.dark-mode .stock-badge.in, .stock-badge.in { color: #34d058; }
   width: 100%; aspect-ratio: 1; position: relative; overflow: hidden;
   background: var(--photo-bg);
 }
+body.light .detail-carousel { background: #f2f2f0; }
 .detail-carousel-track {
   display: flex; height: 100%; transition: transform .35s cubic-bezier(.25,.8,.5,1);
 }
@@ -588,7 +594,8 @@ body.light .st-cancelled { color: #d63027; }
     <span class="detail-cat-label" id="detail-cat-label"></span>
     <div class="detail-name" id="detail-name"></div>
     <div class="detail-price" id="detail-price"></div>
-    <div class="color-picker" id="color-picker" style="display:none">
+    <div class="detail-stock" id="detail-stock"></div>
+    <div class="color-picker" id="color-picker" style="display:none!important">
       <div class="color-picker-label">Колір</div>
       <div class="color-swatches" id="color-swatches"></div>
       <div class="color-current" id="color-current"></div>
@@ -795,10 +802,8 @@ function renderProducts() {
       </div>
       <div class="product-info">
         <div class="product-name">${p.name}</div>
-        ${(() => { const cs = getColors(p); return cs.length ? `<div class="mini-swatches">${cs.slice(0,6).map(c=>`<span class="mini-swatch" style="background:${c.hex}"></span>`).join('')}${cs.length>6?`<span class="mini-more">+${cs.length-6}</span>`:''}</div>` : ''; })()}
-        ${p.stock > 0
-          ? `<div class="product-price">${Number(p.price).toLocaleString()} ₴</div>`
-          : `<div class="product-sold">Sold out</div>`}
+        <div class="product-price">${Number(p.price).toLocaleString()} ₴</div>
+        ${p.stock > 0 ? '' : `<div class="product-sold">Немає в наявності</div>`}
       </div>
     </div>
   `}).join('');
@@ -864,7 +869,10 @@ function openProduct(id) {
   currentProduct = p;
   prevPage = currentPage;
   const specs = typeof p.specs === 'string' ? JSON.parse(p.specs) : (p.specs || []);
-  renderCarousel(getPhotos(p));
+  // У каруселі лише інтер'єрні фото: продуктові PNG кольорів звідси прибираємо
+  const colorPhotos = getColors(p).map(c => c.photo).filter(Boolean);
+  const interior = getPhotos(p).filter(src => !colorPhotos.includes(src));
+  renderCarousel(interior.length ? interior : getPhotos(p));
   document.getElementById('detail-cat-label').textContent = catLabel(p.category);
   document.getElementById('detail-cat-label').style.color = catColor(p.category);
   document.getElementById('detail-name').textContent = p.name;
@@ -880,6 +888,8 @@ function openProduct(id) {
     <div class="spec-row"><span class="spec-label">${l}</span><span class="spec-val">${v}</span></div>
   `).join('') || '';
   renderColorPicker(p);
+  document.getElementById('detail-stock').textContent = p.stock > 0 ? 'В наявності' : 'Немає в наявності';
+  document.getElementById('detail-stock').className = 'detail-stock' + (p.stock > 0 ? ' in' : ' out');
   const btn = document.getElementById('detail-add-btn');
   btn.className = 'detail-add-btn' + (p.stock === 0 ? ' disabled' : '');
   btn.textContent = p.stock > 0 ? 'Додати в кошик' : 'Немає в наявності';
