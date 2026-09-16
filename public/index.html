@@ -116,6 +116,34 @@ body {
 .page.active { display: block; }
 @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
 
+/* ── VIEW TRANSITIONS ── */
+/* Нативні переходи між екранами. Браузери без підтримки просто ігнорують і лишається fade. */
+@media (prefers-reduced-motion: no-preference) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) { animation-duration: .38s; animation-timing-function: cubic-bezier(.32,.72,0,1); }
+
+  /* Вглиб: новий екран наїжджає справа, старий трохи відходить ліворуч */
+  html.vt-forward::view-transition-old(root) { animation-name: slideOutLeft; }
+  html.vt-forward::view-transition-new(root) { animation-name: slideInRight; }
+
+  /* Назад: дзеркально */
+  html.vt-back::view-transition-old(root) { animation-name: slideOutRight; }
+  html.vt-back::view-transition-new(root) { animation-name: slideInLeft; }
+
+  /* Перемикання вкладок — м'яке проявлення без зсуву вбік */
+  html.vt-fade::view-transition-old(root) { animation-name: vtFadeOut; }
+  html.vt-fade::view-transition-new(root) { animation-name: vtFadeIn; }
+}
+@keyframes slideInRight  { from { opacity:0; transform: translateX(26px); } to { opacity:1; transform:none; } }
+@keyframes slideOutLeft  { from { opacity:1; transform:none; } to { opacity:0; transform: translateX(-14px); } }
+@keyframes slideInLeft   { from { opacity:0; transform: translateX(-26px); } to { opacity:1; transform:none; } }
+@keyframes slideOutRight { from { opacity:1; transform:none; } to { opacity:0; transform: translateX(14px); } }
+@keyframes vtFadeIn      { from { opacity:0; transform: translateY(6px) scale(.995); } to { opacity:1; transform:none; } }
+@keyframes vtFadeOut     { from { opacity:1; } to { opacity:0; } }
+
+/* Фото товару «перелітає» з каталогу на сторінку лампи */
+.product-img img { view-transition-name: none; }
+
 /* ── HEADER ── */
 .page-header {
   padding: 28px 18px 14px;
@@ -239,6 +267,17 @@ body.light .splash-logo { color: #0a0a0a; }
   transition: transform .15s;
 }
 .product-card:active { transform: scale(.985); }
+@media (prefers-reduced-motion: no-preference) {
+  .product-card { animation: cardIn .45s cubic-bezier(.32,.72,0,1) backwards; }
+  .product-card:nth-child(1) { animation-delay: .02s }
+  .product-card:nth-child(2) { animation-delay: .07s }
+  .product-card:nth-child(3) { animation-delay: .12s }
+  .product-card:nth-child(4) { animation-delay: .17s }
+  .product-card:nth-child(5) { animation-delay: .22s }
+  .product-card:nth-child(6) { animation-delay: .27s }
+  .product-card:nth-child(n+7) { animation-delay: .3s }
+}
+@keyframes cardIn { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
 .product-card:active { transform: scale(0.97); }
 .product-img {
   width: 100%; aspect-ratio: 1; background: var(--photo-bg);
@@ -360,6 +399,8 @@ body.light .detail-carousel-slide img { filter: drop-shadow(0 20px 26px rgba(0,0
 .spec-row:last-child { border-bottom: none; }
 .spec-label { color: var(--text2); }
 .spec-val { font-weight: 600; }
+.detail-add-btn { transition: transform .12s, opacity .2s; }
+.detail-add-btn:active { transform: scale(.975); }
 .detail-add-btn {
   width: 100%; background: var(--pink); border: none;
   border-radius: 18px; color: var(--on-pink); font-size: 16px;
@@ -775,10 +816,19 @@ function getPhotos(p) {
   return [];
 }
 
-function showPage(name) {
-  haptic();
-  prevPage = currentPage;
-  currentPage = name;
+// Порядок екранів — з нього визначаємо напрямок переходу
+const PAGE_DEPTH = { shop: 0, cart: 0, account: 0, detail: 1, checkout: 1 };
+
+function withTransition(dir, fn) {
+  // View Transitions є не в усіх браузерах — тоді просто виконуємо зміну без анімації
+  if (!document.startViewTransition) { fn(); return; }
+  const cls = dir === 'forward' ? 'vt-forward' : dir === 'back' ? 'vt-back' : 'vt-fade';
+  document.documentElement.classList.add(cls);
+  const t = document.startViewTransition(fn);
+  t.finished.finally(() => document.documentElement.classList.remove(cls));
+}
+
+function applyPage(name) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.getElementById('page-' + name).classList.add('active');
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
@@ -788,7 +838,17 @@ function showPage(name) {
   if (name === 'account') loadOrders();
   window.scrollTo(0, 0);
 }
-function goBack() { showPage(prevPage === 'cart' ? 'shop' : (prevPage || 'shop')); }
+
+function showPage(name, dirOverride) {
+  haptic();
+  const from = PAGE_DEPTH[currentPage] ?? 0;
+  const to = PAGE_DEPTH[name] ?? 0;
+  const dir = dirOverride || (to > from ? 'forward' : to < from ? 'back' : 'fade');
+  prevPage = currentPage;
+  currentPage = name;
+  withTransition(dir, () => applyPage(name));
+}
+function goBack() { showPage(prevPage === 'cart' ? 'shop' : (prevPage || 'shop'), 'back'); }
 
 function catColor(cat) { return CATS.find(x => x.id === cat)?.color || 'var(--pink)'; }
 function catLabel(cat) { return CATS.find(x => x.id === cat)?.label || cat; }
