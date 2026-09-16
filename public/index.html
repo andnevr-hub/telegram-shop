@@ -116,6 +116,14 @@ body {
 .page.active { display: block; }
 @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
 
+/* У Telegram головні дії винесені в нативні MainButton/BackButton,
+   тому дублікати в HTML ховаємо. У звичайному браузері вони лишаються. */
+body.tg-native .page-back,
+body.tg-native .detail-add-btn,
+body.tg-native .checkout-nav-row,
+body.tg-native .checkout-btn { display: none !important; }
+body.tg-native { padding-bottom: 120px; }
+
 /* ── VIEW TRANSITIONS ── */
 /* Нативні переходи між екранами. Браузери без підтримки просто ігнорують і лишається fade. */
 @media (prefers-reduced-motion: no-preference) {
@@ -779,6 +787,8 @@ window.onload = async () => {
   if (window.Telegram?.WebApp) {
     const tg = window.Telegram.WebApp;
     tg.expand();
+    // initData порожній, якщо сторінку відкрито у звичайному браузері
+    if (tg.initData || tg.initDataUnsafe?.user) document.body.classList.add('tg-native');
     const u = tg.initDataUnsafe?.user;
     if (u) {
       telegramId = u.id;
@@ -791,6 +801,7 @@ window.onload = async () => {
   // Splash показується мінімум 1.4с, щоб анімація логотипу встигла програтись
   const minSplash = new Promise(r => setTimeout(r, 2600));
   await Promise.all([loadProducts(), minSplash]);
+  syncTelegramUI();
   document.getElementById('splash').classList.add('hide');
 };
 
@@ -847,6 +858,7 @@ function showPage(name, dirOverride) {
   prevPage = currentPage;
   currentPage = name;
   withTransition(dir, () => applyPage(name));
+  syncTelegramUI();
 }
 function goBack() { showPage(prevPage === 'cart' ? 'shop' : (prevPage || 'shop'), 'back'); }
 
@@ -1074,6 +1086,7 @@ function changeQty(k, d) {
   updateBadge(); renderCart();
 }
 function updateBadge() {
+  if (currentPage === 'cart') setTimeout(syncTelegramUI, 0);
   const n = Object.values(cart).reduce((s,i) => s+i.qty, 0);
   const b = document.getElementById('cart-badge');
   b.textContent = n; b.style.display = n > 0 ? 'flex' : 'none';
@@ -1134,6 +1147,7 @@ function setStep(n) {
   document.querySelectorAll('.step-label').forEach((l,i) => { l.className = 'step-label' + (i+1===n?' active':''); });
 }
 function renderCheckoutStep() {
+  setTimeout(syncCheckoutMainButton, 0);
   setStep(checkoutStep);
   const el = document.getElementById('checkout-body');
   if (checkoutStep === 1) {
@@ -1205,6 +1219,7 @@ function renderCheckoutStep() {
 }
 
 async function placeOrder() {
+  TG?.MainButton?.showProgress(true);
   const items = Object.values(cart).map(i => ({ id: i.product.id, name: i.product.name + (i.color ? ` · ${i.color.name}` : ''), price: i.product.price, qty: i.qty }));
   try {
     const res = await fetch(`${API}/api/orders`, {
@@ -1226,7 +1241,10 @@ async function placeOrder() {
         <button class="success-btn" onclick="showPage('shop')">Продовжити покупки</button>
       </div>`;
     if (window.Telegram?.WebApp?.HapticFeedback) window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
+    TG?.MainButton?.hideProgress();
+    hideMainButton();
   } catch(e) {
+    TG?.MainButton?.hideProgress();
     showToast('✕ Помилка. Спробуй ще раз');
     checkoutStep = 3; renderCheckoutStep();
   }
@@ -1357,6 +1375,71 @@ function colorFilter(hex) {
   const sat = (s * 3.2).toFixed(2);
   const bri = (0.72 + l * 0.75).toFixed(2);
   return `grayscale(1) sepia(1) hue-rotate(${rot}deg) saturate(${sat}) brightness(${bri})`;
+}
+
+// ── НАТИВНІ КНОПКИ TELEGRAM ──
+// MainButton приклеєна до низу екрана, BackButton — стрілка в шапці.
+// Малює їх сам Telegram, тому вони виглядають як частина застосунку.
+const TG = window.Telegram?.WebApp;
+
+function setMainButton(text, onClick, opts = {}) {
+  if (!TG?.MainButton) return;
+  const mb = TG.MainButton;
+  mb.offClick(mainBtnHandler);
+  mainBtnHandler = onClick;
+  mb.setText(text);
+  mb.onClick(mainBtnHandler);
+  if (opts.disabled) { mb.disable(); mb.color = '#6b6b6b'; }
+  else { mb.enable(); mb.color = TG.themeParams?.button_color || '#f5f5f7'; }
+  mb.textColor = opts.disabled ? '#cfcfcf' : (TG.themeParams?.button_text_color || '#0a0a0a');
+  mb.show();
+}
+let mainBtnHandler = () => {};
+
+function hideMainButton() { TG?.MainButton?.hide(); }
+
+function setBackButton(show, onClick) {
+  if (!TG?.BackButton) return;
+  TG.BackButton.offClick(backBtnHandler);
+  if (show) {
+    backBtnHandler = onClick;
+    TG.BackButton.onClick(backBtnHandler);
+    TG.BackButton.show();
+  } else {
+    TG.BackButton.hide();
+  }
+}
+let backBtnHandler = () => {};
+
+// Кнопки перемальовуємо під кожен екран
+function syncTelegramUI() {
+  if (!TG) return;
+  const p = currentProduct;
+  if (currentPage === 'detail' && p) {
+    setBackButton(true, () => goBack());
+    const out = p.stock === 0;
+    setMainButton(out ? 'Немає в наявності' : 'Додати в кошик',
+      () => { if (!out) addFromDetail(); }, { disabled: out });
+  } else if (currentPage === 'checkout') {
+    setBackButton(true, () => { if (checkoutStep > 1) prevStep(); else showPage('cart'); });
+    syncCheckoutMainButton();
+  } else if (currentPage === 'cart') {
+    setBackButton(false);
+    const has = Object.keys(cart).length > 0;
+    if (has) setMainButton(`Оформити · ${cartTotal().toLocaleString()} ₴`, () => startCheckout());
+    else hideMainButton();
+  } else {
+    setBackButton(false);
+    hideMainButton();
+  }
+}
+
+function syncCheckoutMainButton() {
+  if (!TG) return;
+  if (checkoutStep === 1) setMainButton('Далі', () => nextStep1());
+  else if (checkoutStep === 2) setMainButton('Далі', () => nextStep2());
+  else if (checkoutStep === 3) setMainButton('Підтвердити замовлення', () => nextStep3());
+  else hideMainButton();
 }
 
 function haptic(style) {
