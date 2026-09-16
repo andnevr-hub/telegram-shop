@@ -193,6 +193,13 @@ tr:hover td { background: var(--glass-soft); }
 .colors-editor { display: flex; flex-direction: column; gap: 8px; }
 .color-row-edit { display: flex; gap: 8px; align-items: center; }
 .color-row-edit input[type=text] { flex: 1; }
+.color-photo-slot {
+  width: 42px; height: 38px; border-radius: 10px; flex-shrink: 0; cursor: pointer;
+  border: 1px dashed var(--line); background: var(--glass-soft); overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--text3); font-size: 18px;
+}
+.color-photo-slot img { width: 100%; height: 100%; object-fit: contain; }
 .color-row-edit input[type=number] { width: 80px; }
 .color-row-edit input[type=color] {
   width: 42px; height: 38px; padding: 2px; border-radius: 10px; cursor: pointer;
@@ -322,8 +329,10 @@ tr:hover td { background: var(--glass-soft); }
       <div class="field">
         <label>Кольори лампи</label>
         <div style="font-size:12px;color:var(--text3);margin:-4px 0 10px;line-height:1.5">
-          Фото завантажуєш одне — магазин сам перефарбує лампу в кожен доданий колір.
-          Обери відтінок піпеткою так, щоб він збігався з реальним філаментом.
+          До кожного кольору можна прикріпити <b style="color:var(--text2)">своє фото</b> (квадратик зліва) —
+          саме воно покажеться, коли покупець обере цей колір.
+          Якщо фото не додати, магазин перефарбує головне фото автоматично.
+          Піпеткою задай відтінок для кружечка-свотча.
         </div>
         <div class="colors-editor" id="colors-editor"></div>
         <button type="button" class="btn btn-secondary btn-sm" style="margin-top:8px" onclick="addColor()">+ Додати колір</button>
@@ -601,12 +610,34 @@ function renderColorsEditor() {
   const el = document.getElementById('colors-editor');
   el.innerHTML = colorRows.map((c, i) => `
     <div class="color-row-edit">
+      <label class="color-photo-slot" title="Фото цього кольору">
+        ${c.photo ? `<img src="${c.photo}" alt="">` : '<span>+</span>'}
+        <input type="file" accept="image/*" hidden onchange="uploadColorPhoto(${i}, this)">
+      </label>
       <input type="color" value="${c.hex || '#0d7f8f'}" onchange="colorRows[${i}].hex=this.value">
       <input type="text" placeholder="Назва (напр. Forest Green)" value="${c.name || ''}" onchange="colorRows[${i}].name=this.value">
       <input type="number" min="0" placeholder="шт." value="${c.stock ?? 0}" onchange="colorRows[${i}].stock=parseInt(this.value)||0">
       <button type="button" class="color-del-btn" onclick="removeColor(${i})">×</button>
     </div>
   `).join('') || '<div style="font-size:12.5px;color:var(--text3)">Кольорів ще немає. Якщо не додати жодного — лампа продаватиметься в кольорі з фото.</div>';
+}
+
+async function uploadColorPhoto(i, input) {
+  const file = input.files[0];
+  if (!file) return;
+  const fd = new FormData();
+  fd.append('photo', file);
+  toast('Завантаження фото…');
+  try {
+    const res = await fetch(`${API}/api/admin/upload-photo`, {
+      method: 'POST', headers: { 'x-admin-token': adminToken }, body: fd
+    });
+    const data = await res.json();
+    if (!data.url) throw new Error(data.error || 'Помилка');
+    colorRows[i].photo = data.url;
+    renderColorsEditor();
+    toast('Фото додано ✓');
+  } catch(e) { toast('Помилка: ' + e.message); }
 }
 function addColor() { colorRows.push({ hex:'#0d7f8f', name:'', stock:0 }); renderColorsEditor(); }
 function removeColor(i) { colorRows.splice(i,1); renderColorsEditor(); }

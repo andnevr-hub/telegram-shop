@@ -804,7 +804,11 @@ function renderProducts() {
     const photos = getPhotos(p);
     return `
     <div class="product-card" onclick="openProduct(${p.id})">
-      <div class="product-img"${(() => { const cs=getColors(p); const c=cs.find(x=>(x.stock??0)>0)||cs[0]; return c?` data-filter="${colorFilter(c.hex)}"`:''; })()}>
+      <div class="product-img"${(() => {
+        const cs=getColors(p); const c=cs.find(x=>(x.stock??0)>0)||cs[0];
+        if (!c) return '';
+        return c.photo ? ` data-src="${c.photo}"` : ` data-filter="${colorFilter(c.hex)}"`;
+      })()}>
         ${imgTag(photos[0], iconForCat(p.category))}
         <span class="stock-badge ${p.stock > 0 ? 'in' : 'out'}">${p.stock > 0 ? `В наявності: ${p.stock}` : 'Немає'}</span>
         ${photos.length > 1 ? `<span class="photo-count"><i class="ti ti-photo"></i> ${photos.length}</span>` : ''}
@@ -821,6 +825,10 @@ function renderProducts() {
   grid.querySelectorAll('.product-img[data-filter]').forEach(el => {
     const img = el.querySelector('img');
     if (img) img.style.filter = el.dataset.filter;
+  });
+  grid.querySelectorAll('.product-img[data-src]').forEach(el => {
+    const img = el.querySelector('img');
+    if (img) img.src = el.dataset.src;
   });
 }
 
@@ -966,11 +974,20 @@ function updateColorLabel() {
 }
 
 function applyColorFilter(color) {
-  // Перефарбовуємо лише 1-ше фото — воно продуктове, з вирізаним фоном.
-  // Живі знімки в інтер'єрі (2-ге і далі) чіпати не можна: фільтр зафарбує і кімнату.
-  const f = color ? colorFilter(color.hex) : 'none';
   const imgs = document.querySelectorAll('#detail-carousel img');
-  imgs.forEach((img, i) => { img.style.filter = i === 0 ? f : 'none'; });
+  if (!imgs.length) return;
+  const first = imgs[0];
+  if (color && color.photo) {
+    // Є готове фото цього кольору — підставляємо його, фільтр не потрібен
+    if (!first.dataset.orig) first.dataset.orig = first.src;
+    first.src = color.photo;
+    first.style.filter = 'none';
+  } else {
+    // Фото немає — перефарбовуємо головне. Живі знімки (2-ге і далі) не чіпаємо.
+    if (first.dataset.orig) first.src = first.dataset.orig;
+    first.style.filter = color ? colorFilter(color.hex) : 'none';
+  }
+  for (let i = 1; i < imgs.length; i++) imgs[i].style.filter = 'none';
 }
 
 function addFromDetail() { if (currentProduct) addToCart(currentProduct.id, selectedColor); }
@@ -1033,7 +1050,9 @@ function renderCart() {
   }
   const list = Object.entries(cart).map(([k, i]) => `
     <div class="cart-item">
-      <div class="cart-item-icon" ${i.color ? `style="filter:${colorFilter(i.color.hex)}"` : ''}>${imgTag(getPhotos(i.product)[0], iconForCat(i.product.category), '26px')}</div>
+      <div class="cart-item-icon">${i.color && i.color.photo
+        ? `<img src="${i.color.photo}" alt="">`
+        : `<span style="${i.color ? `filter:${colorFilter(i.color.hex)};display:block;width:100%;height:100%` : ''}">${imgTag(getPhotos(i.product)[0], iconForCat(i.product.category), '26px')}</span>`}</div>
       <div class="cart-item-info">
         <div class="cart-item-name">${i.product.name}</div>
         ${i.color ? `<div style="font-size:12px;color:var(--text2);display:flex;align-items:center;gap:6px;margin-top:2px">

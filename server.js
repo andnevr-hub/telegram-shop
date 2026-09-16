@@ -237,6 +237,15 @@ app.delete('/api/admin/orders/:id', adminAuth, async (req, res) => {
   } catch(e) { res.status(500).json({ error: e.message }); }
 });
 
+// Завантаження одного фото (для конкретного кольору) — повертає готовий URL
+app.post('/api/admin/upload-photo', adminAuth, upload.single('photo'), async (req, res) => {
+  try {
+    if (!req.file) return res.status(400).json({ error: 'Файл не передано' });
+    const urls = await uploadPhotos([req.file]);
+    res.json({ url: urls[0] });
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
+
 app.post('/api/admin/products', adminAuth, upload.array('photos', 4), async (req, res) => {
   const { name, category, price, stock, description, specs, colors } = req.body;
   try {
