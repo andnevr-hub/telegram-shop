@@ -124,6 +124,11 @@ body.tg-native .checkout-nav-row,
 body.tg-native .checkout-btn { display: none !important; }
 body.tg-native { padding-bottom: 120px; }
 
+/* На екранах з MainButton нижня навігація зайва — лишається одна дія внизу.
+   Діє лише в Telegram: у браузері MainButton немає, тож навігація має лишитись. */
+body.tg-native.hide-nav .nav { display: none !important; }
+body.tg-native.hide-nav { padding-bottom: 90px; }
+
 /* ── VIEW TRANSITIONS ── */
 /* Нативні переходи між екранами. Браузери без підтримки просто ігнорують і лишається fade. */
 @media (prefers-reduced-motion: no-preference) {
@@ -1414,6 +1419,10 @@ let backBtnHandler = () => {};
 // Кнопки перемальовуємо під кожен екран
 function syncTelegramUI() {
   if (!TG) return;
+  // Навігацію ховаємо там, де внизу стоїть MainButton
+  const hideNav = ['detail', 'checkout'].includes(currentPage)
+    || (currentPage === 'cart' && Object.keys(cart).length > 0);
+  document.body.classList.toggle('hide-nav', hideNav);
   const p = currentProduct;
   if (currentPage === 'detail' && p) {
     setBackButton(true, () => goBack());
@@ -1424,8 +1433,8 @@ function syncTelegramUI() {
     setBackButton(true, () => { if (checkoutStep > 1) prevStep(); else showPage('cart'); });
     syncCheckoutMainButton();
   } else if (currentPage === 'cart') {
-    setBackButton(false);
     const has = Object.keys(cart).length > 0;
+    setBackButton(has, () => showPage('shop', 'back'));
     if (has) setMainButton(`Оформити · ${cartTotal().toLocaleString()} ₴`, () => startCheckout());
     else hideMainButton();
   } else {
