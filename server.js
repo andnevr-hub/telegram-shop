@@ -319,6 +319,10 @@ app.patch('/api/admin/products/:id/stock', adminAuth, async (req, res) => {
 });
 
 // ── FALLBACK ──
+// Легкий ендпоінт для пінгера (cron-job.org) — тримає сервіс у притомному стані.
+// Віддає два байти замість цілої сторінки, щоб не перевищувати ліміт логів пінгера.
+app.get('/ping', (req, res) => res.type('text/plain').send('ok'));
+
 app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'public', 'admin.html')));
 app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
 
