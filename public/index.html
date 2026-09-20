@@ -29,7 +29,6 @@
   --red-dim: rgba(255,69,58,0.18);
   --mice: #f5f5f7; --keyboards: #c7c7cc; --headphones: #8e8e93; --pads: #aeaeb2;
   --on-pink: #0a0a0a;
-  --amber: #FFB020;
   --photo-bg: transparent;
   --r-lg: 26px;
   --r-md: 18px;
@@ -54,7 +53,6 @@ body.light {
   --green-dim: rgba(28,28,30,0.12);
   --mice: #1c1c1e; --keyboards: #48484a; --headphones: #6e6e73; --pads: #8e8e93;
   --on-pink: #ffffff;
-  --amber: #E8940F;
   --photo-bg: transparent;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
@@ -217,7 +215,6 @@ body.light #splash { background: #f5f5f7; }
   font-weight: 800; font-size: 46px; line-height: 1;
   letter-spacing: -0.01em;
   color: #f5f5f7; opacity: 0;
-  display: inline-flex; align-items: baseline;
   animation: splashIn 1.2s cubic-bezier(.22,.7,.2,1) .8s both;
   will-change: opacity, transform;
 }
@@ -232,12 +229,7 @@ body.light .splash-logo { color: #0a0a0a; }
   font-family: 'Baloo 2', var(--font);
   font-weight: 800; letter-spacing: -0.01em;
   font-size: 27px; line-height: 1.1;
-  display: inline-flex; align-items: baseline; gap: 0;
 }
-/* Ø малюємо як SVG — так риску можна пофарбувати окремо від кола */
-.brand-o { width: .60em; height: .60em; align-self: center; margin: 0 .01em; }
-.brand-deg { color: var(--amber); }
-.logo-mark { width: 28px; height: 28px; flex-shrink: 0; }
 
 .mini-swatches { display: flex; gap: 5px; align-items: center; justify-content: center; margin: 6px 0 5px; }
 .mini-swatch {
@@ -648,30 +640,17 @@ body.light .st-cancelled { color: #d63027; }
 </head>
 <body>
 
-<div id="splash"><div class="splash-logo">Y<svg class="brand-o" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.6" fill="none" stroke="currentColor" stroke-width="4"/><line x1="5" y1="19" x2="19" y2="5" stroke="var(--amber)" stroke-width="4" stroke-linecap="round"/></svg>AKE<span class="brand-deg">°</span></div></div>
+<div id="splash"><div class="splash-logo">YØAKE°</div></div>
 
 <div class="toast" id="toast"></div>
 
 <!-- SHOP -->
 <div class="page active" id="page-shop">
   <div class="page-header">
-    <div style="display:flex;align-items:center;gap:10px;min-width:0">
-      <svg class="logo-mark" viewBox="0 0 56 56" aria-hidden="true">
-        <circle cx="28" cy="28" r="17" fill="none" stroke="currentColor" stroke-width="4.5"/>
-        <path d="M15 40 L21 34" stroke="currentColor" stroke-width="4.5" stroke-linecap="round"/>
-        <path d="M35 22 L41 16" stroke="currentColor" stroke-width="4.5" stroke-linecap="round"/>
-        <circle cx="28" cy="28" r="4.8" fill="none" stroke="var(--amber)" stroke-width="3"/>
-        <g stroke="var(--amber)" stroke-width="3.6" stroke-linecap="round">
-          <line x1="28" y1="1" x2="28" y2="9"/>
-          <line x1="49" y1="7" x2="43" y2="13" opacity=".62"/>
-          <line x1="7" y1="7" x2="13" y2="13" opacity=".38"/>
-        </g>
-      </svg>
-      <span class="page-title brand">Y<svg class="brand-o" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.6" fill="none" stroke="currentColor" stroke-width="4"/><line x1="5" y1="19" x2="19" y2="5" stroke="var(--amber)" stroke-width="4" stroke-linecap="round"/></svg>AKE<span class="brand-deg">°</span></span>
-    </div>
+    <span class="page-title brand">YØAKE°</span>
     <div class="header-actions">
-      <button class="social-btn" onclick="openSocial('https://instagram.com/ВАШ_НІК')" aria-label="Instagram"><i class="ti ti-brand-instagram"></i></button>
-      <button class="social-btn" onclick="openSocial('https://tiktok.com/@ВАШ_НІК')" aria-label="TikTok"><i class="ti ti-brand-tiktok"></i></button>
+      <button class="social-btn" onclick="openSocial('https://instagram.com/yoake_3d')" aria-label="Instagram"><i class="ti ti-brand-instagram"></i></button>
+      <button class="social-btn" onclick="openSocial('https://www.tiktok.com/@yoake_3d')" aria-label="TikTok"><i class="ti ti-brand-tiktok"></i></button>
       <button class="theme-btn" id="theme-btn"><i class="ti ti-moon"></i></button>
     </div>
   </div>
