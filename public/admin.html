@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>YOAKE° — Адмін</title>
+<title>YØAKE° — Адмін</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/3.35.0/tabler-icons.min.css">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
@@ -66,7 +66,7 @@ body {
   box-shadow: 0 20px 60px rgba(0,0,0,0.3);
 }
 .login-logo { width: 58px; height: 58px; border-radius: 18px; background: var(--pink); display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 24px; color: var(--on-pink); }
-.login-box h1 { font-family: 'Archivo', var(--font); font-stretch: 125%; font-size: 26px; font-weight: 900; letter-spacing: -0.015em; margin-bottom: 6px; }
+.login-box h1 { font-family: 'Baloo 2', var(--font); font-size: 28px; font-weight: 800; letter-spacing: -0.01em; margin-bottom: 6px; }
 .login-box p { color: var(--text2); font-size: 14px; margin-bottom: 28px; }
 .login-input {
   width: 100%; padding: 14px 16px; background: var(--glass-soft); border: 1.5px solid var(--line);
@@ -83,7 +83,7 @@ body {
   border-right: 1px solid var(--line); position: fixed; top: 0; left: 0; bottom: 0;
   display: flex; flex-direction: column; padding: 26px 16px; z-index: 100;
 }
-.sidebar-logo { font-family: 'Archivo', var(--font); font-stretch: 125%; font-size: 18px; font-weight: 900; letter-spacing: -0.015em; padding: 0 8px; margin-bottom: 30px; display: flex; align-items: center; gap: 10px; }
+.sidebar-logo { font-family: 'Baloo 2', var(--font); font-size: 19px; font-weight: 800; letter-spacing: -0.01em; padding: 0 8px; margin-bottom: 30px; display: flex; align-items: center; gap: 10px; }
 .sidebar-logo-icon { width: 30px; height: 30px; border-radius: 11px; background: var(--pink); display: flex; align-items: center; justify-content: center; font-size: 14px; color: var(--on-pink); }
 .nav-item {
   display: flex; align-items: center; gap: 11px; padding: 11px 14px; border-radius: 13px;
@@ -239,7 +239,7 @@ tr:hover td { background: var(--glass-soft); }
 <div id="login-screen">
   <div class="login-box">
     <div class="login-logo"><i class="ti ti-bulb"></i></div>
-    <h1>YOAKE°</h1>
+    <h1>YØAKE°</h1>
     <p>Адмін-панель магазину</p>
     <input type="password" class="login-input" id="pass-input" placeholder="Пароль" onkeydown="if(event.key==='Enter')doLogin()">
     <button class="login-btn" onclick="doLogin()">Увійти</button>
@@ -250,7 +250,7 @@ tr:hover td { background: var(--glass-soft); }
 <!-- ADMIN -->
 <div id="admin-screen">
   <div class="sidebar">
-    <div class="sidebar-logo"><span class="sidebar-logo-icon"><i class="ti ti-bulb"></i></span>YOAKE°</div>
+    <div class="sidebar-logo"><span class="sidebar-logo-icon"><i class="ti ti-bulb"></i></span>YØAKE°</div>
     <button class="nav-item active" id="nav-dashboard" onclick="switchTab('dashboard')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
       Дашборд
@@ -315,7 +315,7 @@ tr:hover td { background: var(--glass-soft); }
     <div class="modal-title" id="modal-title">Новий товар</div>
     <form id="product-form" onsubmit="submitProduct(event)">
       <input type="hidden" id="edit-id">
-      <div class="field"><label>Назва моделі</label><input type="text" id="f-name" placeholder="YOAKE 01 · RIDGE" required></div>
+      <div class="field"><label>Назва моделі</label><input type="text" id="f-name" placeholder="YØAKE 01 · RIDGE" required></div>
       <div class="form-row">
         <div class="field"><label>Ціна (₴)</label><input type="number" id="f-price" placeholder="2900" required min="1"></div>
         <div class="field"><label>В наявності (кількість)</label><input type="number" id="f-stock" placeholder="1" required min="0"></div>
