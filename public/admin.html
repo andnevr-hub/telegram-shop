@@ -21,6 +21,7 @@
   --pink: #f5f5f7;
   --pink-dim: rgba(245,245,247,0.18);
   --on-pink: #0a0a0a;
+  --amber: #FFB020;
   --green: #32d74b;
   --green-dim: rgba(50,215,75,0.16);
   --red: #ff453a;
@@ -45,6 +46,7 @@ body.light {
   --pink: #1c1c1e;
   --pink-dim: rgba(28,28,30,0.12);
   --on-pink: #ffffff;
+  --amber: #E8940F;
   --blue: #1c1c1e;
   --blue-dim: rgba(28,28,30,0.12);
 }
@@ -238,8 +240,19 @@ tr:hover td { background: var(--glass-soft); }
 <!-- LOGIN -->
 <div id="login-screen">
   <div class="login-box">
-    <div class="login-logo"><i class="ti ti-bulb"></i></div>
-    <h1>YØAKE°</h1>
+    <div class="login-logo">
+      <svg style="width:32px;height:32px" viewBox="0 0 56 56" aria-hidden="true">
+        <circle cx="28" cy="28" r="17" fill="none" stroke="currentColor" stroke-width="4.5"/>
+        <path d="M15 40 L21 34" stroke="currentColor" stroke-width="4.5" stroke-linecap="round"/>
+        <path d="M35 22 L41 16" stroke="currentColor" stroke-width="4.5" stroke-linecap="round"/>
+        <circle cx="28" cy="28" r="4.8" fill="none" stroke="#FFB020" stroke-width="3"/>
+        <g stroke="#FFB020" stroke-width="3.6" stroke-linecap="round">
+          <line x1="28" y1="1" x2="28" y2="9"/>
+          <line x1="49" y1="7" x2="43" y2="13" opacity=".62"/>
+          <line x1="7" y1="7" x2="13" y2="13" opacity=".38"/>
+        </g>
+      </svg></div>
+    <h1>YØAKE<span style="color:var(--amber)">°</span></h1>
     <p>Адмін-панель магазину</p>
     <input type="password" class="login-input" id="pass-input" placeholder="Пароль" onkeydown="if(event.key==='Enter')doLogin()">
     <button class="login-btn" onclick="doLogin()">Увійти</button>
@@ -250,7 +263,18 @@ tr:hover td { background: var(--glass-soft); }
 <!-- ADMIN -->
 <div id="admin-screen">
   <div class="sidebar">
-    <div class="sidebar-logo"><span class="sidebar-logo-icon"><i class="ti ti-bulb"></i></span>YØAKE°</div>
+    <div class="sidebar-logo">
+      <svg style="width:26px;height:26px;flex-shrink:0" viewBox="0 0 56 56" aria-hidden="true">
+        <circle cx="28" cy="28" r="17" fill="none" stroke="currentColor" stroke-width="4.5"/>
+        <path d="M15 40 L21 34" stroke="currentColor" stroke-width="4.5" stroke-linecap="round"/>
+        <path d="M35 22 L41 16" stroke="currentColor" stroke-width="4.5" stroke-linecap="round"/>
+        <circle cx="28" cy="28" r="4.8" fill="none" stroke="var(--amber)" stroke-width="3"/>
+        <g stroke="var(--amber)" stroke-width="3.6" stroke-linecap="round">
+          <line x1="28" y1="1" x2="28" y2="9"/>
+          <line x1="49" y1="7" x2="43" y2="13" opacity=".62"/>
+          <line x1="7" y1="7" x2="13" y2="13" opacity=".38"/>
+        </g>
+      </svg>YØAKE<span style="color:var(--amber)">°</span></div>
     <button class="nav-item active" id="nav-dashboard" onclick="switchTab('dashboard')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
       Дашборд
