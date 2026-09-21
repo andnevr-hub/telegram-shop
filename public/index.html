@@ -29,6 +29,7 @@
   --red-dim: rgba(255,69,58,0.18);
   --mice: #f5f5f7; --keyboards: #c7c7cc; --headphones: #8e8e93; --pads: #aeaeb2;
   --on-pink: #0a0a0a;
+  --amber: #FFB020;
   --photo-bg: transparent;
   --r-lg: 26px;
   --r-md: 18px;
@@ -53,6 +54,7 @@ body.light {
   --green-dim: rgba(28,28,30,0.12);
   --mice: #1c1c1e; --keyboards: #48484a; --headphones: #6e6e73; --pads: #8e8e93;
   --on-pink: #ffffff;
+  --amber: #E8940F;
   --photo-bg: transparent;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
@@ -230,6 +232,8 @@ body.light .splash-logo { color: #0a0a0a; }
   font-weight: 800; letter-spacing: -0.01em;
   font-size: 27px; line-height: 1.1;
 }
+/* Градус — бурштиновий і піднятий над рядком, як на аватарці */
+.brand-deg { color: var(--amber); font-size: .56em; vertical-align: .55em; margin-left: .02em; }
 
 .mini-swatches { display: flex; gap: 5px; align-items: center; justify-content: center; margin: 6px 0 5px; }
 .mini-swatch {
@@ -640,14 +644,14 @@ body.light .st-cancelled { color: #d63027; }
 </head>
 <body>
 
-<div id="splash"><div class="splash-logo">YØAKE°</div></div>
+<div id="splash"><div class="splash-logo">YØAKE<span class="brand-deg">°</span></div></div>
 
 <div class="toast" id="toast"></div>
 
 <!-- SHOP -->
 <div class="page active" id="page-shop">
   <div class="page-header">
-    <span class="page-title brand">YØAKE°</span>
+    <span class="page-title brand">YØAKE<span class="brand-deg">°</span></span>
     <div class="header-actions">
       <button class="social-btn" onclick="openSocial('https://instagram.com/yoake_3d')" aria-label="Instagram"><i class="ti ti-brand-instagram"></i></button>
       <button class="social-btn" onclick="openSocial('https://www.tiktok.com/@yoake_3d')" aria-label="TikTok"><i class="ti ti-brand-tiktok"></i></button>
@@ -977,7 +981,10 @@ function openProduct(id) {
   const specs = typeof p.specs === 'string' ? JSON.parse(p.specs) : (p.specs || []);
   // У каруселі лише інтер'єрні фото: продуктові PNG кольорів звідси прибираємо
   const colorPhotos = getColors(p).map(c => c.photo).filter(Boolean);
-  const interior = getPhotos(p).filter(src => !colorPhotos.includes(src));
+  let interior = getPhotos(p).filter(src => !colorPhotos.includes(src));
+  // Без кольорів 1-ше фото — обкладинка каталогу, на сторінці лампи її не показуємо.
+  // Якщо фото лише одне — лишаємо його, щоб сторінка не була порожньою.
+  if (!colorPhotos.length && interior.length > 1) interior = interior.slice(1);
   renderCarousel(interior.length ? interior : getPhotos(p));
   document.getElementById('detail-cat-label').textContent = catLabel(p.category);
   document.getElementById('detail-cat-label').style.color = catColor(p.category);

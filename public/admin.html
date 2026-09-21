@@ -191,6 +191,7 @@ tr:hover td { background: var(--glass-soft); }
   font-size: 8.5px; font-weight: 700; padding: 2px 6px; border-radius: 8px; z-index: 4;
 }
 
+.brand-deg { color: var(--amber); font-size: .56em; vertical-align: .55em; }
 .specs-editor { display: flex; flex-direction: column; gap: 8px; }
 .colors-editor { display: flex; flex-direction: column; gap: 8px; }
 .color-row-edit { display: flex; gap: 8px; align-items: center; }
@@ -240,19 +241,8 @@ tr:hover td { background: var(--glass-soft); }
 <!-- LOGIN -->
 <div id="login-screen">
   <div class="login-box">
-    <div class="login-logo">
-      <svg style="width:32px;height:32px" viewBox="0 0 56 56" aria-hidden="true">
-        <circle cx="28" cy="28" r="17" fill="none" stroke="currentColor" stroke-width="4.5"/>
-        <path d="M15 40 L21 34" stroke="currentColor" stroke-width="4.5" stroke-linecap="round"/>
-        <path d="M35 22 L41 16" stroke="currentColor" stroke-width="4.5" stroke-linecap="round"/>
-        <circle cx="28" cy="28" r="4.8" fill="none" stroke="#FFB020" stroke-width="3"/>
-        <g stroke="#FFB020" stroke-width="3.6" stroke-linecap="round">
-          <line x1="28" y1="1" x2="28" y2="9"/>
-          <line x1="49" y1="7" x2="43" y2="13" opacity=".62"/>
-          <line x1="7" y1="7" x2="13" y2="13" opacity=".38"/>
-        </g>
-      </svg></div>
-    <h1>YØAKE<span style="color:var(--amber)">°</span></h1>
+    <div class="login-logo"><i class="ti ti-bulb"></i></div>
+    <h1>YØAKE<span class="brand-deg">°</span></h1>
     <p>Адмін-панель магазину</p>
     <input type="password" class="login-input" id="pass-input" placeholder="Пароль" onkeydown="if(event.key==='Enter')doLogin()">
     <button class="login-btn" onclick="doLogin()">Увійти</button>
@@ -263,18 +253,7 @@ tr:hover td { background: var(--glass-soft); }
 <!-- ADMIN -->
 <div id="admin-screen">
   <div class="sidebar">
-    <div class="sidebar-logo">
-      <svg style="width:26px;height:26px;flex-shrink:0" viewBox="0 0 56 56" aria-hidden="true">
-        <circle cx="28" cy="28" r="17" fill="none" stroke="currentColor" stroke-width="4.5"/>
-        <path d="M15 40 L21 34" stroke="currentColor" stroke-width="4.5" stroke-linecap="round"/>
-        <path d="M35 22 L41 16" stroke="currentColor" stroke-width="4.5" stroke-linecap="round"/>
-        <circle cx="28" cy="28" r="4.8" fill="none" stroke="var(--amber)" stroke-width="3"/>
-        <g stroke="var(--amber)" stroke-width="3.6" stroke-linecap="round">
-          <line x1="28" y1="1" x2="28" y2="9"/>
-          <line x1="49" y1="7" x2="43" y2="13" opacity=".62"/>
-          <line x1="7" y1="7" x2="13" y2="13" opacity=".38"/>
-        </g>
-      </svg>YØAKE<span style="color:var(--amber)">°</span></div>
+    <div class="sidebar-logo"><span class="sidebar-logo-icon"><i class="ti ti-bulb"></i></span>YØAKE<span class="brand-deg">°</span></div>
     <button class="nav-item active" id="nav-dashboard" onclick="switchTab('dashboard')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
       Дашборд
@@ -364,9 +343,8 @@ tr:hover td { background: var(--glass-soft); }
       <div class="field">
         <label>Фото (до 4 шт.)</label>
         <div style="font-size:12px;color:var(--text3);margin:-4px 0 10px;line-height:1.5">
-Фото <b style="color:var(--text2)">в інтер'єрі</b> — їх покупець гортає всередині товару.
-          Будь-які ракурси: вимкнена, зі світлом, на столі, зблизька.<br>
-          Продуктові PNG прикріплюй до кольорів вище — вони йдуть на обкладинку каталогу.
+          <b style="color:var(--text2)">1-ше фото</b> — обкладинка в каталозі: лампа без фону (PNG). На сторінці лампи її не видно.<br>
+          <b style="color:var(--text2)">2-ге і далі</b> — фото в інтер'єрі: їх покупець гортає на сторінці лампи.
         </div>
         <div class="photos-grid" id="photos-grid"></div>
       </div>
