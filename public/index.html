@@ -995,11 +995,9 @@ function openProduct(id, ci) {
     : null;
   const specs = typeof p.specs === 'string' ? JSON.parse(p.specs) : (p.specs || []);
 
-  // Карусель — реальні фото в інтер'єрі. Поки їх немає, показуємо обкладинку кольору.
+  // Фото кольору — лише обкладинка на головній. Тут тільки фото, які ви додали самі.
   const colorPhotos = colors.map(c => c.photo).filter(Boolean);
-  const interior = getPhotos(p).filter(src => !colorPhotos.includes(src));
-  const fallback = selectedColor && selectedColor.photo ? [selectedColor.photo] : getPhotos(p);
-  renderCarousel(interior.length ? interior : fallback);
+  renderCarousel(getPhotos(p).filter(src => !colorPhotos.includes(src)));
 
   // Над назвою — модель, сама назва — колір (як «Kasako Lamp — Bahru Red» у SONOGO)
   const label = document.getElementById('detail-cat-label');
