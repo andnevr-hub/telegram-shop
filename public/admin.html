@@ -193,11 +193,34 @@ tr:hover td { background: var(--glass-soft); }
 
 .brand-deg { color: var(--amber); font-size: .56em; vertical-align: .55em; }
 .specs-editor { display: flex; flex-direction: column; gap: 8px; }
+.field-hint { font-size: 12px; color: var(--text3); margin: -4px 0 10px; line-height: 1.5; }
+/* Перемикач «В наявності / Немає» */
+.avail-toggle {
+  height: 45px; padding: 0 14px; border-radius: 13px; flex-shrink: 0;
+  border: 1.5px solid var(--line); background: var(--glass-soft); color: var(--text3);
+  font-family: inherit; font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap;
+  display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+  transition: background .15s, color .15s, border-color .15s;
+}
+.avail-toggle::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: currentColor; opacity: .7; }
+.avail-toggle.on { color: var(--green); border-color: rgba(50,215,75,.35); background: var(--green-dim); }
+.avail-toggle.on::before { opacity: 1; }
+.avail-toggle.wide { width: 100%; }
+.avail-toggle:disabled { cursor: default; }
+.avail-toggle.sm { height: 32px; font-size: 12px; border-radius: 10px; padding: 0 11px; }
+/* Заготовки характеристик */
+.spec-presets { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+.spec-presets:empty { display: none; }
+.spec-chip {
+  padding: 6px 11px; border-radius: 999px; border: 1px dashed var(--line); background: none;
+  color: var(--text2); font-size: 12px; font-weight: 600; font-family: inherit; cursor: pointer;
+}
+.spec-chip:hover { border-style: solid; color: var(--text); }
 .colors-editor { display: flex; flex-direction: column; gap: 8px; }
 .color-row-edit { display: flex; gap: 8px; align-items: center; }
 .color-row-edit input[type=text] { flex: 1; }
 .color-photo-slot {
-  width: 42px; height: 38px; border-radius: 10px; flex-shrink: 0; cursor: pointer;
+  width: 45px; height: 45px; border-radius: 12px; flex-shrink: 0; cursor: pointer;
   border: 1px dashed var(--line); background: var(--glass-soft); overflow: hidden;
   display: flex; align-items: center; justify-content: center;
   color: var(--text3); font-size: 18px;
@@ -318,35 +341,35 @@ tr:hover td { background: var(--glass-soft); }
     <div class="modal-title" id="modal-title">Новий товар</div>
     <form id="product-form" onsubmit="submitProduct(event)">
       <input type="hidden" id="edit-id">
-      <div class="field"><label>Назва моделі</label><input type="text" id="f-name" placeholder="YØAKE 01 · RIDGE" required></div>
+      <div class="field"><label>Назва моделі</label><input type="text" id="f-name" placeholder="PARASOLKA" required></div>
       <div class="form-row">
-        <div class="field"><label>Ціна (₴)</label><input type="number" id="f-price" placeholder="2900" required min="1"></div>
-        <div class="field"><label>В наявності (кількість)</label><input type="number" id="f-stock" placeholder="1" required min="0"></div>
-      </div>
-      <div class="field"><label>Опис</label><textarea id="f-desc" placeholder="Короткий опис товару…"></textarea></div>
-      <div class="field">
-        <label>Характеристики</label>
-        <div class="specs-editor" id="specs-editor"></div>
-        <button type="button" class="btn btn-secondary btn-sm" style="margin-top:8px" onclick="addSpec()">+ Додати рядок</button>
-      </div>
-      <div class="field">
-        <label>Кольори лампи</label>
-        <div style="font-size:12px;color:var(--text3);margin:-4px 0 10px;line-height:1.5">
-          До кожного кольору можна прикріпити <b style="color:var(--text2)">своє фото</b> (квадратик зліва) —
-          саме воно покажеться, коли покупець обере цей колір.
-          Якщо фото не додати, магазин перефарбує головне фото автоматично.
-          Піпеткою задай відтінок для кружечка-свотча.
+        <div class="field"><label>Ціна (₴)</label><input type="number" id="f-price" placeholder="1300" required min="1"></div>
+        <div class="field" id="product-avail-field">
+          <label>Наявність</label>
+          <button type="button" class="avail-toggle wide" id="f-avail" onclick="toggleProductAvail()"></button>
         </div>
+      </div>
+
+      <div class="field">
+        <label>Кольори</label>
+        <div class="field-hint">Кожен колір — окрема плитка в каталозі. Натисни на квадратик, додай фото лампи без фону й познач, чи є цей колір зараз.</div>
         <div class="colors-editor" id="colors-editor"></div>
         <button type="button" class="btn btn-secondary btn-sm" style="margin-top:8px" onclick="addColor()">+ Додати колір</button>
       </div>
+
       <div class="field">
-        <label>Фото (до 4 шт.)</label>
-        <div style="font-size:12px;color:var(--text3);margin:-4px 0 10px;line-height:1.5">
-          <b style="color:var(--text2)">1-ше фото</b> — обкладинка в каталозі: лампа без фону (PNG). На сторінці лампи її не видно.<br>
-          <b style="color:var(--text2)">2-ге і далі</b> — фото в інтер'єрі: їх покупець гортає на сторінці лампи.
-        </div>
+        <label>Фото в інтер'єрі (до 4 шт.)</label>
+        <div class="field-hint">Реальні фото лампи вдома — їх покупець гортає на сторінці лампи.</div>
         <div class="photos-grid" id="photos-grid"></div>
+      </div>
+
+      <div class="field"><label>Опис</label><textarea id="f-desc" placeholder="Кілька речень про лампу…"></textarea></div>
+
+      <div class="field">
+        <label>Характеристики</label>
+        <div class="spec-presets" id="spec-presets"></div>
+        <div class="specs-editor" id="specs-editor"></div>
+        <button type="button" class="btn btn-secondary btn-sm" style="margin-top:8px" onclick="addSpec()">+ Свій рядок</button>
       </div>
       <div class="modal-actions">
         <button type="button" class="btn btn-secondary" onclick="closeModal()">Скасувати</button>
@@ -451,16 +474,18 @@ function renderProductsTable() {
   if (!allProducts.length) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text3);padding:40px">Ламп ще немає. Додай першу!</td></tr>'; return; }
   tbody.innerHTML = allProducts.map(p => {
     const photos = getPhotosOf(p);
+    const colors = colorsOf(p).map(normalizeColor);
+    const cover = (colors.find(c => c.photo) || {}).photo || photos[0];
+    const nAvail = colors.filter(c => c.in_stock).length;
     return `
     <tr>
-      <td><div class="prod-img-cell">${photos[0] ? `<img src="${photos[0]}" alt="">` : `<i class="ti ti-bulb" style="font-size:18px;color:var(--text3)"></i>`}${photos.length > 1 ? `<span class="prod-img-count">${photos.length}</span>` : ''}</div></td>
-      <td><strong>${p.name}</strong></td>
+      <td><div class="prod-img-cell">${cover ? `<img src="${cover}" alt="">` : `<i class="ti ti-bulb" style="font-size:18px;color:var(--text3)"></i>`}</div></td>
+      <td><strong>${p.name}</strong>${colors.length ? `<div style="font-size:12px;color:var(--text3);margin-top:2px">${colors.map(c => c.name).join(' · ')}</div>` : ''}</td>
       <td>${Number(p.price).toLocaleString()} ₴</td>
       <td>
-        <div style="display:flex;align-items:center;gap:8px">
-          <input type="number" class="stock-input" value="${p.stock}" min="0" onchange="updateStock(${p.id}, this.value)" title="Змінити кількість">
-          <span class="badge ${p.stock > 0 ? 'green' : 'red'}">${p.stock > 0 ? 'є' : 'нема'}</span>
-        </div>
+        ${colors.length
+          ? `<span class="badge ${nAvail ? 'green' : 'red'}">${nAvail} з ${colors.length} кольорів</span>`
+          : `<button class="avail-toggle sm${p.stock > 0 ? ' on' : ''}" onclick="updateStock(${p.id}, ${p.stock > 0 ? 0 : 1})">${p.stock > 0 ? 'В наявності' : 'Немає'}</button>`}
       </td>
       <td>
         <div style="display:flex;gap:6px">
@@ -530,14 +555,38 @@ async function updateOrderStatus(id, status) {
 // ── PRODUCT MODAL with multi-photo support ──
 let editingProduct = null;
 let specRows = [];
+// Типові характеристики лампи — підставляються в новий товар і доступні кнопками
+const SPEC_PRESETS = [
+  ['Розміри', 'В 15 × Ø 20 см'],
+  ['Джерело світла', 'LED'],
+  ['Режими', '3 рівні яскравості'],
+  ['Живлення', 'USB, кабель 1,5 м'],
+  ['Вимикач', 'На кабелі'],
+  ['Матеріал', 'PLA'],
+  ['Виготовлення', 'Друк під замовлення, ~10 год'],
+];
+let productAvail = true;
+// Екранування значень у value="…", щоб лапки в назві не ламали форму
+function esc(v) { return String(v ?? '').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+function colorsOf(p) {
+  const c = typeof p?.colors === 'string' ? JSON.parse(p.colors) : (p?.colors || []);
+  return Array.isArray(c) ? c : [];
+}
+// Старі кольори мали кількість — переводимо в перемикач
+function normalizeColor(c) {
+  return { ...c, in_stock: c.in_stock !== undefined ? !!c.in_stock : (c.stock ?? 0) > 0 };
+}
 let colorRows = [];
 // photoSlots: масив з 4 елементів, кожен або null, або {type:'existing', url} або {type:'new', file, previewUrl}
 let photoSlots = [null, null, null, null];
 
 function openProductModal(product = null) {
   editingProduct = product;
-  specRows = product ? (typeof product.specs === 'string' ? JSON.parse(product.specs) : product.specs) || [] : [];
-  colorRows = product ? (typeof product.colors === 'string' ? JSON.parse(product.colors) : product.colors) || [] : [];
+  specRows = product
+    ? ((typeof product.specs === 'string' ? JSON.parse(product.specs) : product.specs) || [])
+    : SPEC_PRESETS.map(r => [...r]);
+  colorRows = colorsOf(product).map(normalizeColor);
+  productAvail = product ? (product.stock ?? 0) > 0 : true;
 
   const existingPhotos = product ? getPhotosOf(product) : [];
   photoSlots = [0,1,2,3].map(i => existingPhotos[i] ? { type: 'existing', url: existingPhotos[i] } : null);
@@ -548,7 +597,6 @@ function openProductModal(product = null) {
   document.getElementById('f-name').value = product?.name || '';
   
   document.getElementById('f-price').value = product?.price || '';
-  document.getElementById('f-stock').value = product?.stock ?? 0;
   document.getElementById('f-desc').value = product?.description || '';
 
   renderSpecsEditor();
@@ -599,28 +647,54 @@ function renderSpecsEditor() {
   const el = document.getElementById('specs-editor');
   el.innerHTML = specRows.map((row, i) => `
     <div class="spec-row-edit">
-      <input type="text" placeholder="Назва (напр. Сенсор)" value="${row[0]||''}" onchange="specRows[${i}][0]=this.value">
-      <input type="text" placeholder="Значення (напр. PAW3950)" value="${row[1]||''}" onchange="specRows[${i}][1]=this.value">
+      <input type="text" placeholder="Назва (напр. Розміри)" value="${esc(row[0])}" oninput="specRows[${i}][0]=this.value; renderSpecPresets()">
+      <input type="text" placeholder="Значення (напр. В 15 × Ø 20 см)" value="${esc(row[1])}" oninput="specRows[${i}][1]=this.value">
       <button type="button" class="spec-del-btn" onclick="removeSpec(${i})">×</button>
     </div>
   `).join('');
+  renderSpecPresets();
 }
+// Кнопки-заготовки: показуємо лише ті характеристики, яких ще немає у списку
+function renderSpecPresets() {
+  const used = new Set(specRows.map(r => (r[0] || '').trim().toLowerCase()));
+  document.getElementById('spec-presets').innerHTML = SPEC_PRESETS
+    .map(([label], i) => used.has(label.toLowerCase()) ? '' : `<button type="button" class="spec-chip" onclick="addPreset(${i})">+ ${label}</button>`)
+    .join('');
+}
+function addPreset(i) { specRows.push([...SPEC_PRESETS[i]]); renderSpecsEditor(); }
 function addSpec() { specRows.push(['','']); renderSpecsEditor(); }
 
 function renderColorsEditor() {
   const el = document.getElementById('colors-editor');
   el.innerHTML = colorRows.map((c, i) => `
     <div class="color-row-edit">
-      <label class="color-photo-slot" title="Фото цього кольору">
-        ${c.photo ? `<img src="${c.photo}" alt="">` : '<span>+</span>'}
+      <label class="color-photo-slot" title="Фото лампи без фону">
+        ${c.photo ? `<img src="${esc(c.photo)}" alt="">` : '<i class="ti ti-photo-plus" style="font-size:18px"></i>'}
         <input type="file" accept="image/*" hidden onchange="uploadColorPhoto(${i}, this)">
       </label>
-      <input type="color" value="${c.hex || '#0d7f8f'}" onchange="colorRows[${i}].hex=this.value">
-      <input type="text" placeholder="Назва (напр. Forest Green)" value="${c.name || ''}" onchange="colorRows[${i}].name=this.value">
-      <input type="number" min="0" placeholder="шт." value="${c.stock ?? 0}" onchange="colorRows[${i}].stock=parseInt(this.value)||0">
+      <input type="text" placeholder="Назва кольору (напр. Морська хвиля)" value="${esc(c.name)}" oninput="colorRows[${i}].name=this.value">
+      <button type="button" class="avail-toggle${c.in_stock ? ' on' : ''}" onclick="toggleColorAvail(${i})">${c.in_stock ? 'В наявності' : 'Немає'}</button>
       <button type="button" class="color-del-btn" onclick="removeColor(${i})">×</button>
     </div>
-  `).join('') || '<div style="font-size:12.5px;color:var(--text3)">Кольорів ще немає. Якщо не додати жодного — лампа продаватиметься в кольорі з фото.</div>';
+  `).join('') || '<div class="field-hint" style="margin:0">Кольорів ще немає — натисни «Додати колір».</div>';
+  syncProductAvail();
+}
+function toggleColorAvail(i) { colorRows[i].in_stock = !colorRows[i].in_stock; renderColorsEditor(); }
+
+// Загальна наявність: без кольорів — перемикач, з кольорами — підсумок по кольорах
+function toggleProductAvail() { productAvail = !productAvail; syncProductAvail(); }
+function syncProductAvail() {
+  const btn = document.getElementById('f-avail');
+  if (colorRows.length) {
+    const n = colorRows.filter(c => c.in_stock).length;
+    btn.disabled = true;
+    btn.className = 'avail-toggle wide' + (n ? ' on' : '');
+    btn.textContent = `${n} з ${colorRows.length} кольорів`;
+  } else {
+    btn.disabled = false;
+    btn.className = 'avail-toggle wide' + (productAvail ? ' on' : '');
+    btn.textContent = productAvail ? 'В наявності' : 'Немає';
+  }
 }
 
 async function uploadColorPhoto(i, input) {
@@ -640,7 +714,7 @@ async function uploadColorPhoto(i, input) {
     toast('Фото додано ✓');
   } catch(e) { toast('Помилка: ' + e.message); }
 }
-function addColor() { colorRows.push({ hex:'#0d7f8f', name:'', stock:0 }); renderColorsEditor(); }
+function addColor() { colorRows.push({ name: '', photo: null, in_stock: true }); renderColorsEditor(); }
 function removeColor(i) { colorRows.splice(i,1); renderColorsEditor(); }
 function removeSpec(i) { specRows.splice(i, 1); renderSpecsEditor(); }
 
@@ -653,10 +727,21 @@ async function submitProduct(e) {
   formData.append('name', document.getElementById('f-name').value);
   formData.append('category', 'lamps');
   formData.append('price', document.getElementById('f-price').value);
-  formData.append('stock', document.getElementById('f-stock').value);
+  // Колір із фото, але без назви, загубився б при збереженні — зупиняємо
+  if (colorRows.some(c => c.photo && !(c.name || '').trim())) {
+    toast('Вкажи назву для кожного кольору');
+    btn.textContent = document.getElementById('edit-id').value ? 'Зберегти зміни' : 'Додати товар';
+    btn.disabled = false;
+    return;
+  }
+  const colorsToSave = colorRows
+    .filter(c => (c.name || '').trim())
+    .map(c => ({ name: c.name.trim(), photo: c.photo || null, in_stock: !!c.in_stock, ...(c.hex ? { hex: c.hex } : {}) }));
+  const stock = colorsToSave.length ? (colorsToSave.some(c => c.in_stock) ? 1 : 0) : (productAvail ? 1 : 0);
+  formData.append('stock', stock);
   formData.append('description', document.getElementById('f-desc').value);
   formData.append('specs', JSON.stringify(specRows.filter(r => r[0] || r[1])));
-  formData.append('colors', JSON.stringify(colorRows.filter(c => c.name && c.hex)));
+  formData.append('colors', JSON.stringify(colorsToSave));
 
   const filledSlots = photoSlots.filter(Boolean);
   const keepPhotos = filledSlots.filter(s => s.type === 'existing').map(s => s.url);

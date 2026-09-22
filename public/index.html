@@ -338,6 +338,11 @@ body.dark-mode .stock-badge.in, .stock-badge.in { color: #34d058; }
   display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
 }
 .product-price { font-size: 13px; font-weight: 400; color: var(--text2); letter-spacing: 0.01em; }
+.product-model {
+  font-size: 10.5px; font-weight: 600; color: var(--text3);
+  letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 2px;
+}
+.product-card.sold .product-img img { opacity: .55; }
 .product-sold { font-size: 11px; color: var(--text3); letter-spacing: 0.04em; margin-top: 3px; }
 .detail-stock { font-size: 13px; margin: 6px 0 10px; letter-spacing: 0.01em; }
 .ship-note {
@@ -892,39 +897,44 @@ function imgTag(photo, icon, size) {
   return `<i class="ti ${icon || 'ti-bulb'}" style="font-size:${size || '34px'};color:var(--text3)" aria-hidden="true"></i>`;
 }
 
+// Плитка каталогу = колір лампи (як у SONOGO). Товар без кольорів — одна плитка.
+function catalogTiles(list) {
+  const tiles = [];
+  list.forEach(p => {
+    const cs = getColors(p);
+    if (cs.length) cs.forEach((c, ci) => tiles.push({ p, c, ci }));
+    else tiles.push({ p, c: null, ci: -1 });
+  });
+  return tiles;
+}
+
 function renderProducts() {
   const grid = document.getElementById('products-grid');
   const filtered = products.filter(p => currentCat === 'all' || p.category === currentCat);
-  if (!filtered.length) {
+  const tiles = catalogTiles(filtered);
+  if (!tiles.length) {
     grid.innerHTML = `<div style="grid-column:1/-1" class="empty-state"><div class="empty-icon"><i class="ti ti-bulb"></i></div><h3>Ламп поки немає</h3></div>`;
     return;
   }
-  grid.innerHTML = filtered.map((p) => {
-    const photos = getPhotos(p);
+  grid.innerHTML = tiles.map(({ p, c, ci }) => {
+    const cover = (c && c.photo) || getPhotos(p)[0];
+    const available = isAvailable(p, c);
+    // Старі кольори без фото, але з відтінком — перефарбовуємо головне фото
+    const tint = c && !c.photo && c.hex ? ` data-filter="${colorFilter(c.hex)}"` : '';
     return `
-    <div class="product-card" onclick="openProduct(${p.id})">
-      <div class="product-img"${(() => {
-        const cs=getColors(p); const c=cs.find(x=>(x.stock??0)>0)||cs[0];
-        if (!c) return '';
-        return c.photo ? ` data-src="${c.photo}"` : ` data-filter="${colorFilter(c.hex)}"`;
-      })()}>
-        ${imgTag(photos[0], iconForCat(p.category))}
-      </div>
+    <div class="product-card${available ? '' : ' sold'}" onclick="openProduct(${p.id}, ${ci})">
+      <div class="product-img"${tint}>${imgTag(cover, iconForCat(p.category))}</div>
       <div class="product-info">
-        <div class="product-name">${p.name}</div>
+        ${c ? `<div class="product-model">${p.name}</div>` : ''}
+        <div class="product-name">${c ? c.name : p.name}</div>
         <div class="product-price">${Number(p.price).toLocaleString()} ₴</div>
-        ${p.stock > 0 ? '' : `<div class="product-sold">Немає в наявності</div>`}
+        ${available ? '' : `<div class="product-sold">Немає в наявності</div>`}
       </div>
-    </div>
-  `}).join('');
-  // Обкладинки перефарбовуємо після вставки в DOM
+    </div>`;
+  }).join('');
   grid.querySelectorAll('.product-img[data-filter]').forEach(el => {
     const img = el.querySelector('img');
     if (img) img.style.filter = el.dataset.filter;
-  });
-  grid.querySelectorAll('.product-img[data-src]').forEach(el => {
-    const img = el.querySelector('img');
-    if (img) img.src = el.dataset.src;
   });
 }
 
@@ -973,23 +983,32 @@ document.addEventListener('touchend', e => {
   }
 });
 
-function openProduct(id) {
+function openProduct(id, ci) {
   const p = products.find(x => x.id === id);
   if (!p) return;
   currentProduct = p;
   prevPage = currentPage;
+  const colors = getColors(p);
+  // Колір — той, по плитці якого натиснули; інакше перший у наявності
+  selectedColor = colors.length
+    ? (colors[ci] || colors.find(c => isAvailable(p, c)) || colors[0])
+    : null;
   const specs = typeof p.specs === 'string' ? JSON.parse(p.specs) : (p.specs || []);
-  // У каруселі лише інтер'єрні фото: продуктові PNG кольорів звідси прибираємо
-  const colorPhotos = getColors(p).map(c => c.photo).filter(Boolean);
-  let interior = getPhotos(p).filter(src => !colorPhotos.includes(src));
-  // Без кольорів 1-ше фото — обкладинка каталогу, на сторінці лампи її не показуємо.
-  // Якщо фото лише одне — лишаємо його, щоб сторінка не була порожньою.
-  if (!colorPhotos.length && interior.length > 1) interior = interior.slice(1);
-  renderCarousel(interior.length ? interior : getPhotos(p));
-  document.getElementById('detail-cat-label').textContent = catLabel(p.category);
-  document.getElementById('detail-cat-label').style.color = catColor(p.category);
-  document.getElementById('detail-name').textContent = p.name;
+
+  // Карусель — реальні фото в інтер'єрі. Поки їх немає, показуємо обкладинку кольору.
+  const colorPhotos = colors.map(c => c.photo).filter(Boolean);
+  const interior = getPhotos(p).filter(src => !colorPhotos.includes(src));
+  const fallback = selectedColor && selectedColor.photo ? [selectedColor.photo] : getPhotos(p);
+  renderCarousel(interior.length ? interior : fallback);
+
+  // Над назвою — модель, сама назва — колір (як «Kasako Lamp — Bahru Red» у SONOGO)
+  const label = document.getElementById('detail-cat-label');
+  label.textContent = selectedColor ? p.name : '';
+  label.style.display = selectedColor ? '' : 'none';
+  label.style.color = '';
+  document.getElementById('detail-name').textContent = selectedColor ? selectedColor.name : p.name;
   document.getElementById('detail-price').textContent = Number(p.price).toLocaleString() + ' ₴';
+
   const descBlock = document.getElementById('detail-desc-block');
   if (p.description) {
     document.getElementById('detail-desc').textContent = p.description;
@@ -1001,11 +1020,14 @@ function openProduct(id) {
     <div class="spec-row"><span class="spec-label">${l}</span><span class="spec-val">${v}</span></div>
   `).join('');
   document.getElementById('detail-specs-block').style.display = specs.length ? '' : 'none';
-  document.getElementById('detail-stock').textContent = p.stock > 0 ? 'В наявності' : 'Немає в наявності';
-  document.getElementById('detail-stock').className = 'detail-stock' + (p.stock > 0 ? ' in' : ' out');
+
+  const available = isAvailable(p, selectedColor);
+  const st = document.getElementById('detail-stock');
+  st.textContent = available ? 'В наявності' : 'Немає в наявності';
+  st.className = 'detail-stock' + (available ? ' in' : ' out');
   const btn = document.getElementById('detail-add-btn');
-  btn.className = 'detail-add-btn' + (p.stock === 0 ? ' disabled' : '');
-  btn.textContent = p.stock > 0 ? 'Додати в кошик' : 'Немає в наявності';
+  btn.className = 'detail-add-btn' + (available ? '' : ' disabled');
+  btn.textContent = available ? 'Додати в кошик' : 'Немає в наявності';
   showPage('detail');
 }
 function getColors(p) {
@@ -1061,15 +1083,21 @@ function applyColorFilter(color) {
   document.querySelectorAll('#detail-carousel img').forEach(img => { img.style.filter = 'none'; });
 }
 
-function addFromDetail() { if (currentProduct) addToCart(currentProduct.id, selectedColor); }
+function addFromDetail() {
+  if (currentProduct && isAvailable(currentProduct, selectedColor)) addToCart(currentProduct.id, selectedColor);
+}
 
 // Ключ позиції кошика: товар + колір, щоб різні кольори були окремими рядками
 function cartKey(id, color) { return color ? `${id}::${color.name}` : `${id}`; }
 
-function stockFor(p, color) {
-  if (color) return color.stock ?? 0;
-  return p.stock;
+// Наявність — перемикач «є / немає». У кольору поле in_stock (старі записи рахуємо за кількістю),
+// у товару без кольорів — stock > 0. Лампи друкуються під замовлення, тож кількість не обмежуємо складом.
+const MAX_QTY = 10;
+function isAvailable(p, color) {
+  if (color) return color.in_stock !== undefined ? !!color.in_stock : (color.stock ?? 0) > 0;
+  return (p.stock ?? 0) > 0;
 }
+function stockFor(p, color) { return isAvailable(p, color) ? MAX_QTY : 0; }
 
 function addToCart(id, color) {
   const p = products.find(x => x.id === id);
@@ -1077,7 +1105,7 @@ function addToCart(id, color) {
   // З картки каталогу колір не обраний — беремо перший доступний
   if (color === undefined) {
     const colors = getColors(p);
-    color = colors.length ? (colors.find(c => (c.stock ?? 0) > 0) || colors[0]) : null;
+    color = colors.length ? (colors.find(c => isAvailable(p, c)) || colors[0]) : null;
   }
   const max = stockFor(p, color);
   if (max === 0) { showToast('Немає в наявності'); return; }
@@ -1094,7 +1122,7 @@ function changeQty(k, d) {
   const it = cart[k];
   const max = stockFor(it.product, it.color);
   const newQty = it.qty + d;
-  if (d > 0 && newQty > max) { showToast(`Доступно лише ${max} шт.`); return; }
+  if (d > 0 && newQty > max) { showToast(`Максимум ${MAX_QTY} шт. в одному замовленні`); return; }
   haptic();
   it.qty = newQty;
   if (it.qty <= 0) delete cart[k];
@@ -1124,11 +1152,11 @@ function renderCart() {
     <div class="cart-item">
       <div class="cart-item-icon">${i.color && i.color.photo
         ? `<img src="${i.color.photo}" alt="">`
-        : `<span style="${i.color ? `filter:${colorFilter(i.color.hex)};display:block;width:100%;height:100%` : ''}">${imgTag(getPhotos(i.product)[0], iconForCat(i.product.category), '26px')}</span>`}</div>
+        : `<span style="${i.color && i.color.hex ? `filter:${colorFilter(i.color.hex)};display:block;width:100%;height:100%` : ''}">${imgTag(getPhotos(i.product)[0], iconForCat(i.product.category), '26px')}</span>`}</div>
       <div class="cart-item-info">
         <div class="cart-item-name">${i.product.name}</div>
         ${i.color ? `<div style="font-size:12px;color:var(--text2);display:flex;align-items:center;gap:6px;margin-top:2px">
-          <span style="width:10px;height:10px;border-radius:50%;background:${i.color.hex};box-shadow:0 0 0 1px var(--line)"></span>${i.color.name}
+          ${i.color.hex ? `<span style="width:10px;height:10px;border-radius:50%;background:${i.color.hex};box-shadow:0 0 0 1px var(--line)"></span>` : ''}${i.color.name}
         </div>` : ''}
         <div class="cart-item-price">${(i.product.price * i.qty).toLocaleString()} ₴</div>
         <div class="cart-item-qty">
@@ -1436,7 +1464,7 @@ function syncTelegramUI() {
   const p = currentProduct;
   if (currentPage === 'detail' && p) {
     setBackButton(true, () => goBack());
-    const out = p.stock === 0;
+    const out = !isAvailable(p, selectedColor);
     setMainButton(out ? 'Немає в наявності' : 'Додати в кошик',
       () => { if (!out) addFromDetail(); }, { disabled: out });
   } else if (currentPage === 'checkout') {
