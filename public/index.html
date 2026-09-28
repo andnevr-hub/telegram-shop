@@ -822,20 +822,37 @@ window.onload = async () => {
   document.getElementById('splash').classList.add('hide');
 };
 
-async function loadProducts() {
+// Запит із таймаутом: якщо сервер «завис», не чекаємо вічно
+async function fetchJSON(url, opts = {}, ms = 20000) {
+  const ctrl = new AbortController();
+  const t = setTimeout(() => ctrl.abort(), ms);
   try {
-    const res = await fetch(`${API}/api/products`);
-    products = await res.json();
+    const res = await fetch(url, { ...opts, signal: ctrl.signal });
+    const data = await res.json().catch(() => null);
+    return { res, data };
+  } finally { clearTimeout(t); }
+}
+async function loadProducts(attempt = 0) {
+  try {
+    const { res, data } = await fetchJSON(`${API}/api/products`);
+    // Сервер при збої повертає {error}, а не список — раніше це ламало всю сторінку
+    if (!res.ok || !Array.isArray(data)) throw new Error(data?.error || 'bad response');
+    products = data;
+    restoreCart();
     renderProducts();
   } catch(e) {
+    // Сервер прокидається або перезапускається (503) — тихо пробуємо ще двічі, поки видно заставку
+    if (attempt < 2) return new Promise(r => setTimeout(r, 3000 * (attempt + 1))).then(() => loadProducts(attempt + 1));
     document.getElementById('products-grid').innerHTML = `
       <div style="grid-column:1/-1" class="empty-state">
-        <div class="empty-icon"><i class="ti ti-alert-triangle"></i></div>
-        <h3>Помилка завантаження</h3>
-        <p>Перевір підключення до інтернету</p>
+        <div class="empty-icon"><i class="ti ti-wifi-off"></i></div>
+        <h3>Не вдалося завантажити лампи</h3>
+        <p>Можливо, сервер прокидається — це займає до хвилини</p>
+        <button class="empty-btn" onclick="retryProducts(this)">Спробувати ще раз</button>
       </div>`;
   }
 }
+function retryProducts(btn) { haptic(); btn.disabled = true; btn.textContent = 'Завантаження…'; loadProducts(); }
 
 function getPhotos(p) {
   // Підтримка кількох фото: масив photos[] або одне фото photo
@@ -927,7 +944,7 @@ function renderProducts() {
       <div class="product-info">
         ${c ? `<div class="product-model">${p.name}</div>` : ''}
         <div class="product-name">${c ? c.name : p.name}</div>
-        <div class="product-price">${Number(p.price).toLocaleString()} ₴</div>
+        <div class="product-price">${Number(p.price).toLocaleString('uk-UA')} ₴</div>
         ${available ? '' : `<div class="product-sold">Немає в наявності</div>`}
       </div>
     </div>`;
@@ -1005,7 +1022,7 @@ function openProduct(id, ci) {
   label.style.display = selectedColor ? '' : 'none';
   label.style.color = '';
   document.getElementById('detail-name').textContent = selectedColor ? selectedColor.name : p.name;
-  document.getElementById('detail-price').textContent = Number(p.price).toLocaleString() + ' ₴';
+  document.getElementById('detail-price').textContent = Number(p.price).toLocaleString('uk-UA') + ' ₴';
 
   const descBlock = document.getElementById('detail-desc-block');
   if (p.description) {
@@ -1126,7 +1143,39 @@ function changeQty(k, d) {
   if (it.qty <= 0) delete cart[k];
   updateBadge(); renderCart();
 }
+// Підпис Telegram — сервер за ним перевіряє, що замовлення справді ваші
+function tgHeaders(extra = {}) {
+  return { ...extra, 'X-Telegram-Init-Data': window.Telegram?.WebApp?.initData || '' };
+}
+
+// ── КОШИК ЗБЕРІГАЄТЬСЯ МІЖ ЗАПУСКАМИ ──
+// Раніше кошик зникав, щойно закрити застосунок. Тепер лежить у пам'яті пристрою.
+const CART_KEY = 'yoake_cart';
+let cartRestored = false;
+function saveCart() {
+  if (!cartRestored) return;   // поки товари не завантажились, не перезаписуємо збережене порожнім
+  try {
+    localStorage.setItem(CART_KEY, JSON.stringify(Object.values(cart).map(i => ({ id: i.product.id, color: i.color?.name || null, qty: i.qty }))));
+  } catch {}
+}
+function restoreCart() {
+  let saved = [];
+  try { saved = JSON.parse(localStorage.getItem(CART_KEY) || '[]'); } catch {}
+  cart = {};
+  (Array.isArray(saved) ? saved : []).forEach(it => {
+    const p = products.find(x => x.id === it.id);
+    if (!p) return;                                   // товар прибрали з магазину
+    const color = it.color ? getColors(p).find(c => c.name === it.color) : null;
+    if (it.color && !color) return;                   // колір прибрали
+    if (!isAvailable(p, color)) return;               // закінчився, поки кошик чекав
+    cart[cartKey(p.id, color)] = { product: p, color, qty: Math.min(Math.max(1, it.qty | 0), MAX_QTY) };
+  });
+  cartRestored = true;
+  updateBadge();
+}
+
 function updateBadge() {
+  saveCart();
   if (currentPage === 'cart') setTimeout(syncTelegramUI, 0);
   const n = Object.values(cart).reduce((s,i) => s+i.qty, 0);
   const b = document.getElementById('cart-badge');
@@ -1156,7 +1205,7 @@ function renderCart() {
         ${i.color ? `<div style="font-size:12px;color:var(--text2);display:flex;align-items:center;gap:6px;margin-top:2px">
           ${i.color.hex ? `<span style="width:10px;height:10px;border-radius:50%;background:${i.color.hex};box-shadow:0 0 0 1px var(--line)"></span>` : ''}${i.color.name}
         </div>` : ''}
-        <div class="cart-item-price">${(i.product.price * i.qty).toLocaleString()} ₴</div>
+        <div class="cart-item-price">${(i.product.price * i.qty).toLocaleString('uk-UA')} ₴</div>
         <div class="cart-item-qty">
           <button class="qty-btn" onclick="changeQty('${k}',-1)">−</button>
           <span class="qty-num">${i.qty}</span>
@@ -1171,9 +1220,9 @@ function renderCart() {
     <div class="cart-list">${list}</div>
     <div class="cart-footer">
       <div class="cart-total">
-        <div class="cart-total-row"><span>Товари (${items.length})</span><span>${total.toLocaleString()} ₴</span></div>
+        <div class="cart-total-row"><span>Товари (${items.length})</span><span>${total.toLocaleString('uk-UA')} ₴</span></div>
         <div class="cart-total-row"><span>Доставка</span><span>за тарифом НП</span></div>
-        <div class="cart-total-row total"><span>Разом</span><span>${total.toLocaleString()} ₴</span></div>
+        <div class="cart-total-row total"><span>Разом</span><span>${total.toLocaleString('uk-UA')} ₴</span></div>
       </div>
       <button class="checkout-btn" onclick="startCheckout()">Оформити замовлення →</button>
     </div>`;
@@ -1259,18 +1308,30 @@ function renderCheckoutStep() {
   }
 }
 
+let placingOrder = false;   // захист від подвійного натискання — інакше могло прийти два однакових замовлення
 async function placeOrder() {
+  if (placingOrder) return;
+  placingOrder = true;
   TG?.MainButton?.showProgress(true);
-  const items = Object.values(cart).map(i => ({ id: i.product.id, name: i.product.name + (i.color ? ` · ${i.color.name}` : ''), price: i.product.price, qty: i.qty }));
+  // Ціну сервер бере з бази сам; тут лише що саме і скільки
+  const items = Object.values(cart).map(i => ({ id: i.product.id, color: i.color ? i.color.name : null, qty: i.qty }));
   try {
-    const res = await fetch(`${API}/api/orders`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: checkoutData.name, phone: checkoutData.phone, delivery: checkoutData.delivery, region: checkoutData.region, city: checkoutData.city, branch: checkoutData.branch, payment: checkoutData.payment, items, total: cartTotal(), telegramId })
-    });
-    const data = await res.json();
-    if (!data.success) throw new Error();
+    let res, data;
+    try {
+      ({ res, data } = await fetchJSON(`${API}/api/orders`, {
+        method: 'POST',
+        headers: tgHeaders({ 'Content-Type': 'application/json' }),
+        body: JSON.stringify({ name: checkoutData.name, phone: checkoutData.phone, delivery: checkoutData.delivery, region: checkoutData.region, city: checkoutData.city, branch: checkoutData.branch, payment: checkoutData.payment, items })
+      }, 30000));
+    } catch { throw new Error('Немає зʼєднання із сервером. Перевірте інтернет і спробуйте ще раз'); }
+    data = data || {};
+    if (!res.ok || !data.success) {
+      const err = new Error(data.error || '');
+      err.soldOut = res.status === 409;
+      throw err;
+    }
     const orderNum = data.orderNum;
+    const orderTotal = data.total ?? cartTotal();
     cart = {}; updateBadge();
     loadOrders();
     setStep(4);
@@ -1278,15 +1339,19 @@ async function placeOrder() {
       <div class="success-page">
         <div class="success-icon">✓</div>
         <div class="success-title">Замовлення оформлено</div>
-        <div class="success-desc">Номер: <strong>${orderNum}</strong><br><br>Менеджер зв'яжеться з вами найближчим часом для підтвердження.</div>
+        <div class="success-desc">Номер: <strong>${orderNum}</strong> · ${Number(orderTotal).toLocaleString('uk-UA')} ₴<br><br>Менеджер зв'яжеться з вами найближчим часом для підтвердження.</div>
         <button class="success-btn" onclick="showPage('shop')">Продовжити покупки</button>
       </div>`;
     if (window.Telegram?.WebApp?.HapticFeedback) window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
     TG?.MainButton?.hideProgress();
     hideMainButton();
+    placingOrder = false;
   } catch(e) {
+    placingOrder = false;
     TG?.MainButton?.hideProgress();
-    showToast('✕ Помилка. Спробуй ще раз');
+    // Показуємо причину від сервера: «Немає в наявності: …», «Невірний номер телефону» тощо
+    showToast('✕ ' + (e.message || 'Помилка. Спробуй ще раз'));
+    if (e.soldOut) loadProducts();   // колір розпродали, поки оформлювали — оновлюємо каталог і кошик
     checkoutStep = 3; renderCheckoutStep();
   }
 }
@@ -1344,8 +1409,9 @@ const STATUS_LABELS = {
 async function loadOrders() {
   if (!telegramId) { renderOrders(); return; }
   try {
-    const res = await fetch(`${API}/api/orders?telegramId=${telegramId}`);
-    orders = await res.json();
+    const res = await fetch(`${API}/api/orders`, { headers: tgHeaders() });
+    const data = await res.json();
+    orders = Array.isArray(data) ? data : [];
   } catch(e) {
     orders = [];
   }
@@ -1376,7 +1442,7 @@ function renderOrders() {
         <span class="order-status ${st.cls}"><i class="ti ${st.icon}"></i>${st.text}</span>
       </div>
       <div class="order-items">${(o.items||[]).map(i=>`${i.name} ×${i.qty||1}`).join(' · ')}</div>
-      <div class="order-total">${Number(o.total).toLocaleString()} ₴</div>
+      <div class="order-total">${Number(o.total).toLocaleString('uk-UA')} ₴</div>
     </div>
   `;
   }).join('');
@@ -1471,7 +1537,7 @@ function syncTelegramUI() {
   } else if (currentPage === 'cart') {
     const has = Object.keys(cart).length > 0;
     setBackButton(has, () => showPage('shop', 'back'));
-    if (has) setMainButton(`Оформити · ${cartTotal().toLocaleString()} ₴`, () => startCheckout());
+    if (has) setMainButton(`Оформити · ${cartTotal().toLocaleString('uk-UA')} ₴`, () => startCheckout());
     else hideMainButton();
   } else {
     setBackButton(false);

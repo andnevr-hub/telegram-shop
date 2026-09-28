@@ -407,6 +407,7 @@ async function doLogin() {
       localStorage.setItem('admin_token', adminToken);
       showAdmin();
     } else {
+      document.getElementById('login-err').textContent = data.error || 'Невірний пароль';
       document.getElementById('login-err').style.display = 'block';
     }
   } catch(e) {
@@ -420,7 +421,9 @@ function showAdmin() {
   loadAll();
 }
 if (adminToken) {
-  fetch(`${API}/api/admin/orders`, { headers: { 'x-admin-token': adminToken } }).then(r => r.ok ? showAdmin() : null).catch(() => {});
+  fetch(`${API}/api/admin/orders`, { headers: { 'x-admin-token': adminToken } })
+    .then(r => { if (r.ok) showAdmin(); else { adminToken = ''; localStorage.removeItem('admin_token'); } })
+    .catch(() => {});
 }
 
 async function loadAll() { await Promise.all([loadProducts(), loadOrders()]); renderDashboard(); }
@@ -439,11 +442,11 @@ function renderDashboard() {
   document.getElementById('stat-products').textContent = allProducts.length;
   document.getElementById('stat-orders').textContent = allOrders.length;
   const revenue = allOrders.filter(o => o.status !== 'cancelled').reduce((s,o) => s + o.total, 0);
-  document.getElementById('stat-revenue').textContent = revenue.toLocaleString() + ' ₴';
+  document.getElementById('stat-revenue').textContent = revenue.toLocaleString('uk-UA') + ' ₴';
   document.getElementById('stat-out').textContent = allProducts.filter(p => p.stock === 0).length;
   const recent = allOrders.slice(0, 8);
   document.getElementById('recent-orders').innerHTML = recent.map(o => `
-    <tr><td><strong>${o.order_num}</strong></td><td>${o.customer_name}</td><td>${o.total.toLocaleString()} ₴</td><td>${statusBadge(o.status)}</td></tr>
+    <tr><td><strong>${esc(o.order_num)}</strong></td><td>${esc(o.customer_name)}</td><td>${Number(o.total).toLocaleString('uk-UA')} ₴</td><td>${statusBadge(o.status)}</td></tr>
   `).join('') || '<tr><td colspan="4" style="text-align:center;color:var(--text3);padding:32px">Замовлень ще немає</td></tr>';
 }
 function statusBadge(s) {
@@ -481,7 +484,7 @@ function renderProductsTable() {
     <tr>
       <td><div class="prod-img-cell">${cover ? `<img src="${cover}" alt="">` : `<i class="ti ti-bulb" style="font-size:18px;color:var(--text3)"></i>`}</div></td>
       <td><strong>${p.name}</strong>${colors.length ? `<div style="font-size:12px;color:var(--text3);margin-top:2px">${colors.map(c => c.name).join(' · ')}</div>` : ''}</td>
-      <td>${Number(p.price).toLocaleString()} ₴</td>
+      <td>${Number(p.price).toLocaleString('uk-UA')} ₴</td>
       <td>
         ${colors.length
           ? `<span class="badge ${nAvail ? 'green' : 'red'}">${nAvail} з ${colors.length} кольорів</span>`
@@ -510,22 +513,25 @@ async function deleteProduct(id) {
 }
 
 const deliveryNames = { np:'Nova Poshta', pickup:'Самовивіз' };
-const paymentNames = { card:'Карта', cod:'Накладений' };
+const paymentNames = { deposit:'Передоплата 100 ₴', fop:'Повна оплата (ФОП)', card:'Карта', cod:'Накладений' };
 
 function renderOrdersTable() {
   const tbody = document.getElementById('orders-table');
   if (!allOrders.length) { tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--text3);padding:40px">Замовлень ще немає</td></tr>'; return; }
   tbody.innerHTML = allOrders.map(o => `
     <tr>
-      <td><strong>${o.order_num}</strong></td>
-      <td style="color:var(--text2);font-size:12.5px">${new Date(o.created_at).toLocaleString('uk')}</td>
-      <td>${o.customer_name}</td><td>${o.customer_phone}</td>
-      <td><strong>${o.total.toLocaleString()} ₴</strong></td>
+      <td><strong>${esc(o.order_num)}</strong></td>
+      <td style="color:var(--text2);font-size:12.5px">${new Date(o.created_at).toLocaleString('uk-UA')}</td>
+      <td>${esc(o.customer_name)}</td><td>${esc(o.customer_phone)}</td>
       <td>
-        <div style="font-size:12.5px">${deliveryNames[o.delivery_type]||o.delivery_type}</div>
-        ${o.delivery_city ? `<div style="font-size:11.5px;color:var(--text3)">${o.delivery_city}, ${o.delivery_branch}</div>` : ''}
+        <strong>${Number(o.total).toLocaleString('uk-UA')} ₴</strong>
+        ${(o.items || []).map(i => `<div style="font-size:11.5px;color:var(--text2);margin-top:3px">${esc(i.name)} × ${esc(i.qty)}</div>`).join('')}
       </td>
-      <td>${paymentNames[o.payment_type]||o.payment_type}</td>
+      <td>
+        <div style="font-size:12.5px">${esc(deliveryNames[o.delivery_type] || o.delivery_type)}</div>
+        ${o.delivery_city ? `<div style="font-size:11.5px;color:var(--text3)">${[o.delivery_region, o.delivery_city, o.delivery_branch].filter(Boolean).map(esc).join(', ')}</div>` : ''}
+      </td>
+      <td>${esc(paymentNames[o.payment_type] || o.payment_type)}</td>
       <td>
         <select class="status-select" onchange="updateOrderStatus(${o.id}, this.value)">
           <option value="new" ${o.status==='new'?'selected':''}>🟡 Прийнято</option>
@@ -567,7 +573,7 @@ const SPEC_PRESETS = [
 ];
 let productAvail = true;
 // Екранування значень у value="…", щоб лапки в назві не ламали форму
-function esc(v) { return String(v ?? '').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+function esc(v) { return String(v ?? '').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 function colorsOf(p) {
   const c = typeof p?.colors === 'string' ? JSON.parse(p.colors) : (p?.colors || []);
   return Array.isArray(c) ? c : [];
