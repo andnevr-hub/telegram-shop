@@ -2,7 +2,13 @@
 <html lang="uk">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<!-- «Поділитися → На початковий екран» на iPhone відкриває адмінку як окремий застосунок -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="YØAKE° Адмін">
+<meta name="theme-color" content="#050505">
 <title>YØAKE° — Адмін</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/3.35.0/tabler-icons.min.css">
 <style>
@@ -226,6 +232,8 @@ tr:hover td { background: var(--glass-soft); }
   color: var(--text3); font-size: 18px;
 }
 .color-photo-slot img { width: 100%; height: 100%; object-fit: contain; }
+/* .field label робить усі label блоками — повертаємо центрування квадратикам для фото */
+.field label.color-photo-slot, .field label.photo-slot { display: flex; margin: 0; }
 .color-row-edit input[type=number] { width: 80px; }
 .color-row-edit input[type=color] {
   width: 42px; height: 38px; padding: 2px; border-radius: 10px; cursor: pointer;
@@ -241,7 +249,141 @@ tr:hover td { background: var(--glass-soft); }
 .spec-row-edit input:focus { border-color: var(--pink); }
 .spec-del-btn { background: none; border: none; cursor: pointer; color: var(--red); font-size: 18px; padding: 4px; opacity: .75; }
 
-.status-select { padding: 6px 10px; border-radius: 10px; border: 1px solid var(--line); font-size: 12.5px; font-family: inherit; cursor: pointer; background: var(--glass-soft); color: var(--text); }
+/* ── СТАТУСИ ── */
+/* Ті самі кольори й іконки, що бачить покупець у магазині (public/index.html) */
+.st-new       { --st: #a8a8ad; --st-bg: rgba(142,142,147,.18); --st-line: rgba(142,142,147,.3); }
+.st-confirmed { --st: #4da3ff; --st-bg: rgba(10,132,255,.16);  --st-line: rgba(10,132,255,.32); }
+.st-printing  { --st: #ffab2e; --st-bg: rgba(255,159,10,.16);  --st-line: rgba(255,159,10,.32); }
+.st-shipped   { --st: #c88bff; --st-bg: rgba(191,90,242,.16);  --st-line: rgba(191,90,242,.32); }
+.st-done      { --st: #3ddc55; --st-bg: rgba(50,215,75,.16);   --st-line: rgba(50,215,75,.32); }
+.st-cancelled { --st: #ff6b61; --st-bg: rgba(255,69,58,.16);   --st-line: rgba(255,69,58,.32); }
+body.light .st-new       { --st: #6e6e73; }
+body.light .st-confirmed { --st: #0a6fd8; }
+body.light .st-printing  { --st: #c47500; }
+body.light .st-shipped   { --st: #8b3fd1; }
+body.light .st-done      { --st: #1a9e34; }
+body.light .st-cancelled { --st: #d63027; }
+
+.status-chip {
+  display: inline-flex; align-items: center; gap: 6px; flex-shrink: 0;
+  padding: 7px 10px 7px 11px; border-radius: 12px; white-space: nowrap;
+  font-family: inherit; font-size: 12.5px; font-weight: 700; letter-spacing: .01em;
+  background: var(--st-bg); color: var(--st); border: 1px solid var(--st-line);
+}
+.status-chip i { font-size: 15px; }
+button.status-chip { cursor: pointer; }
+button.status-chip .ti-chevron-down { font-size: 13px; opacity: .7; margin-left: 1px; }
+button.status-chip:active { transform: scale(.96); }
+
+/* Фільтр замовлень за статусом */
+.filter-bar { display: flex; gap: 8px; overflow-x: auto; margin: 0 0 18px; padding-bottom: 2px; scrollbar-width: none; }
+.filter-bar::-webkit-scrollbar { display: none; }
+.filter-chip {
+  flex-shrink: 0; display: inline-flex; align-items: center; gap: 7px;
+  height: 36px; padding: 0 14px; border-radius: 999px; cursor: pointer;
+  border: 1px solid var(--line); background: var(--glass-soft); color: var(--text2);
+  font-family: inherit; font-size: 13px; font-weight: 600;
+}
+.filter-chip .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--st, var(--text3)); }
+.filter-chip .cnt { font-size: 11.5px; color: var(--text3); font-weight: 700; }
+.filter-chip.active { background: var(--pink); color: var(--on-pink); border-color: transparent; }
+.filter-chip.active .cnt { color: inherit; opacity: .6; }
+
+/* ── КАРТКИ ЗАМОВЛЕНЬ ── */
+.orders-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 14px; align-items: start; }
+.order-card { padding: 18px; border-radius: var(--r); position: relative; overflow: hidden; }
+/* Кольорова смужка статусу зліва — видно етап, не читаючи */
+.order-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--st); }
+.order-card.st-cancelled { opacity: .72; }
+.oc-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; margin-bottom: 14px; }
+.oc-num { font-size: 16px; font-weight: 800; letter-spacing: -.01em; }
+.oc-date { font-size: 12px; color: var(--text3); margin-top: 3px; }
+.oc-customer { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
+.oc-name { font-size: 15px; font-weight: 700; }
+.oc-phone { font-size: 13px; color: var(--text2); text-decoration: none; margin-top: 2px; display: inline-block; }
+.icon-btn {
+  width: 40px; height: 40px; border-radius: 12px; flex-shrink: 0; cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center; font-size: 19px; text-decoration: none;
+  background: var(--glass-soft); border: 1px solid var(--line-soft); color: var(--text);
+}
+.icon-btn.danger { color: var(--red); background: var(--red-dim); border-color: transparent; }
+.oc-items { border-top: 1px solid var(--line-soft); border-bottom: 1px solid var(--line-soft); padding: 10px 0; margin-bottom: 12px; }
+.oc-item { display: flex; justify-content: space-between; gap: 10px; font-size: 13.5px; padding: 3px 0; }
+.oc-item span:last-child { color: var(--text2); white-space: nowrap; }
+.oc-total { display: flex; justify-content: space-between; font-weight: 800; font-size: 15px; padding-top: 6px; }
+.oc-meta { display: grid; gap: 7px; font-size: 13px; color: var(--text2); margin-bottom: 14px; }
+.oc-meta div { display: flex; gap: 8px; align-items: flex-start; }
+.oc-meta i { font-size: 16px; color: var(--text3); margin-top: 1px; }
+.oc-actions { display: flex; gap: 8px; }
+.next-btn {
+  flex: 1; height: 44px; border-radius: 13px; cursor: pointer; border: none;
+  font-family: inherit; font-size: 14px; font-weight: 700;
+  display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+  background: var(--st-bg); color: var(--st); box-shadow: inset 0 0 0 1px var(--st-line);
+}
+.next-btn:active { transform: scale(.98); }
+.oc-final { flex: 1; display: flex; align-items: center; font-size: 13px; color: var(--text3); }
+
+/* Короткі рядки на дашборді */
+.order-row { display: flex; align-items: center; gap: 12px; padding: 13px 20px; border-bottom: 1px solid var(--line-soft); }
+.order-row:last-child { border-bottom: none; }
+.order-row .or-main { flex: 1; min-width: 0; }
+.order-row .or-top { font-weight: 700; font-size: 14px; }
+.order-row .or-sub { font-size: 12.5px; color: var(--text3); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.empty { text-align: center; color: var(--text3); padding: 40px 20px; font-size: 14px; }
+
+/* ── КАРТКИ ТОВАРІВ ── */
+.prod-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 12px; }
+.prod-card { display: flex; gap: 14px; align-items: center; padding: 14px; border-radius: var(--r); }
+.prod-card .prod-img-cell { width: 64px; height: 64px; border-radius: 16px; }
+.prod-info { flex: 1; min-width: 0; }
+.prod-name { font-size: 15px; font-weight: 800; }
+.prod-colors { font-size: 12px; color: var(--text3); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.prod-bottom { display: flex; align-items: center; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+.prod-price { font-weight: 700; font-size: 14px; margin-right: 2px; }
+.prod-actions { display: flex; flex-direction: column; gap: 8px; }
+
+/* ── ПАНЕЛЬ ВИБОРУ СТАТУСУ ── */
+.sheet-overlay {
+  position: fixed; inset: 0; z-index: 600; background: rgba(0,0,0,.5);
+  backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+  display: flex; align-items: center; justify-content: center; padding: 20px;
+  opacity: 0; pointer-events: none; transition: opacity .2s;
+}
+.sheet-overlay.open { opacity: 1; pointer-events: all; }
+.sheet {
+  width: 100%; max-width: 420px; border-radius: 26px; padding: 20px 16px 16px;
+  background: var(--glass-strong); backdrop-filter: blur(36px) saturate(1.7); -webkit-backdrop-filter: blur(36px) saturate(1.7);
+  border: 1px solid var(--line); box-shadow: 0 24px 70px rgba(0,0,0,.4);
+  transform: translateY(16px); transition: transform .25s cubic-bezier(.32,.72,0,1);
+}
+.sheet-overlay.open .sheet { transform: none; }
+.sheet-grip { display: none; width: 38px; height: 5px; border-radius: 3px; background: var(--line); margin: -8px auto 12px; }
+.sheet-title { font-size: 18px; font-weight: 800; padding: 0 6px; }
+.sheet-sub { font-size: 13px; color: var(--text2); padding: 2px 6px 14px; }
+.st-option {
+  width: 100%; display: flex; align-items: center; gap: 12px; text-align: left;
+  padding: 10px 12px; min-height: 56px; border-radius: 16px; cursor: pointer;
+  border: 1px solid transparent; background: none; color: var(--text); font-family: inherit;
+}
+.st-option + .st-option { margin-top: 2px; }
+.st-option .st-ico {
+  width: 36px; height: 36px; border-radius: 11px; flex-shrink: 0; font-size: 18px;
+  display: flex; align-items: center; justify-content: center; background: var(--st-bg); color: var(--st);
+}
+.st-option .st-text { flex: 1; min-width: 0; }
+.st-option .st-label { font-size: 15px; font-weight: 700; }
+.st-option .st-hint { font-size: 12px; color: var(--text3); margin-top: 1px; }
+.st-option .st-tick { font-size: 20px; color: var(--st); opacity: 0; }
+.st-option.current { background: var(--st-bg); border-color: var(--st-line); }
+.st-option.current .st-tick { opacity: 1; }
+.st-option:active { transform: scale(.985); }
+.st-option.cancel-opt { margin-top: 10px; }
+.sheet-note { display: flex; gap: 8px; align-items: center; font-size: 12px; color: var(--text3); padding: 14px 8px 2px; }
+.sheet-note i { font-size: 16px; }
+
+/* ── НИЖНЄ МЕНЮ (телефон) ── */
+.mobile-top, .tabbar { display: none; }
 
 .admin-toast {
   position: fixed; bottom: 24px; right: 24px; background: var(--glass-strong); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
@@ -254,8 +396,85 @@ tr:hover td { background: var(--glass-soft); }
 @media (max-width: 900px) {
   .sidebar { width: 200px; } .main { margin-left: 200px; padding: 24px; } .stats-grid { grid-template-columns: 1fr 1fr; }
 }
-@media (max-width: 680px) {
-  .sidebar { display: none; } .main { margin-left: 0; padding: 16px; }
+@media (max-width: 760px) {
+  .sidebar { display: none; }
+  .main {
+    margin-left: 0;
+    padding: 12px max(16px, env(safe-area-inset-right)) calc(96px + env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+  }
+  .mobile-top {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: calc(10px + env(safe-area-inset-top)) 16px 4px;
+  }
+  .mobile-top .sidebar-logo { margin: 0; padding: 0; }
+  .mobile-top .theme-toggle-mini { width: 38px; height: 38px; font-size: 16px; color: var(--text); }
+  .tabbar {
+    display: flex; position: fixed; z-index: 400;
+    left: 12px; right: 12px; bottom: calc(10px + env(safe-area-inset-bottom));
+    background: var(--glass-strong); backdrop-filter: blur(34px) saturate(1.8); -webkit-backdrop-filter: blur(34px) saturate(1.8);
+    border: 1px solid var(--line); border-radius: 24px; box-shadow: 0 8px 32px rgba(0,0,0,.3);
+  }
+  .tab-btn {
+    flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px;
+    padding: 10px 0 9px; border: none; background: none; cursor: pointer; position: relative;
+    font-family: inherit; font-size: 11px; font-weight: 600; color: var(--text3);
+  }
+  .tab-btn i { font-size: 23px; }
+  .tab-btn.active { color: var(--text); font-weight: 700; }
+  .tab-badge {
+    position: absolute; top: 5px; left: calc(50% + 6px); min-width: 17px; height: 17px; padding: 0 5px;
+    border-radius: 9px; background: var(--amber); color: #111; font-size: 10px; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .tab-badge:empty { display: none; }
+
+  .page-title { font-size: 26px; }
+  .page-subtitle { margin-bottom: 18px; }
+  .stats-grid { grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+  .stat-card { padding: 16px; }
+  .stat-val { font-size: 23px; }
+  .orders-grid, .prod-list { grid-template-columns: 1fr; gap: 12px; }
+  .card-header { padding: 16px; }
+  .order-row { padding: 12px 16px; }
+
+  /* Панель статусу виїжджає знизу, кнопки під великий палець */
+  .sheet-overlay { align-items: flex-end; padding: 0; }
+  .sheet {
+    max-width: none; border-radius: 28px 28px 0 0; border-bottom: none;
+    padding: 18px 12px calc(14px + env(safe-area-inset-bottom));
+    transform: translateY(100%);
+  }
+  .sheet-grip { display: block; }
+
+  /* Форма товару — на весь екран, кнопки завжди внизу */
+  .modal-overlay { padding: 0; align-items: flex-start; }
+  .modal {
+    max-width: none; min-height: 100%; border-radius: 0; border: none;
+    padding: calc(18px + env(safe-area-inset-top)) 16px 0;
+    transform: translateY(40px);
+    background: #0b0b0d; backdrop-filter: none; -webkit-backdrop-filter: none;
+  }
+  body.light .modal { background: #f5f5f7; }
+  .modal-title { margin-bottom: 18px; }
+  .modal-actions {
+    position: sticky; bottom: 0; margin: 8px -16px 0; padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+    background: var(--glass-strong); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+    border-top: 1px solid var(--line-soft);
+  }
+  .modal-actions .btn { flex: 1; justify-content: center; height: 48px; font-size: 15px; }
+  /* 16px — інакше iPhone збільшує сторінку при натисканні на поле */
+  .field input, .field textarea, .field select, .spec-row-edit input, .login-input { font-size: 16px; }
+  .color-row-edit { flex-wrap: wrap; }
+  .color-row-edit input[type=text] { flex: 1 1 calc(100% - 110px); min-width: 0; }
+  .color-row-edit .avail-toggle { flex: 1 1 100%; height: 40px; order: 3; }
+  .color-del-btn { width: 45px; height: 45px; border-radius: 12px; }
+  .spec-row-edit { flex-wrap: wrap; }
+  .spec-row-edit input:first-child { flex: 1 1 100%; }
+  .spec-del-btn { width: 40px; }
+  .photos-grid { gap: 8px; }
+
+  .admin-toast { right: 16px; left: 16px; text-align: center; bottom: calc(92px + env(safe-area-inset-bottom)); }
+  .btn { min-height: 40px; }
 }
 </style>
 </head>
@@ -275,6 +494,15 @@ tr:hover td { background: var(--glass-soft); }
 
 <!-- ADMIN -->
 <div id="admin-screen">
+  <div class="mobile-top">
+    <div class="sidebar-logo"><span class="sidebar-logo-icon"><i class="ti ti-bulb"></i></span>YØAKE<span class="brand-deg">°</span></div>
+    <button class="theme-toggle-mini theme-btn" aria-label="Тема"><i class="ti ti-moon"></i></button>
+  </div>
+  <nav class="tabbar">
+    <button class="tab-btn active" data-tab="dashboard" onclick="switchTab('dashboard')"><i class="ti ti-layout-grid"></i>Дашборд</button>
+    <button class="tab-btn" data-tab="orders" onclick="switchTab('orders')"><i class="ti ti-receipt"></i>Замовлення<span class="tab-badge" id="tab-badge-orders"></span></button>
+    <button class="tab-btn" data-tab="products" onclick="switchTab('products')"><i class="ti ti-bulb"></i>Товари</button>
+  </nav>
   <div class="sidebar">
     <div class="sidebar-logo"><span class="sidebar-logo-icon"><i class="ti ti-bulb"></i></span>YØAKE<span class="brand-deg">°</span></div>
     <button class="nav-item active" id="nav-dashboard" onclick="switchTab('dashboard')">
@@ -291,7 +519,7 @@ tr:hover td { background: var(--glass-soft); }
     </button>
     <div class="sidebar-footer">
       <span>v2.0</span>
-      <button class="theme-toggle-mini" id="theme-btn"><i class="ti ti-moon"></i></button>
+      <button class="theme-toggle-mini theme-btn" aria-label="Тема"><i class="ti ti-moon"></i></button>
     </div>
   </div>
 
@@ -307,30 +535,24 @@ tr:hover td { background: var(--glass-soft); }
       </div>
       <div class="card">
         <div class="card-header"><span class="card-title">Останні замовлення</span></div>
-        <table><thead><tr><th>№</th><th>Клієнт</th><th>Сума</th><th>Статус</th></tr></thead>
-        <tbody id="recent-orders"></tbody></table>
+        <div id="recent-orders"></div>
       </div>
     </div>
 
     <div class="tab" id="tab-products">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
         <div class="page-title">Товари</div>
-        <button class="btn btn-primary" onclick="openProductModal()">+ Додати товар</button>
+        <button class="btn btn-primary" onclick="openProductModal()"><i class="ti ti-plus"></i> Додати</button>
       </div>
       <div class="page-subtitle">Керування каталогом</div>
-      <div class="card">
-        <table><thead><tr><th style="width:50px"></th><th>Назва</th><th>Ціна</th><th>Наявність</th><th>Дії</th></tr></thead>
-        <tbody id="products-table"></tbody></table>
-      </div>
+      <div class="prod-list" id="products-table"></div>
     </div>
 
     <div class="tab" id="tab-orders">
       <div class="page-title">Замовлення</div>
       <div class="page-subtitle">Всі замовлення від клієнтів</div>
-      <div class="card">
-        <table><thead><tr><th>№</th><th>Дата</th><th>Клієнт</th><th>Телефон</th><th>Сума</th><th>Доставка</th><th>Оплата</th><th>Статус</th><th>Дії</th></tr></thead>
-        <tbody id="orders-table"></tbody></table>
-      </div>
+      <div class="filter-bar" id="orders-filter"></div>
+      <div class="orders-grid" id="orders-table"></div>
     </div>
   </main>
 </div>
@@ -379,6 +601,17 @@ tr:hover td { background: var(--glass-soft); }
   </div>
 </div>
 
+<!-- ВИБІР СТАТУСУ -->
+<div class="sheet-overlay" id="status-sheet" onclick="if(event.target===this)closeStatusSheet()">
+  <div class="sheet" role="dialog" aria-modal="true">
+    <div class="sheet-grip"></div>
+    <div class="sheet-title" id="sheet-title"></div>
+    <div class="sheet-sub" id="sheet-sub"></div>
+    <div id="sheet-options"></div>
+    <div class="sheet-note"><i class="ti ti-brand-telegram"></i><span id="sheet-note"></span></div>
+  </div>
+</div>
+
 <div class="admin-toast" id="admin-toast"></div>
 
 <script>
@@ -388,14 +621,18 @@ let allProducts = [];
 let allOrders = [];
 
 // ── THEME ──
-const themeBtn = document.getElementById('theme-btn');
-if (localStorage.getItem('theme') === 'light') { document.body.classList.add('light'); themeBtn.innerHTML = '<i class="ti ti-sun"></i>'; }
-themeBtn.onclick = () => {
-  document.body.classList.toggle('light');
-  const light = document.body.classList.contains('light');
+const themeBtns = document.querySelectorAll('.theme-btn');
+function applyTheme(light) {
+  document.body.classList.toggle('light', light);
+  themeBtns.forEach(b => b.innerHTML = light ? '<i class="ti ti-sun"></i>' : '<i class="ti ti-moon"></i>');
+  document.querySelector('meta[name=theme-color]').content = light ? '#f5f5f7' : '#050505';
+}
+applyTheme(localStorage.getItem('theme') === 'light');
+themeBtns.forEach(b => b.onclick = () => {
+  const light = !document.body.classList.contains('light');
   localStorage.setItem('theme', light ? 'light' : 'dark');
-  themeBtn.innerHTML = light ? '<i class="ti ti-sun"></i>' : '<i class="ti ti-moon"></i>';
-};
+  applyTheme(light);
+});
 
 async function doLogin() {
   const pass = document.getElementById('pass-input').value;
@@ -444,22 +681,51 @@ function renderDashboard() {
   const revenue = allOrders.filter(o => o.status !== 'cancelled').reduce((s,o) => s + o.total, 0);
   document.getElementById('stat-revenue').textContent = revenue.toLocaleString('uk-UA') + ' ₴';
   document.getElementById('stat-out').textContent = allProducts.filter(p => p.stock === 0).length;
-  const recent = allOrders.slice(0, 8);
+  const recent = allOrders.slice(0, 6);
   document.getElementById('recent-orders').innerHTML = recent.map(o => `
-    <tr><td><strong>${esc(o.order_num)}</strong></td><td>${esc(o.customer_name)}</td><td>${Number(o.total).toLocaleString('uk-UA')} ₴</td><td>${statusBadge(o.status)}</td></tr>
-  `).join('') || '<tr><td colspan="4" style="text-align:center;color:var(--text3);padding:32px">Замовлень ще немає</td></tr>';
+    <div class="order-row">
+      <div class="or-main">
+        <div class="or-top">${esc(o.order_num)} · ${uah(o.total)}</div>
+        <div class="or-sub">${esc(o.customer_name)} · ${timeAgo(o.created_at)}</div>
+      </div>
+      ${statusChip(o)}
+    </div>
+  `).join('') || '<div class="empty">Замовлень ще немає</div>';
+  // Скільки нових замовлень чекає на підтвердження — бейдж у нижньому меню
+  const fresh = allOrders.filter(o => o.status === 'new').length;
+  document.getElementById('tab-badge-orders').textContent = fresh || '';
 }
-function statusBadge(s) {
-  const m = {
-    new: ['orange', 'ti-clock', 'Нове'],
-    confirmed: ['blue', 'ti-check', 'Підтверджено'],
-    printing: ['orange', 'ti-printer', 'Друкується'],
-    shipped: ['blue', 'ti-truck-delivery', 'Відправлено'],
-    done: ['green', 'ti-circle-check', 'Виконано'],
-    cancelled: ['red', 'ti-x', 'Скасовано']
-  };
-  const [cls, icon, label] = m[s] || ['orange', 'ti-clock', s];
-  return `<span class="badge ${cls}"><i class="ti ${icon}"></i> ${label}</span>`;
+
+// Етапи замовлення. Назви й іконки — як у профілі покупця в магазині.
+// hint — що саме отримає клієнт у Telegram (тексти в server.js → STATUS_MESSAGES)
+const STATUSES = {
+  new:       { label: 'Прийнято',     icon: 'ti-clock',          hint: 'Замовлення прийнято, скоро підтвердимо' },
+  confirmed: { label: 'Підтверджено', icon: 'ti-check',          hint: 'Беремо в роботу' },
+  printing:  { label: 'Друкується',   icon: 'ti-printer',        hint: 'Лампа на принтері' },
+  shipped:   { label: 'Відправлено',  icon: 'ti-truck-delivery', hint: 'Посилка в дорозі' },
+  done:      { label: 'Отримано',     icon: 'ti-circle-check',   hint: 'Дякуємо за покупку' },
+  cancelled: { label: 'Скасовано',    icon: 'ti-x',              hint: 'Замовлення скасовано' },
+};
+const FLOW = ['new', 'confirmed', 'printing', 'shipped', 'done'];
+const stOf = (s) => STATUSES[s] ? s : 'new';
+const uah = (n) => Number(n).toLocaleString('uk-UA') + ' ₴';
+
+// Натискається → відкриває вибір статусу. static=true — просто плашка без дії
+function statusChip(o, isStatic) {
+  const k = stOf(o.status), st = STATUSES[k];
+  return isStatic
+    ? `<span class="status-chip st-${k}"><i class="ti ${st.icon}"></i>${st.label}</span>`
+    : `<button type="button" class="status-chip st-${k}" onclick="openStatusSheet(${o.id})"><i class="ti ${st.icon}"></i>${st.label}<i class="ti ti-chevron-down"></i></button>`;
+}
+function timeAgo(d) {
+  const min = Math.round((Date.now() - new Date(d)) / 60000);
+  if (min < 1) return 'щойно';
+  if (min < 60) return `${min} хв тому`;
+  const h = Math.round(min / 60);
+  if (h < 24) return `${h} год тому`;
+  const days = Math.round(h / 24);
+  if (days < 7) return `${days} дн тому`;
+  return new Date(d).toLocaleDateString('uk-UA', { day: 'numeric', month: 'short' });
 }
 
 
@@ -474,29 +740,30 @@ function getPhotosOf(p) {
 
 function renderProductsTable() {
   const tbody = document.getElementById('products-table');
-  if (!allProducts.length) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text3);padding:40px">Ламп ще немає. Додай першу!</td></tr>'; return; }
+  if (!allProducts.length) { tbody.innerHTML = '<div class="empty">Ламп ще немає. Додай першу!</div>'; return; }
   tbody.innerHTML = allProducts.map(p => {
     const photos = getPhotosOf(p);
     const colors = colorsOf(p).map(normalizeColor);
     const cover = (colors.find(c => c.photo) || {}).photo || photos[0];
     const nAvail = colors.filter(c => c.in_stock).length;
     return `
-    <tr>
-      <td><div class="prod-img-cell">${cover ? `<img src="${cover}" alt="">` : `<i class="ti ti-bulb" style="font-size:18px;color:var(--text3)"></i>`}</div></td>
-      <td><strong>${p.name}</strong>${colors.length ? `<div style="font-size:12px;color:var(--text3);margin-top:2px">${colors.map(c => c.name).join(' · ')}</div>` : ''}</td>
-      <td>${Number(p.price).toLocaleString('uk-UA')} ₴</td>
-      <td>
-        ${colors.length
-          ? `<span class="badge ${nAvail ? 'green' : 'red'}">${nAvail} з ${colors.length} кольорів</span>`
-          : `<button class="avail-toggle sm${p.stock > 0 ? ' on' : ''}" onclick="updateStock(${p.id}, ${p.stock > 0 ? 0 : 1})">${p.stock > 0 ? 'В наявності' : 'Немає'}</button>`}
-      </td>
-      <td>
-        <div style="display:flex;gap:6px">
-          <button class="btn btn-secondary btn-sm" onclick="editProduct(${p.id})"><i class="ti ti-edit"></i> Редагувати</button>
-          <button class="btn btn-danger btn-sm" onclick="deleteProduct(${p.id})"><i class="ti ti-trash"></i></button>
+    <div class="prod-card glass">
+      <div class="prod-img-cell">${cover ? `<img src="${esc(cover)}" alt="">` : `<i class="ti ti-bulb" style="font-size:22px;color:var(--text3)"></i>`}</div>
+      <div class="prod-info">
+        <div class="prod-name">${esc(p.name)}</div>
+        ${colors.length ? `<div class="prod-colors">${colors.map(c => esc(c.name)).join(' · ')}</div>` : ''}
+        <div class="prod-bottom">
+          <span class="prod-price">${uah(p.price)}</span>
+          ${colors.length
+            ? `<span class="badge ${nAvail ? 'green' : 'red'}">${nAvail} з ${colors.length} кольорів</span>`
+            : `<button class="avail-toggle sm${p.stock > 0 ? ' on' : ''}" onclick="updateStock(${p.id}, ${p.stock > 0 ? 0 : 1})">${p.stock > 0 ? 'В наявності' : 'Немає'}</button>`}
         </div>
-      </td>
-    </tr>
+      </div>
+      <div class="prod-actions">
+        <button class="icon-btn" onclick="editProduct(${p.id})" aria-label="Редагувати"><i class="ti ti-pencil"></i></button>
+        <button class="icon-btn danger" onclick="deleteProduct(${p.id})" aria-label="Видалити"><i class="ti ti-trash"></i></button>
+      </div>
+    </div>
   `}).join('');
 }
 
@@ -515,37 +782,89 @@ async function deleteProduct(id) {
 const deliveryNames = { np:'Nova Poshta', pickup:'Самовивіз' };
 const paymentNames = { deposit:'Передоплата 100 ₴', fop:'Повна оплата (ФОП)', card:'Карта', cod:'Накладений' };
 
+let ordersFilter = 'all';
 function renderOrdersTable() {
-  const tbody = document.getElementById('orders-table');
-  if (!allOrders.length) { tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--text3);padding:40px">Замовлень ще немає</td></tr>'; return; }
-  tbody.innerHTML = allOrders.map(o => `
-    <tr>
-      <td><strong>${esc(o.order_num)}</strong></td>
-      <td style="color:var(--text2);font-size:12.5px">${new Date(o.created_at).toLocaleString('uk-UA')}</td>
-      <td>${esc(o.customer_name)}</td><td>${esc(o.customer_phone)}</td>
-      <td>
-        <strong>${Number(o.total).toLocaleString('uk-UA')} ₴</strong>
-        ${(o.items || []).map(i => `<div style="font-size:11.5px;color:var(--text2);margin-top:3px">${esc(i.name)} × ${esc(i.qty)}</div>`).join('')}
-      </td>
-      <td>
-        <div style="font-size:12.5px">${esc(deliveryNames[o.delivery_type] || o.delivery_type)}</div>
-        ${o.delivery_city ? `<div style="font-size:11.5px;color:var(--text3)">${[o.delivery_region, o.delivery_city, o.delivery_branch].filter(Boolean).map(esc).join(', ')}</div>` : ''}
-      </td>
-      <td>${esc(paymentNames[o.payment_type] || o.payment_type)}</td>
-      <td>
-        <select class="status-select" onchange="updateOrderStatus(${o.id}, this.value)">
-          <option value="new" ${o.status==='new'?'selected':''}>🟡 Прийнято</option>
-          <option value="confirmed" ${o.status==='confirmed'?'selected':''}>🔵 Підтверджено</option>
-          <option value="printing" ${o.status==='printing'?'selected':''}>🖨 Друкується</option>
-          <option value="shipped" ${o.status==='shipped'?'selected':''}>📦 Відправлено</option>
-          <option value="done" ${o.status==='done'?'selected':''}>🎉 Отримано</option>
-          <option value="cancelled" ${o.status==='cancelled'?'selected':''}>❌ Скасовано</option>
-        </select>
-      </td>
-      <td><button class="btn btn-danger btn-sm" onclick="deleteOrder(${o.id})"><i class="ti ti-trash"></i></button></td>
-    </tr>
-  `).join('');
+  const counts = {};
+  allOrders.forEach(o => { const k = stOf(o.status); counts[k] = (counts[k] || 0) + 1; });
+  document.getElementById('orders-filter').innerHTML =
+    `<button class="filter-chip${ordersFilter === 'all' ? ' active' : ''}" onclick="setOrdersFilter('all')">Усі <span class="cnt">${allOrders.length}</span></button>` +
+    Object.keys(STATUSES).filter(k => counts[k]).map(k =>
+      `<button class="filter-chip st-${k}${ordersFilter === k ? ' active' : ''}" onclick="setOrdersFilter('${k}')"><span class="dot"></span>${STATUSES[k].label} <span class="cnt">${counts[k]}</span></button>`
+    ).join('');
+
+  const list = ordersFilter === 'all' ? allOrders : allOrders.filter(o => stOf(o.status) === ordersFilter);
+  const box = document.getElementById('orders-table');
+  if (!list.length) { box.innerHTML = `<div class="empty">${allOrders.length ? 'Немає замовлень з таким статусом' : 'Замовлень ще немає'}</div>`; return; }
+  box.innerHTML = list.map(o => {
+    const k = stOf(o.status);
+    const i = FLOW.indexOf(k);
+    const next = i >= 0 ? FLOW[i + 1] : null; // скасоване далі не рухається
+    const place = o.delivery_type === 'np'
+      ? [o.delivery_city, o.delivery_branch].filter(Boolean).map(esc).join(', ')
+      : '';
+    return `
+    <div class="order-card glass st-${k}">
+      <div class="oc-head">
+        <div>
+          <div class="oc-num">${esc(o.order_num)}</div>
+          <div class="oc-date">${timeAgo(o.created_at)} · ${new Date(o.created_at).toLocaleString('uk-UA', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</div>
+        </div>
+        ${statusChip(o)}
+      </div>
+      <div class="oc-customer">
+        <div style="min-width:0">
+          <div class="oc-name">${esc(o.customer_name)}</div>
+          <a class="oc-phone" href="tel:${esc(String(o.customer_phone).replace(/[^+\d]/g, ''))}">${esc(o.customer_phone)}</a>
+        </div>
+        <a class="icon-btn" href="tel:${esc(String(o.customer_phone).replace(/[^+\d]/g, ''))}" aria-label="Подзвонити"><i class="ti ti-phone"></i></a>
+      </div>
+      <div class="oc-items">
+        ${(o.items || []).map(i => `<div class="oc-item"><span>${esc(i.name)}</span><span>× ${esc(i.qty)}</span></div>`).join('')}
+        <div class="oc-total"><span>Разом</span><span>${uah(o.total)}</span></div>
+      </div>
+      <div class="oc-meta">
+        <div><i class="ti ${o.delivery_type === 'np' ? 'ti-package' : 'ti-building-store'}"></i><span>${esc(deliveryNames[o.delivery_type] || o.delivery_type)}${place ? ` · ${place}` : ''}</span></div>
+        <div><i class="ti ti-credit-card"></i><span>${esc(paymentNames[o.payment_type] || o.payment_type)}</span></div>
+      </div>
+      <div class="oc-actions">
+        ${next
+          ? `<button class="next-btn st-${next}" onclick="updateOrderStatus(${o.id}, '${next}')"><i class="ti ${STATUSES[next].icon}"></i>${STATUSES[next].label}<i class="ti ti-arrow-right"></i></button>`
+          : `<div class="oc-final">${k === 'done' ? 'Замовлення завершено' : 'Замовлення скасовано'}</div>`}
+        <button class="icon-btn danger" onclick="deleteOrder(${o.id})" aria-label="Видалити"><i class="ti ti-trash"></i></button>
+      </div>
+    </div>`;
+  }).join('');
 }
+function setOrdersFilter(k) { ordersFilter = k; renderOrdersTable(); }
+
+// ── ВИБІР СТАТУСУ ──
+let sheetOrderId = null;
+function openStatusSheet(id) {
+  const o = allOrders.find(x => x.id === id);
+  if (!o) return;
+  sheetOrderId = id;
+  const cur = stOf(o.status);
+  document.getElementById('sheet-title').textContent = `Замовлення ${o.order_num}`;
+  document.getElementById('sheet-sub').textContent = `${o.customer_name} · ${uah(o.total)}`;
+  document.getElementById('sheet-options').innerHTML = Object.entries(STATUSES).map(([k, st]) => `
+    <button type="button" class="st-option st-${k}${k === cur ? ' current' : ''}${k === 'cancelled' ? ' cancel-opt' : ''}" onclick="pickStatus('${k}')">
+      <span class="st-ico"><i class="ti ${st.icon}"></i></span>
+      <span class="st-text"><div class="st-label">${st.label}</div><div class="st-hint">${st.hint}</div></span>
+      <i class="ti ti-check st-tick"></i>
+    </button>`).join('');
+  document.getElementById('sheet-note').textContent = o.telegram_user_id
+    ? 'Клієнт одразу отримає повідомлення в Telegram'
+    : 'Клієнт замовляв не з Telegram — сповіщення не надійде';
+  document.getElementById('status-sheet').classList.add('open');
+}
+function closeStatusSheet() { document.getElementById('status-sheet').classList.remove('open'); }
+function pickStatus(k) {
+  const o = allOrders.find(x => x.id === sheetOrderId);
+  closeStatusSheet();
+  if (o && stOf(o.status) !== k) updateOrderStatus(o.id, k);
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeStatusSheet(); closeModal(); } });
+
 async function deleteOrder(id) {
   if (!confirm('Видалити це замовлення? Дію неможливо скасувати.')) return;
   await fetch(`${API}/api/admin/orders/${id}`, { method: 'DELETE', headers: { 'x-admin-token': adminToken } });
@@ -553,9 +872,18 @@ async function deleteOrder(id) {
   await loadOrders(); renderDashboard();
 }
 async function updateOrderStatus(id, status) {
-  await fetch(`${API}/api/admin/orders/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', 'x-admin-token': adminToken }, body: JSON.stringify({ status }) });
-  toast('Статус оновлено ✓');
-  await loadOrders(); renderDashboard();
+  // Одразу перемальовуємо картку, а не чекаємо на сервер — на мобільному інтернеті це помітно
+  const o = allOrders.find(x => x.id === id);
+  const prev = o?.status;
+  if (o) { o.status = status; renderOrdersTable(); renderDashboard(); }
+  try {
+    const res = await fetch(`${API}/api/admin/orders/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', 'x-admin-token': adminToken }, body: JSON.stringify({ status }) });
+    if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || 'Помилка');
+    toast(`${o ? o.order_num + ' → ' : ''}${STATUSES[status].label}`);
+  } catch (e) {
+    if (o) { o.status = prev; renderOrdersTable(); renderDashboard(); }
+    toast('Не вдалося змінити статус: ' + e.message);
+  }
 }
 
 // ── PRODUCT MODAL with multi-photo support ──
@@ -608,7 +936,9 @@ function openProductModal(product = null) {
   renderSpecsEditor();
   renderColorsEditor();
   renderPhotosGrid();
-  document.getElementById('product-modal').classList.add('open');
+  const overlay = document.getElementById('product-modal');
+  overlay.scrollTop = 0;
+  overlay.classList.add('open');
 }
 function editProduct(id) { const p = allProducts.find(x => x.id === id); if (p) openProductModal(p); }
 function closeModal() { document.getElementById('product-modal').classList.remove('open'); }
@@ -778,6 +1108,8 @@ function switchTab(name) {
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById('tab-' + name).classList.add('active');
   document.getElementById('nav-' + name).classList.add('active');
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === name));
+  window.scrollTo(0, 0);
 }
 function toast(msg) {
   const t = document.getElementById('admin-toast');
