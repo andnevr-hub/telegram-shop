@@ -577,6 +577,36 @@ body.light .detail-carousel-slide img { filter: drop-shadow(0 20px 26px rgba(0,0
   cursor: pointer; font-family: var(--font); margin-top: 14px;
 }
 
+/* ── ШЛЯХ ЗАМОВЛЕННЯ ── */
+.order-path { width: 100%; max-width: 320px; margin-top: 18px; text-align: left; }
+.path-step { display: flex; gap: 12px; }
+.path-rail { display: flex; flex-direction: column; align-items: center; flex-shrink: 0; width: 26px; }
+.path-dot {
+  width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0;
+  border: 1.5px solid var(--line);
+  display: flex; align-items: center; justify-content: center;
+}
+.path-step.is-current .path-dot { border: 2.5px solid var(--amber); }
+.path-step.is-current .path-dot::after {
+  content: ''; width: 10px; height: 10px; border-radius: 50%; background: var(--amber);
+}
+.path-step.is-done .path-dot {
+  background: var(--text); border-color: var(--text); color: var(--on-pink); font-size: 15px;
+}
+.path-line { width: 2px; flex: 1; min-height: 18px; margin: 4px 0; border-radius: 1px; background: var(--line); }
+.path-step.is-done .path-line { background: var(--text); }
+.path-step:last-child .path-line { display: none; }
+.path-text { padding: 2px 0 14px; min-width: 0; }
+.path-step:last-child .path-text { padding-bottom: 0; }
+.path-name { font-size: 14.5px; font-weight: 600; line-height: 1.3; }
+.path-step.is-next .path-name { color: var(--text2); }
+.path-desc { font-size: 12.5px; color: var(--text2); line-height: 1.4; margin-top: 1px; }
+
+.order-progress { display: flex; gap: 4px; margin-bottom: 12px; }
+.order-progress span { flex: 1; height: 4px; border-radius: 2px; background: var(--line); }
+.order-progress span.done { background: var(--text); }
+.order-progress span.current { background: var(--amber); }
+
 /* ── ACCOUNT ── */
 .account-card {
   background: var(--glass); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
@@ -1340,6 +1370,7 @@ async function placeOrder() {
         <div class="success-icon">✓</div>
         <div class="success-title">Замовлення оформлено</div>
         <div class="success-desc">Номер: <strong>${orderNum}</strong> · ${Number(orderTotal).toLocaleString('uk-UA')} ₴<br><br>Менеджер зв'яжеться з вами найближчим часом для підтвердження.</div>
+        ${orderPathHtml('new')}
         <button class="success-btn" onclick="showPage('shop')">Продовжити покупки</button>
       </div>`;
     if (window.Telegram?.WebApp?.HapticFeedback) window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
@@ -1406,6 +1437,59 @@ const STATUS_LABELS = {
   cancelled: { text: 'Скасовано',    icon: 'ti-x',             cls: 'st-cancelled' }
 };
 
+// Етапи замовлення: той самий порядок, що в адмінці (FLOW)
+const ORDER_STEPS = [
+  { key: 'new',       desc: 'Скоро підтвердимо деталі' },
+  { key: 'confirmed', desc: 'Беремо в роботу' },
+  { key: 'printing',  desc: 'Лампа на принтері' },
+  { key: 'shipped',   desc: 'Посилка вже в дорозі' },
+  { key: 'done',      desc: 'Лампа у вас удома' }
+];
+
+// Скасоване замовлення не має етапу: -1 означає, що шлях не показуємо
+function orderStepIndex(status) {
+  if (status === 'cancelled') return -1;
+  const i = ORDER_STEPS.findIndex(s => s.key === status);
+  return i === -1 ? 0 : i;
+}
+
+// Останній етап вважаємо завершеним, а не поточним: замовлення вже закрите
+function orderStepState(i, current) {
+  const last = ORDER_STEPS.length - 1;
+  if (i < current || (i === current && current === last)) return 'done';
+  return i === current ? 'current' : 'next';
+}
+
+function orderPathHtml(status) {
+  const current = orderStepIndex(status);
+  if (current < 0) return '';
+  return `<div class="order-path">${ORDER_STEPS.map((s, i) => {
+    const state = orderStepState(i, current);
+    return `
+    <div class="path-step is-${state}"${state === 'current' ? ' aria-current="step"' : ''}>
+      <div class="path-rail">
+        <div class="path-dot">${state === 'done' ? '<i class="ti ti-check" aria-hidden="true"></i>' : ''}</div>
+        <div class="path-line"></div>
+      </div>
+      <div class="path-text">
+        <div class="path-name">${STATUS_LABELS[s.key].text}</div>
+        <div class="path-desc">${s.desc}</div>
+      </div>
+    </div>`;
+  }).join('')}</div>`;
+}
+
+function orderProgressHtml(status) {
+  const current = orderStepIndex(status);
+  if (current < 0) return '';
+  const label = `Етап ${current + 1} із ${ORDER_STEPS.length}: ${STATUS_LABELS[ORDER_STEPS[current].key].text}`;
+  const parts = ORDER_STEPS.map((s, i) => {
+    const state = orderStepState(i, current);
+    return `<span${state === 'next' ? '' : ` class="${state}"`}></span>`;
+  }).join('');
+  return `<div class="order-progress" role="img" aria-label="${label}">${parts}</div>`;
+}
+
 async function loadOrders() {
   if (!telegramId) { renderOrders(); return; }
   try {
@@ -1441,6 +1525,7 @@ function renderOrders() {
         </div>
         <span class="order-status ${st.cls}"><i class="ti ${st.icon}"></i>${st.text}</span>
       </div>
+      ${orderProgressHtml(o.status)}
       <div class="order-items">${(o.items||[]).map(i=>`${i.name} ×${i.qty||1}`).join(' · ')}</div>
       <div class="order-total">${Number(o.total).toLocaleString('uk-UA')} ₴</div>
     </div>
