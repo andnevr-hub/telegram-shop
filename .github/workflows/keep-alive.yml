@@ -1,0 +1,26 @@
+# Не дає безкоштовному Render заснути: кожні 10 хвилин GitHub стукає на /ping.
+# Render вимикає сервіс після 15 хвилин без запитів, а холодний старт триває ~1 хв —
+# тому чекаємо до 60 с і пробуємо кілька разів, перш ніж вважати це збоєм.
+name: Keep Render awake
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch: {}
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - name: Ping /ping
+        run: |
+          URL="https://telegram-shop-bnei.onrender.com/ping"
+          for i in 1 2 3 4 5; do
+            code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 60 "$URL" || echo 000)
+            echo "Спроба $i: HTTP $code"
+            if [ "$code" = "200" ]; then exit 0; fi
+            sleep 20
+          done
+          echo "::error::Сервер не відповів 200 за 5 спроб"
+          exit 1
