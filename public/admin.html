@@ -10,14 +10,17 @@
 <meta name="apple-mobile-web-app-title" content="YØAKE° Адмін">
 <meta name="theme-color" content="#050505">
 <title>YØAKE° — Адмін</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@800&family=Manrope:wght@400;500;600;700;800&display=swap">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/3.35.0/tabler-icons.min.css">
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
-  --glass: rgba(28,28,30,0.55);
-  --glass-strong: rgba(28,28,30,0.78);
+  --glass: #131315;
+  --glass-strong: #1c1c1f;
+  --bar-bg: rgba(245,245,247,0.85);
   --glass-soft: rgba(255,255,255,0.07);
   --line: rgba(255,255,255,0.14);
   --line-soft: rgba(255,255,255,0.08);
@@ -38,11 +41,14 @@
   --blue-dim: rgba(245,245,247,0.16);
   --r: 20px;
   --font: 'Manrope', -apple-system, sans-serif;
-  --blur: 26px;
 }
 body.light {
-  --glass: rgba(255,255,255,0.55);
-  --glass-strong: rgba(255,255,255,0.8);
+  --glass: #ffffff;
+  --glass-strong: #ffffff;
+  --bar-bg: rgba(28,28,30,0.8);
+  --green: #1a9e34; --green-dim: rgba(26,158,52,0.12);
+  --red: #d63027; --red-dim: rgba(214,48,39,0.1);
+  --orange: #b86e00; --orange-dim: rgba(196,117,0,0.13);
   --glass-soft: rgba(20,20,22,0.05);
   --line: rgba(20,20,22,0.1);
   --line-soft: rgba(20,20,22,0.06);
@@ -64,12 +70,12 @@ body {
   letter-spacing: -0.01em; position: relative;
 }
 
-.glass { background: var(--glass); backdrop-filter: blur(var(--blur)) saturate(1.6); -webkit-backdrop-filter: blur(var(--blur)) saturate(1.6); border: 1px solid var(--line); }
+.glass { background: var(--glass); border: 1px solid var(--line); }
 
 /* ── LOGIN ── */
 #login-screen { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
 .login-box {
-  background: var(--glass); backdrop-filter: blur(34px) saturate(1.7); -webkit-backdrop-filter: blur(34px) saturate(1.7);
+  background: var(--glass);
   border-radius: 28px; padding: 44px 36px; width: 100%; max-width: 400px; border: 1px solid var(--line); text-align: center;
   box-shadow: 0 20px 60px rgba(0,0,0,0.3);
 }
@@ -87,7 +93,7 @@ body {
 /* ── LAYOUT ── */
 #admin-screen { display: none; }
 .sidebar {
-  width: 240px; background: var(--glass); backdrop-filter: blur(30px) saturate(1.6); -webkit-backdrop-filter: blur(30px) saturate(1.6);
+  width: 240px; background: var(--glass);
   border-right: 1px solid var(--line); position: fixed; top: 0; left: 0; bottom: 0;
   display: flex; flex-direction: column; padding: 26px 16px; z-index: 100;
 }
@@ -114,15 +120,7 @@ body {
 .page-title { font-size: 27px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 6px; }
 .page-subtitle { font-size: 13.5px; color: var(--text2); margin-bottom: 30px; }
 
-.stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 32px; }
-.stat-card { background: var(--glass); backdrop-filter: blur(var(--blur)); -webkit-backdrop-filter: blur(var(--blur)); border-radius: var(--r); padding: 20px; border: 1px solid var(--line); }
-.stat-label { font-size: 11px; color: var(--text3); font-weight: 600; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.06em; }
-.stat-val { font-size: 27px; font-weight: 800; letter-spacing: -0.01em; }
-.stat-hint { font-size: 11.5px; color: var(--text3); margin-top: 4px; }
 
-.card { background: var(--glass); backdrop-filter: blur(var(--blur)); -webkit-backdrop-filter: blur(var(--blur)); border-radius: var(--r); border: 1px solid var(--line); overflow: hidden; }
-.card-header { padding: 20px 22px; border-bottom: 1px solid var(--line-soft); display: flex; align-items: center; justify-content: space-between; }
-.card-title { font-size: 16px; font-weight: 700; }
 table { width: 100%; border-collapse: collapse; }
 th { text-align: left; padding: 12px 20px; font-size: 10.5px; font-weight: 700; color: var(--text3); text-transform: uppercase; letter-spacing: 0.06em; border-bottom: 1px solid var(--line-soft); background: var(--glass-soft); }
 td { padding: 14px 20px; font-size: 13.5px; border-bottom: 1px solid var(--line-soft); vertical-align: middle; }
@@ -154,12 +152,12 @@ tr:hover td { background: var(--glass-soft); }
 
 .modal-overlay {
   position: fixed; inset: 0; background: rgba(0,0,0,.5); display: flex; align-items: flex-start; justify-content: center;
-  z-index: 500; padding: 40px 20px; overflow-y: auto; backdrop-filter: blur(6px);
+  z-index: 500; padding: 40px 20px; overflow-y: auto;
   opacity: 0; pointer-events: none; transition: opacity .2s;
 }
 .modal-overlay.open { opacity: 1; pointer-events: all; }
 .modal {
-  background: var(--glass-strong); backdrop-filter: blur(36px) saturate(1.7); -webkit-backdrop-filter: blur(36px) saturate(1.7);
+  background: var(--glass-strong);
   border-radius: 26px; padding: 28px; width: 100%; max-width: 600px; border: 1px solid var(--line);
   transform: translateY(20px); transition: transform .2s; box-shadow: 0 24px 70px rgba(0,0,0,0.35);
 }
@@ -289,49 +287,6 @@ button.status-chip:active { transform: scale(.96); }
 .filter-chip.active { background: var(--pink); color: var(--on-pink); border-color: transparent; }
 .filter-chip.active .cnt { color: inherit; opacity: .6; }
 
-/* ── КАРТКИ ЗАМОВЛЕНЬ ── */
-.orders-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 14px; align-items: start; }
-.order-card { padding: 18px; border-radius: var(--r); position: relative; overflow: hidden; }
-/* Кольорова смужка статусу зліва — видно етап, не читаючи */
-.order-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--st); }
-.order-card.st-cancelled { opacity: .72; }
-.oc-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; margin-bottom: 14px; }
-.oc-num { font-size: 16px; font-weight: 800; letter-spacing: -.01em; }
-.oc-date { font-size: 12px; color: var(--text3); margin-top: 3px; }
-.oc-customer { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
-.oc-name { font-size: 15px; font-weight: 700; }
-.oc-phone { font-size: 13px; color: var(--text2); text-decoration: none; margin-top: 2px; display: inline-block; }
-.icon-btn {
-  width: 40px; height: 40px; border-radius: 12px; flex-shrink: 0; cursor: pointer;
-  display: inline-flex; align-items: center; justify-content: center; font-size: 19px; text-decoration: none;
-  background: var(--glass-soft); border: 1px solid var(--line-soft); color: var(--text);
-}
-.icon-btn.danger { color: var(--red); background: var(--red-dim); border-color: transparent; }
-.oc-items { border-top: 1px solid var(--line-soft); border-bottom: 1px solid var(--line-soft); padding: 10px 0; margin-bottom: 12px; }
-.oc-item { display: flex; justify-content: space-between; gap: 10px; font-size: 13.5px; padding: 3px 0; }
-.oc-item span:last-child { color: var(--text2); white-space: nowrap; }
-.oc-total { display: flex; justify-content: space-between; font-weight: 800; font-size: 15px; padding-top: 6px; }
-.oc-meta { display: grid; gap: 7px; font-size: 13px; color: var(--text2); margin-bottom: 14px; }
-.oc-meta div { display: flex; gap: 8px; align-items: flex-start; }
-.oc-meta i { font-size: 16px; color: var(--text3); margin-top: 1px; }
-.oc-actions { display: flex; gap: 8px; }
-.next-btn {
-  flex: 1; height: 44px; border-radius: 13px; cursor: pointer; border: none;
-  font-family: inherit; font-size: 14px; font-weight: 700;
-  display: inline-flex; align-items: center; justify-content: center; gap: 7px;
-  background: var(--st-bg); color: var(--st); box-shadow: inset 0 0 0 1px var(--st-line);
-}
-.next-btn:active { transform: scale(.98); }
-.oc-final { flex: 1; display: flex; align-items: center; font-size: 13px; color: var(--text3); }
-
-/* Короткі рядки на дашборді */
-.order-row { display: flex; align-items: center; gap: 12px; padding: 13px 20px; border-bottom: 1px solid var(--line-soft); }
-.order-row:last-child { border-bottom: none; }
-.order-row .or-main { flex: 1; min-width: 0; }
-.order-row .or-top { font-weight: 700; font-size: 14px; }
-.order-row .or-sub { font-size: 12.5px; color: var(--text3); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.empty { text-align: center; color: var(--text3); padding: 40px 20px; font-size: 14px; }
-
 /* ── КАРТКИ ТОВАРІВ ── */
 .prod-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 12px; }
 .prod-card { display: flex; gap: 14px; align-items: center; padding: 14px; border-radius: var(--r); }
@@ -346,14 +301,13 @@ button.status-chip:active { transform: scale(.96); }
 /* ── ПАНЕЛЬ ВИБОРУ СТАТУСУ ── */
 .sheet-overlay {
   position: fixed; inset: 0; z-index: 600; background: rgba(0,0,0,.5);
-  backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
   display: flex; align-items: center; justify-content: center; padding: 20px;
   opacity: 0; pointer-events: none; transition: opacity .2s;
 }
 .sheet-overlay.open { opacity: 1; pointer-events: all; }
 .sheet {
   width: 100%; max-width: 420px; border-radius: 26px; padding: 20px 16px 16px;
-  background: var(--glass-strong); backdrop-filter: blur(36px) saturate(1.7); -webkit-backdrop-filter: blur(36px) saturate(1.7);
+  background: var(--glass-strong);
   border: 1px solid var(--line); box-shadow: 0 24px 70px rgba(0,0,0,.4);
   transform: translateY(16px); transition: transform .25s cubic-bezier(.32,.72,0,1);
 }
@@ -372,6 +326,7 @@ button.status-chip:active { transform: scale(.96); }
   display: flex; align-items: center; justify-content: center; background: var(--st-bg); color: var(--st);
 }
 .st-option .st-text { flex: 1; min-width: 0; }
+.st-option .st-text > span { display: block; }
 .st-option .st-label { font-size: 15px; font-weight: 700; }
 .st-option .st-hint { font-size: 12px; color: var(--text3); margin-top: 1px; }
 .st-option .st-tick { font-size: 20px; color: var(--st); opacity: 0; }
@@ -386,15 +341,253 @@ button.status-chip:active { transform: scale(.96); }
 .mobile-top, .tabbar { display: none; }
 
 .admin-toast {
-  position: fixed; bottom: 24px; right: 24px; background: var(--glass-strong); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+  position: fixed; bottom: 24px; right: 24px; background: var(--glass-strong);
   border: 1px solid var(--line); color: var(--text);
   padding: 12px 22px; border-radius: 16px; font-size: 14px; font-weight: 600;
-  transform: translateY(80px); opacity: 0; transition: all .3s; z-index: 999;
+  transform: translateY(80px); opacity: 0; transition: transform .3s, opacity .3s; z-index: 999; pointer-events: none;
 }
 .admin-toast.show { transform: translateY(0); opacity: 1; }
 
+
+/* ── ШВИДКОДІЯ НА ТЕЛЕФОНІ ──
+   Розмиття фону (backdrop-filter) прибране з усіх карток і панелей: телефон перемальовував його
+   на кожному кадрі прокрутки, і список смикався. Поверхні тепер суцільні — вигляд той самий. */
+button, a, input, textarea, select, label { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+body.lock { overflow: hidden; }
+.num { font-variant-numeric: tabular-nums; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+
+/* ── ДАШБОРД ── */
+.dash-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 18px; }
+.dash-head .page-title { margin-bottom: 2px; }
+.dash-date { font-size: 13.5px; color: var(--text2); }
+.icon-btn.spin i { animation: spin .7s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.kpi-grid { display: grid; grid-template-columns: 1.35fr 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+.kpi { background: var(--glass); border: 1px solid var(--line); border-radius: var(--r); padding: 18px; min-width: 0; }
+.kpi.hero { background: radial-gradient(120% 150% at 100% 0%, rgba(255,176,32,.16), transparent 58%), var(--glass); }
+.kpi-label { font-size: 11px; font-weight: 700; color: var(--text3); text-transform: uppercase; letter-spacing: .06em; }
+.kpi-val { font-size: 25px; font-weight: 800; letter-spacing: -.02em; margin-top: 6px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.kpi.hero .kpi-val { font-size: 34px; }
+.kpi-sub { display: flex; align-items: center; gap: 4px 8px; flex-wrap: wrap; font-size: 12.5px; color: var(--text2); margin-top: 6px; }
+.kpi-dim { color: var(--text3); }
+.delta { display: inline-flex; align-items: center; gap: 1px; height: 20px; padding: 0 6px; border-radius: 7px; font-size: 11.5px; font-weight: 800; }
+.delta i { font-size: 13px; }
+.delta.up { color: var(--green); background: var(--green-dim); }
+.delta.down { color: var(--red); background: var(--red-dim); }
+
+.dash-cols { display: grid; grid-template-columns: 1.35fr 1fr; gap: 12px; align-items: start; }
+.dash-col { display: grid; gap: 12px; min-width: 0; }
+.dash-card { background: var(--glass); border: 1px solid var(--line); border-radius: var(--r); padding: 18px; min-width: 0; }
+.dc-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 14px; }
+.dc-title { font-size: 16px; font-weight: 800; letter-spacing: -.01em; }
+.dc-foot { font-size: 12px; color: var(--text3); margin-top: 12px; }
+.seg { display: inline-flex; padding: 3px; border-radius: 11px; background: var(--glass-soft); border: 1px solid var(--line-soft); flex-shrink: 0; }
+.seg button {
+  height: 30px; padding: 0 12px; border: none; background: none; border-radius: 8px; cursor: pointer;
+  color: var(--text2); font-family: inherit; font-size: 12.5px; font-weight: 600; white-space: nowrap;
+}
+.seg button.on { background: var(--pink); color: var(--on-pink); }
+
+/* Графік: стовпчик на день. Висота задається змінною --h, без бібліотек і без canvas */
+.chart-cap { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin-bottom: 14px; min-height: 26px; }
+.chart-cap-day { font-size: 13px; color: var(--text2); }
+.chart-cap-sum { font-size: 20px; font-weight: 800; letter-spacing: -.02em; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.chart-cap-sum small { font-size: 12.5px; font-weight: 600; color: var(--text3); margin-left: 6px; letter-spacing: 0; }
+.chart { display: flex; align-items: flex-end; gap: 6px; height: 132px; }
+.chart.dense { gap: 3px; }
+.chart .bar { flex: 1; min-width: 0; height: 100%; display: flex; align-items: flex-end; padding: 0; border: none; background: none; cursor: pointer; }
+.chart .bar i {
+  display: block; width: 100%; height: var(--h); min-height: 4px; border-radius: 6px 6px 3px 3px;
+  background: var(--bar-bg); transform-origin: bottom;
+}
+.chart.dense .bar i { border-radius: 3px 3px 2px 2px; }
+.chart.anim .bar i { animation: grow .45s cubic-bezier(.2,.8,.2,1) both; }
+@keyframes grow { from { transform: scaleY(0); } }
+.chart .bar.zero i { background: var(--line-soft); }
+.chart .bar.today i { background: var(--amber); }
+.chart.has-sel .bar:not(.sel) i { opacity: .38; }
+.chart-x { display: flex; gap: 6px; margin-top: 8px; }
+.chart-x.dense { gap: 3px; }
+.chart-x span { flex: 1; min-width: 0; text-align: center; font-size: 10.5px; font-weight: 600; color: var(--text3); white-space: nowrap; overflow: visible; }
+.chart-x span.today { color: var(--amber); }
+
+/* Потребує уваги */
+.att-row {
+  width: 100%; display: flex; align-items: center; gap: 12px; min-height: 60px; padding: 10px 2px; cursor: pointer;
+  border: none; border-top: 1px solid var(--line-soft); background: none; color: var(--text); font-family: inherit; text-align: left;
+}
+.att-row:first-child { border-top: none; padding-top: 2px; }
+.att-row:last-child { padding-bottom: 2px; }
+.att-ico { width: 40px; height: 40px; border-radius: 13px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 20px; background: var(--c-bg); color: var(--c); }
+.att-text { flex: 1; min-width: 0; }
+.att-name, .att-hint, .or-top, .or-sub { display: block; }
+.att-name { font-size: 14.5px; font-weight: 700; }
+.att-hint { font-size: 12px; color: var(--text3); margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.att-count { font-size: 18px; font-weight: 800; font-variant-numeric: tabular-nums; }
+.att-row > .ti-chevron-right { font-size: 18px; color: var(--text3); }
+.att-amber { --c: var(--amber); --c-bg: rgba(255,176,32,.16); }
+.att-red { --c: var(--red); --c-bg: var(--red-dim); }
+.att-orange { --c: var(--orange); --c-bg: var(--orange-dim); }
+.att-violet { --c: #c88bff; --c-bg: rgba(191,90,242,.16); }
+.att-grey { --c: var(--text2); --c-bg: var(--glass-soft); }
+body.light .att-violet { --c: #8b3fd1; }
+.att-ok { display: flex; align-items: center; gap: 12px; font-size: 14px; color: var(--text2); }
+.att-ok .att-ico { --c: var(--green); --c-bg: var(--green-dim); }
+
+/* Кольори, що продаються */
+.col-row { display: grid; grid-template-columns: 1fr auto; gap: 6px 10px; align-items: center; padding: 8px 0; }
+.col-name { display: flex; align-items: center; gap: 9px; min-width: 0; font-size: 13.5px; font-weight: 600; }
+.col-name span:last-child { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.col-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; box-shadow: inset 0 0 0 1px var(--line); }
+.col-qty { font-size: 13.5px; font-weight: 800; font-variant-numeric: tabular-nums; }
+.col-qty small { font-weight: 600; color: var(--text3); font-size: 12px; }
+.col-bar { grid-column: 1 / -1; height: 6px; border-radius: 3px; background: var(--line-soft); overflow: hidden; }
+.col-bar i { display: block; height: 100%; width: var(--w); border-radius: 3px; background: var(--bar-bg); }
+.col-row:first-child .col-bar i { background: var(--amber); }
+
+/* ── СПИСОК ЗАМОВЛЕНЬ ── */
+.orders-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); gap: 12px; align-items: start; }
+.order-card {
+  position: relative; overflow: hidden; cursor: pointer; padding: 16px 16px 16px 19px;
+  background: var(--glass); border: 1px solid var(--line); border-radius: var(--r);
+  /* браузер не малює картки поза екраном — довгий список гортається без ривків */
+  content-visibility: auto; contain-intrinsic-size: auto 176px;
+}
+.order-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--st); }
+.order-card.st-cancelled { opacity: .7; }
+.order-card:active { background: var(--glass-strong); }
+.oc-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
+.oc-num { font-family: inherit; font-size: 16px; font-weight: 800; letter-spacing: -.01em; color: var(--text); background: none; border: none; padding: 0; cursor: pointer; text-align: left; }
+.oc-date { font-size: 12px; color: var(--text3); margin-top: 2px; }
+.oc-who { font-size: 14.5px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.oc-what { font-size: 13px; color: var(--text2); margin-top: 2px; line-height: 1.4; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
+.oc-foot { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-top: 12px; }
+.oc-sum { font-size: 17px; font-weight: 800; letter-spacing: -.01em; margin-right: auto; padding-right: 6px; font-variant-numeric: tabular-nums; }
+.tag { display: inline-flex; align-items: center; gap: 4px; height: 26px; padding: 0 9px; border-radius: 9px; font-size: 11.5px; font-weight: 700; white-space: nowrap; }
+.tag i { font-size: 14px; }
+.tag.ok { background: var(--green-dim); color: var(--green); }
+.tag.warn { background: var(--orange-dim); color: var(--orange); }
+.tag.bad { background: var(--red-dim); color: var(--red); }
+.tag.mute { background: var(--glass-soft); color: var(--text2); }
+.oc-actions { display: flex; gap: 8px; margin-top: 12px; }
+.next-btn {
+  flex: 1; height: 44px; border-radius: 13px; cursor: pointer; border: none;
+  font-family: inherit; font-size: 14px; font-weight: 700;
+  display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+  background: var(--st-bg); color: var(--st); box-shadow: inset 0 0 0 1px var(--st-line);
+}
+.next-btn:active { transform: scale(.98); }
+.more-btn { grid-column: 1 / -1; height: 46px; border-radius: 14px; border: 1px dashed var(--line); background: none; color: var(--text2); font-family: inherit; font-size: 13.5px; font-weight: 600; cursor: pointer; }
+.icon-btn {
+  width: 44px; height: 44px; border-radius: 13px; flex-shrink: 0; cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center; font-size: 20px; text-decoration: none;
+  background: var(--glass-soft); border: 1px solid var(--line-soft); color: var(--text);
+}
+.icon-btn.danger { color: var(--red); background: var(--red-dim); border-color: transparent; }
+
+/* Короткі рядки на дашборді */
+.order-row {
+  width: 100%; display: flex; align-items: center; gap: 12px; min-height: 58px; padding: 10px 2px; cursor: pointer;
+  border: none; border-top: 1px solid var(--line-soft); background: none; color: var(--text); font-family: inherit; text-align: left;
+}
+.order-row:first-child { border-top: none; padding-top: 2px; }
+.order-row:last-child { padding-bottom: 2px; }
+.order-row .or-main { flex: 1; min-width: 0; }
+.order-row .or-top { font-weight: 700; font-size: 14px; font-variant-numeric: tabular-nums; }
+.order-row .or-sub { font-size: 12.5px; color: var(--text3); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.empty { text-align: center; color: var(--text3); padding: 34px 20px; font-size: 14px; }
+.dash-card .empty { padding: 18px 0 8px; }
+
+/* ── КАРТКА ЗАМОВЛЕННЯ ── */
+.osheet-overlay {
+  position: fixed; inset: 0; z-index: 550; background: rgba(0,0,0,.6);
+  display: flex; align-items: center; justify-content: center; padding: 20px;
+  opacity: 0; pointer-events: none; transition: opacity .2s;
+}
+.osheet-overlay.open { opacity: 1; pointer-events: auto; }
+.osheet {
+  width: 100%; max-width: 520px; max-height: min(92vh, 860px); display: flex; flex-direction: column; overflow: hidden;
+  background: var(--glass-strong); border: 1px solid var(--line); border-radius: 26px; box-shadow: 0 24px 70px rgba(0,0,0,.4);
+  transform: translateY(16px); transition: transform .28s cubic-bezier(.32,.72,0,1);
+}
+.osheet-overlay.open .osheet { transform: none; }
+.os-head { flex-shrink: 0; display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; padding: 18px 18px 14px; }
+.os-num { font-size: 22px; font-weight: 800; letter-spacing: -.02em; }
+.os-date { font-size: 12.5px; color: var(--text3); margin-top: 2px; }
+.os-head-right { display: flex; align-items: center; gap: 8px; }
+.os-body { flex: 1; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; padding: 0 18px 6px; }
+.os-sec { padding: 16px 0; border-top: 1px solid var(--line-soft); }
+.os-label { font-size: 11px; font-weight: 700; color: var(--text3); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 9px; }
+.os-name { font-size: 17px; font-weight: 800; }
+.os-phone { font-size: 14px; color: var(--text2); margin-top: 2px; font-variant-numeric: tabular-nums; }
+.act-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 12px; }
+.act-btn {
+  min-height: 58px; padding: 6px 4px; border-radius: 14px; cursor: pointer; text-decoration: none; text-align: center;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+  background: var(--glass-soft); border: 1px solid var(--line-soft); color: var(--text);
+  font-family: inherit; font-size: 11.5px; font-weight: 600; line-height: 1.15;
+}
+.act-btn i { font-size: 21px; }
+.act-btn:active, .inline-btn:active { transform: scale(.97); }
+.os-item { display: flex; justify-content: space-between; gap: 12px; font-size: 14px; padding: 4px 0; }
+.os-item span:last-child { color: var(--text2); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.os-total { display: flex; justify-content: space-between; font-size: 16px; font-weight: 800; padding-top: 10px; margin-top: 6px; border-top: 1px dashed var(--line); font-variant-numeric: tabular-nums; }
+.os-addr { font-size: 14.5px; line-height: 1.5; }
+.os-addr small { display: block; font-size: 12.5px; color: var(--text3); }
+.os-hint { font-size: 12px; color: var(--text3); line-height: 1.45; margin-top: 8px; }
+.os-hint.err { color: var(--red); }
+.ttn-row { display: flex; gap: 8px; margin-top: 12px; }
+.ttn-input {
+  flex: 1; min-width: 0; height: 46px; padding: 0 14px; border-radius: 13px; outline: none;
+  background: var(--glass-soft); border: 1.5px solid var(--line); color: var(--text);
+  font-family: inherit; font-size: 16px; font-weight: 600; letter-spacing: .03em; font-variant-numeric: tabular-nums;
+}
+.ttn-input:focus { border-color: var(--pink); }
+.ttn-row .btn { height: 46px; padding: 0 16px; font-size: 13.5px; }
+.inline-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+.inline-btn {
+  display: inline-flex; align-items: center; gap: 6px; height: 38px; padding: 0 12px; border-radius: 11px; cursor: pointer; text-decoration: none;
+  background: var(--glass-soft); border: 1px solid var(--line-soft); color: var(--text); font-family: inherit; font-size: 12.5px; font-weight: 600;
+}
+.inline-btn i { font-size: 16px; }
+.pay-seg { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 6px; }
+.pay-seg button {
+  min-height: 48px; padding: 6px 6px; border-radius: 13px; cursor: pointer;
+  border: 1.5px solid var(--line); background: var(--glass-soft); color: var(--text2);
+  font-family: inherit; font-size: 12.5px; font-weight: 600; line-height: 1.2;
+}
+.pay-seg button.on { border-color: transparent; background: var(--green-dim); color: var(--green); font-weight: 700; }
+.pay-seg button.on[data-pay="none"] { background: var(--orange-dim); color: var(--orange); }
+.os-note {
+  display: block; width: 100%; min-height: 78px; padding: 12px 14px; border-radius: 13px; outline: none; resize: vertical;
+  background: var(--glass-soft); border: 1.5px solid var(--line); color: var(--text);
+  font-family: inherit; font-size: 16px; line-height: 1.45;
+}
+.os-note:focus { border-color: var(--pink); }
+.os-foot { flex-shrink: 0; display: flex; gap: 8px; padding: 12px 18px 14px; border-top: 1px solid var(--line-soft); }
+.os-foot .next-btn { height: 48px; font-size: 15px; }
+.os-foot .icon-btn { width: 48px; height: 48px; }
+.os-final { flex: 1; display: flex; align-items: center; font-size: 13.5px; color: var(--text3); }
+.sheet-field { padding: 4px 6px 0; }
+.sheet-actions { display: flex; gap: 8px; padding: 14px 6px 2px; }
+.sheet-actions .btn { flex: 1; height: 48px; justify-content: center; font-size: 14.5px; }
+
+/* ── НАЛАШТУВАННЯ ── */
+.set-wrap { max-width: 640px; display: grid; gap: 12px; }
+.set-wrap .dc-title { margin-bottom: 14px; }
+.set-wrap .field:last-child { margin-bottom: 0; }
+.set-wrap .field-hint { margin: 7px 0 0; }
+.set-save { height: 50px; justify-content: center; font-size: 15px; }
+.input-suffix { position: relative; }
+.input-suffix input { padding-right: 46px; }
+.input-suffix span { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); color: var(--text3); font-size: 14px; font-weight: 600; pointer-events: none; }
+
 @media (max-width: 900px) {
-  .sidebar { width: 200px; } .main { margin-left: 200px; padding: 24px; } .stats-grid { grid-template-columns: 1fr 1fr; }
+  .sidebar { width: 200px; } .main { margin-left: 200px; padding: 24px; }
+  .dash-cols { grid-template-columns: 1fr; }
 }
 @media (max-width: 760px) {
   .sidebar { display: none; }
@@ -411,7 +604,7 @@ button.status-chip:active { transform: scale(.96); }
   .tabbar {
     display: flex; position: fixed; z-index: 400;
     left: 12px; right: 12px; bottom: calc(10px + env(safe-area-inset-bottom));
-    background: var(--glass-strong); backdrop-filter: blur(34px) saturate(1.8); -webkit-backdrop-filter: blur(34px) saturate(1.8);
+    background: var(--glass-strong);
     border: 1px solid var(--line); border-radius: 24px; box-shadow: 0 8px 32px rgba(0,0,0,.3);
   }
   .tab-btn {
@@ -430,12 +623,29 @@ button.status-chip:active { transform: scale(.96); }
 
   .page-title { font-size: 26px; }
   .page-subtitle { margin-bottom: 18px; }
-  .stats-grid { grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
-  .stat-card { padding: 16px; }
-  .stat-val { font-size: 23px; }
-  .orders-grid, .prod-list { grid-template-columns: 1fr; gap: 12px; }
-  .card-header { padding: 16px; }
-  .order-row { padding: 12px 16px; }
+  .orders-grid, .prod-list { grid-template-columns: 1fr; gap: 10px; }
+  .tab-btn { font-size: 10.5px; min-width: 0; }
+
+  .dash-head { margin-bottom: 14px; }
+  .kpi-grid { grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+  .kpi { padding: 15px; }
+  .kpi-val { font-size: 21px; }
+  .kpi.hero { grid-column: 1 / -1; padding: 18px; }
+  .kpi.hero .kpi-val { font-size: 36px; }
+  /* На телефоні одна колонка, і першим іде те, що потребує дії */
+  .dash-cols { grid-template-columns: 1fr; gap: 10px; }
+  .dash-col { display: contents; }
+  .dash-card { padding: 16px; }
+  #card-attention { order: 1; } #card-chart { order: 2; } #card-colors { order: 3; } #card-recent { order: 4; }
+
+  /* Картка замовлення виїжджає знизу майже на весь екран */
+  .osheet-overlay { align-items: flex-end; padding: 0; }
+  .osheet {
+    max-width: none; max-height: 94vh; max-height: 94dvh; border-radius: 28px 28px 0 0; border-bottom: none;
+    transform: translateY(100%);
+  }
+  .os-foot { padding-bottom: calc(12px + env(safe-area-inset-bottom)); }
+  .set-save { width: 100%; }
 
   /* Панель статусу виїжджає знизу, кнопки під великий палець */
   .sheet-overlay { align-items: flex-end; padding: 0; }
@@ -452,13 +662,13 @@ button.status-chip:active { transform: scale(.96); }
     max-width: none; min-height: 100%; border-radius: 0; border: none;
     padding: calc(18px + env(safe-area-inset-top)) 16px 0;
     transform: translateY(40px);
-    background: #0b0b0d; backdrop-filter: none; -webkit-backdrop-filter: none;
+    background: #0b0b0d;
   }
   body.light .modal { background: #f5f5f7; }
   .modal-title { margin-bottom: 18px; }
   .modal-actions {
     position: sticky; bottom: 0; margin: 8px -16px 0; padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
-    background: var(--glass-strong); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+    background: var(--glass-strong);
     border-top: 1px solid var(--line-soft);
   }
   .modal-actions .btn { flex: 1; justify-content: center; height: 48px; font-size: 15px; }
@@ -474,7 +684,14 @@ button.status-chip:active { transform: scale(.96); }
   .photos-grid { gap: 8px; }
 
   .admin-toast { right: 16px; left: 16px; text-align: center; bottom: calc(92px + env(safe-area-inset-bottom)); }
+  /* Поки відкрита картка замовлення — повідомлення зверху, щоб не закривало поля й кнопки */
+  body.lock .admin-toast { bottom: auto; top: calc(12px + env(safe-area-inset-top)); transform: translateY(-80px); }
+  body.lock .admin-toast.show { transform: translateY(0); }
   .btn { min-height: 40px; }
+}
+@media (max-width: 370px) {
+  .tab-btn { font-size: 9.5px; letter-spacing: -0.02em; }
+  .kpi.hero .kpi-val { font-size: 32px; }
 }
 </style>
 </head>
@@ -495,16 +712,17 @@ button.status-chip:active { transform: scale(.96); }
 <!-- ADMIN -->
 <div id="admin-screen">
   <div class="mobile-top">
-    <div class="sidebar-logo"><span class="sidebar-logo-icon"><i class="ti ti-bulb"></i></span>YØAKE<span class="brand-deg">°</span></div>
+    <div class="sidebar-logo"><span class="sidebar-logo-icon"><i class="ti ti-bulb"></i></span><span>YØAKE<span class="brand-deg">°</span></span></div>
     <button class="theme-toggle-mini theme-btn" aria-label="Тема"><i class="ti ti-moon"></i></button>
   </div>
   <nav class="tabbar">
     <button class="tab-btn active" data-tab="dashboard" onclick="switchTab('dashboard')"><i class="ti ti-layout-grid"></i>Дашборд</button>
     <button class="tab-btn" data-tab="orders" onclick="switchTab('orders')"><i class="ti ti-receipt"></i>Замовлення<span class="tab-badge" id="tab-badge-orders"></span></button>
     <button class="tab-btn" data-tab="products" onclick="switchTab('products')"><i class="ti ti-bulb"></i>Товари</button>
+    <button class="tab-btn" data-tab="settings" onclick="switchTab('settings')"><i class="ti ti-settings"></i>Налаштування</button>
   </nav>
   <div class="sidebar">
-    <div class="sidebar-logo"><span class="sidebar-logo-icon"><i class="ti ti-bulb"></i></span>YØAKE<span class="brand-deg">°</span></div>
+    <div class="sidebar-logo"><span class="sidebar-logo-icon"><i class="ti ti-bulb"></i></span><span>YØAKE<span class="brand-deg">°</span></span></div>
     <button class="nav-item active" id="nav-dashboard" onclick="switchTab('dashboard')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
       Дашборд
@@ -517,25 +735,59 @@ button.status-chip:active { transform: scale(.96); }
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 12l2 2 4-4"/><path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
       Замовлення
     </button>
+    <button class="nav-item" id="nav-settings" onclick="switchTab('settings')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.3 1.8l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-2.9 1.2V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-2.9-1.2l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00-1.2-2.9H3a2 2 0 110-4h.1a1.7 1.7 0 001.2-2.9l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 002.9-1.2V3a2 2 0 114 0v.1a1.7 1.7 0 002.9 1.2l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 001.2 2.9H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z"/></svg>
+      Налаштування
+    </button>
     <div class="sidebar-footer">
-      <span>v2.0</span>
+      <span>v3.0</span>
       <button class="theme-toggle-mini theme-btn" aria-label="Тема"><i class="ti ti-moon"></i></button>
     </div>
   </div>
 
   <main class="main">
     <div class="tab active" id="tab-dashboard">
-      <div class="page-title">Дашборд</div>
-      <div class="page-subtitle">Загальна статистика магазину</div>
-      <div class="stats-grid">
-        <div class="stat-card"><div class="stat-label">Товарів</div><div class="stat-val" id="stat-products">—</div></div>
-        <div class="stat-card"><div class="stat-label">Замовлень</div><div class="stat-val" id="stat-orders">—</div></div>
-        <div class="stat-card"><div class="stat-label">Виручка</div><div class="stat-val" id="stat-revenue">—</div></div>
-        <div class="stat-card"><div class="stat-label">Немає в наявн.</div><div class="stat-val" id="stat-out">—</div><div class="stat-hint">товарів закінчилось</div></div>
+      <div class="dash-head">
+        <div>
+          <div class="page-title">Дашборд</div>
+          <div class="dash-date" id="dash-date"></div>
+        </div>
+        <button type="button" class="icon-btn" id="refresh-btn" onclick="refreshAll()" aria-label="Оновити дані"><i class="ti ti-refresh"></i></button>
       </div>
-      <div class="card">
-        <div class="card-header"><span class="card-title">Останні замовлення</span></div>
-        <div id="recent-orders"></div>
+      <div class="kpi-grid" id="kpi-grid"></div>
+      <div class="dash-cols">
+        <div class="dash-col">
+          <section class="dash-card" id="card-chart">
+            <div class="dc-head">
+              <h2 class="dc-title">Виручка по днях</h2>
+              <div class="seg" id="chart-seg"><button type="button" data-days="7" class="on">7 днів</button><button type="button" data-days="30">30 днів</button></div>
+            </div>
+            <div class="chart-cap"><span class="chart-cap-day" id="chart-cap-day"></span><span class="chart-cap-sum" id="chart-cap-sum"></span></div>
+            <div class="chart" id="chart"></div>
+            <div class="chart-x" id="chart-x"></div>
+            <div class="dc-foot">Сума замовлень без скасованих. Натисни на стовпчик, щоб побачити окремий день.</div>
+          </section>
+          <section class="dash-card" id="card-colors">
+            <div class="dc-head">
+              <h2 class="dc-title">Які кольори беруть</h2>
+              <div class="seg" id="colors-seg"><button type="button" data-days="30" class="on">30 днів</button><button type="button" data-days="0">Весь час</button></div>
+            </div>
+            <div id="colors-list"></div>
+          </section>
+        </div>
+        <div class="dash-col">
+          <section class="dash-card" id="card-attention">
+            <div class="dc-head"><h2 class="dc-title">Потребує уваги</h2></div>
+            <div id="attention-list"></div>
+          </section>
+          <section class="dash-card" id="card-recent">
+            <div class="dc-head">
+              <h2 class="dc-title">Останні замовлення</h2>
+              <button type="button" class="inline-btn" onclick="showOrders('all')">Усі<i class="ti ti-chevron-right"></i></button>
+            </div>
+            <div id="recent-orders"></div>
+          </section>
+        </div>
       </div>
     </div>
 
@@ -553,6 +805,52 @@ button.status-chip:active { transform: scale(.96); }
       <div class="page-subtitle">Всі замовлення від клієнтів</div>
       <div class="filter-bar" id="orders-filter"></div>
       <div class="orders-grid" id="orders-table"></div>
+    </div>
+
+    <div class="tab" id="tab-settings">
+      <div class="page-title">Налаштування</div>
+      <div class="page-subtitle">Те, що бачить покупець у магазині. Зміни діють одразу після збереження</div>
+      <form class="set-wrap" id="settings-form" onsubmit="saveSettings(event)">
+        <section class="dash-card">
+          <h2 class="dc-title">Оплата</h2>
+          <div class="field">
+            <label for="s-deposit">Передоплата</label>
+            <div class="input-suffix"><input type="number" id="s-deposit" inputmode="numeric" min="1" max="50000" step="1" required><span>₴</span></div>
+            <div class="field-hint">Скільки покупець платить наперед, коли обирає «решта при отриманні». У вже оформлених замовленнях сума не зміниться.</div>
+          </div>
+          <div class="field">
+            <label for="s-pay">Реквізити для оплати</label>
+            <textarea id="s-pay" rows="4" maxlength="1000" placeholder="Номер картки або IBAN, отримувач"></textarea>
+            <div class="field-hint">Покупець побачить їх одразу після оформлення разом із сумою до оплати і зможе скопіювати. Порожнє поле — побачить «реквізити надішле менеджер».</div>
+          </div>
+        </section>
+        <section class="dash-card">
+          <h2 class="dc-title">Відправка</h2>
+          <div class="field">
+            <label for="s-shipnote">Текст на сторінці лампи</label>
+            <input type="text" id="s-shipnote" maxlength="80" placeholder="Відправка за 2–4 дні">
+            <div class="field-hint">Порожнє поле прибирає цей рядок зі сторінки.</div>
+          </div>
+          <div class="field">
+            <label for="s-shipdays">Термін відправки</label>
+            <div class="input-suffix"><input type="number" id="s-shipdays" inputmode="numeric" min="1" max="60" step="1" required><span>дн.</span></div>
+            <div class="field-hint">Замовлення, яке не відправлене довше, потрапляє в «Прострочені» на дашборді.</div>
+          </div>
+        </section>
+        <section class="dash-card">
+          <h2 class="dc-title">Соцмережі</h2>
+          <div class="field">
+            <label for="s-ig">Instagram</label>
+            <input type="text" id="s-ig" maxlength="200" autocapitalize="off" autocomplete="off" spellcheck="false" placeholder="yoakelamps">
+          </div>
+          <div class="field">
+            <label for="s-tt">TikTok</label>
+            <input type="text" id="s-tt" maxlength="200" autocapitalize="off" autocomplete="off" spellcheck="false" placeholder="yoakelamps">
+            <div class="field-hint">Нік або повне посилання. Порожнє поле ховає кнопку в шапці магазину.</div>
+          </div>
+        </section>
+        <button type="submit" class="btn btn-primary set-save" id="settings-save"><i class="ti ti-check"></i>Зберегти налаштування</button>
+      </form>
     </div>
   </main>
 </div>
@@ -612,6 +910,42 @@ button.status-chip:active { transform: scale(.96); }
   </div>
 </div>
 
+<!-- КАРТКА ЗАМОВЛЕННЯ -->
+<div class="osheet-overlay" id="order-sheet" onclick="if(event.target===this)closeOrder()">
+  <div class="osheet" role="dialog" aria-modal="true" aria-labelledby="os-num">
+    <div class="os-head">
+      <div>
+        <div class="os-num" id="os-num"></div>
+        <div class="os-date" id="os-date"></div>
+      </div>
+      <div class="os-head-right">
+        <span id="os-status"></span>
+        <button type="button" class="icon-btn" onclick="closeOrder()" aria-label="Закрити"><i class="ti ti-x"></i></button>
+      </div>
+    </div>
+    <div class="os-body" id="os-body"></div>
+    <div class="os-foot" id="os-foot"></div>
+  </div>
+</div>
+
+<!-- «ВІДПРАВЛЕНО»: ТТН -->
+<div class="sheet-overlay" id="ship-sheet" onclick="if(event.target===this)closeShipSheet()">
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="ship-title">
+    <div class="sheet-grip"></div>
+    <div class="sheet-title" id="ship-title">Відправлено</div>
+    <div class="sheet-sub" id="ship-sub"></div>
+    <div class="sheet-field">
+      <label class="os-label" for="ship-ttn" style="display:block">ТТН Нової пошти</label>
+      <input class="ttn-input" id="ship-ttn" inputmode="numeric" autocomplete="off" maxlength="17" placeholder="14 цифр" style="display:block;width:100%">
+      <div class="os-hint" id="ship-hint"></div>
+    </div>
+    <div class="sheet-actions">
+      <button type="button" class="btn btn-secondary" onclick="closeShipSheet()">Скасувати</button>
+      <button type="button" class="btn btn-primary" onclick="confirmShip()"><i class="ti ti-truck-delivery"></i>Відправлено</button>
+    </div>
+  </div>
+</div>
+
 <div class="admin-toast" id="admin-toast"></div>
 
 <script>
@@ -663,37 +997,63 @@ if (adminToken) {
     .catch(() => {});
 }
 
-async function loadAll() { await Promise.all([loadProducts(), loadOrders()]); renderDashboard(); }
+// ── ЗАВАНТАЖЕННЯ ──
+const $ = (id) => document.getElementById(id);
+// Налаштування магазину (вкладка «Налаштування»). Ці значення діють, поки сервер не відповів
+let shop = { depositAmount: 100, payDetails: '', shipNote: 'Відправка за 2–4 дні', shipDays: 4, instagram: '', tiktok: '' };
+let lastLoad = 0;
+
+function logout() {
+  adminToken = ''; localStorage.removeItem('admin_token');
+  $('admin-screen').style.display = 'none';
+  $('login-screen').style.display = 'flex';
+}
+async function loadAll() {
+  await Promise.all([loadProducts(), loadOrders(), loadSettings()]);
+  invalidate();
+}
 async function loadProducts() {
-  const res = await fetch(`${API}/api/products`);
-  allProducts = await res.json();
+  try {
+    const res = await fetch(`${API}/api/products`);
+    const data = await res.json();
+    if (Array.isArray(data)) allProducts = data;
+  } catch (e) { toast('Не вдалося завантажити товари'); }
   renderProductsTable();
 }
 async function loadOrders() {
-  const res = await fetch(`${API}/api/admin/orders`, { headers: { 'x-admin-token': adminToken } });
-  allOrders = await res.json();
-  renderOrdersTable();
+  try {
+    const res = await fetch(`${API}/api/admin/orders`, { headers: { 'x-admin-token': adminToken } });
+    if (res.status === 401) return logout();
+    const data = await res.json();
+    if (Array.isArray(data)) { allOrders = data; lastLoad = Date.now(); }
+  } catch (e) { toast('Не вдалося завантажити замовлення'); }
 }
+async function refreshAll() {
+  const btn = $('refresh-btn');
+  btn.classList.add('spin');
+  await loadAll();
+  btn.classList.remove('spin');
+  toast('Дані оновлено');
+}
+// Повернувся в адмінку після перерви — тихо підтягуємо нові замовлення
+document.addEventListener('visibilitychange', async () => {
+  if (document.hidden || !adminToken || Date.now() - lastLoad < 60000) return;
+  await loadOrders(); invalidate();
+});
 
-function renderDashboard() {
-  document.getElementById('stat-products').textContent = allProducts.length;
-  document.getElementById('stat-orders').textContent = allOrders.length;
-  const revenue = allOrders.filter(o => o.status !== 'cancelled').reduce((s,o) => s + o.total, 0);
-  document.getElementById('stat-revenue').textContent = revenue.toLocaleString('uk-UA') + ' ₴';
-  document.getElementById('stat-out').textContent = allProducts.filter(p => p.stock === 0).length;
-  const recent = allOrders.slice(0, 6);
-  document.getElementById('recent-orders').innerHTML = recent.map(o => `
-    <div class="order-row">
-      <div class="or-main">
-        <div class="or-top">${esc(o.order_num)} · ${uah(o.total)}</div>
-        <div class="or-sub">${esc(o.customer_name)} · ${timeAgo(o.created_at)}</div>
-      </div>
-      ${statusChip(o)}
-    </div>
-  `).join('') || '<div class="empty">Замовлень ще немає</div>';
+// Перемальовуємо лише ту вкладку, яку зараз видно; решту — коли на неї перейдуть
+let activeTab = 'dashboard';
+const dirty = { dashboard: true, orders: true };
+function invalidate() {
+  dirty.dashboard = dirty.orders = true;
+  renderActive();
   // Скільки нових замовлень чекає на підтвердження — бейдж у нижньому меню
-  const fresh = allOrders.filter(o => o.status === 'new').length;
-  document.getElementById('tab-badge-orders').textContent = fresh || '';
+  $('tab-badge-orders').textContent = allOrders.filter(o => o.status === 'new').length || '';
+  syncOrderSheet();
+}
+function renderActive() {
+  if (activeTab === 'dashboard' && dirty.dashboard) { dirty.dashboard = false; renderDashboard(); }
+  if (activeTab === 'orders' && dirty.orders) { dirty.orders = false; renderOrdersTable(); }
 }
 
 // Етапи замовлення. Назви й іконки — як у профілі покупця в магазині.
@@ -702,20 +1062,40 @@ const STATUSES = {
   new:       { label: 'Прийнято',     icon: 'ti-clock',          hint: 'Замовлення прийнято, скоро підтвердимо' },
   confirmed: { label: 'Підтверджено', icon: 'ti-check',          hint: 'Беремо в роботу' },
   printing:  { label: 'Друкується',   icon: 'ti-printer',        hint: 'Лампа на принтері' },
-  shipped:   { label: 'Відправлено',  icon: 'ti-truck-delivery', hint: 'Посилка в дорозі' },
+  shipped:   { label: 'Відправлено',  icon: 'ti-truck-delivery', hint: 'Посилка в дорозі, клієнт отримає ТТН' },
   done:      { label: 'Отримано',     icon: 'ti-circle-check',   hint: 'Дякуємо за покупку' },
   cancelled: { label: 'Скасовано',    icon: 'ti-x',              hint: 'Замовлення скасовано' },
 };
 const FLOW = ['new', 'confirmed', 'printing', 'shipped', 'done'];
 const stOf = (s) => STATUSES[s] ? s : 'new';
 const uah = (n) => Number(n).toLocaleString('uk-UA') + ' ₴';
+function plural(n, one, few, many) {
+  const a = n % 10, b = n % 100;
+  return a === 1 && b !== 11 ? one : (a >= 2 && a <= 4 && (b < 12 || b > 14) ? few : many);
+}
+const ordersWord = (n) => `${n} ${plural(n, 'замовлення', 'замовлення', 'замовлень')}`;
 
-// Натискається → відкриває вибір статусу. static=true — просто плашка без дії
+// ── ЩО ВВАЖАЄМО ПРОБЛЕМОЮ ──
+const live = (o) => stOf(o.status) !== 'cancelled';
+const inWork = (o) => ['new', 'confirmed', 'printing'].includes(stOf(o.status));
+// Сума передоплати записана в замовленні; у старих замовлень її немає — тоді це були 100 ₴
+const depOf = (o) => Math.min(o.deposit_amount ?? 100, o.total);
+// none — нічого не отримали, deposit — прийшла передоплата, paid — оплачено повністю
+function payState(o) {
+  if (o.paid) return 'paid';
+  return o.payment_type === 'deposit' && o.deposit_paid ? 'deposit' : 'none';
+}
+const isUnpaid = (o) => (inWork(o) || stOf(o.status) === 'shipped') && payState(o) === 'none';
+const isOverdue = (o) => inWork(o) && Date.now() - new Date(o.created_at).getTime() > shop.shipDays * 86400000;
+const isNoTtn = (o) => stOf(o.status) === 'shipped' && o.delivery_type === 'np' && !o.ttn;
+const waitSum = (o) => o.payment_type === 'deposit' ? depOf(o) : o.total;
+
+// Натискається → відкриває вибір статусу. isStatic=true — просто плашка без дії
 function statusChip(o, isStatic) {
   const k = stOf(o.status), st = STATUSES[k];
   return isStatic
     ? `<span class="status-chip st-${k}"><i class="ti ${st.icon}"></i>${st.label}</span>`
-    : `<button type="button" class="status-chip st-${k}" onclick="openStatusSheet(${o.id})"><i class="ti ${st.icon}"></i>${st.label}<i class="ti ti-chevron-down"></i></button>`;
+    : `<button type="button" class="status-chip st-${k}" onclick="openStatusSheet(${Number(o.id)})"><i class="ti ${st.icon}"></i>${st.label}<i class="ti ti-chevron-down"></i></button>`;
 }
 function timeAgo(d) {
   const min = Math.round((Date.now() - new Date(d)) / 60000);
@@ -728,9 +1108,192 @@ function timeAgo(d) {
   return new Date(d).toLocaleDateString('uk-UA', { day: 'numeric', month: 'short' });
 }
 
+// ── ДАШБОРД ──
+// Початок дня за годинником телефона: 0 — сьогодні, 1 — вчора і т.д.
+const dayStart = (back = 0) => { const n = new Date(); return new Date(n.getFullYear(), n.getMonth(), n.getDate() - back).getTime(); };
+// Сума і кількість замовлень (без скасованих) за проміжок часу
+function totals(from, to = Infinity) {
+  let sum = 0, count = 0;
+  for (const o of allOrders) {
+    if (!live(o)) continue;
+    const t = new Date(o.created_at).getTime();
+    if (t >= from && t < to) { sum += o.total; count++; }
+  }
+  return { sum, count };
+}
+function deltaHtml(cur, prev) {
+  if (!prev) return '';
+  const p = Math.round((cur - prev) / prev * 100);
+  if (!p) return '';
+  return `<span class="delta ${p > 0 ? 'up' : 'down'}"><i class="ti ti-arrow-${p > 0 ? 'up' : 'down'}-right"></i>${Math.abs(p)}%</span>`;
+}
 
+function renderDashboard() {
+  const today = new Date().toLocaleDateString('uk-UA', { weekday: 'long', day: 'numeric', month: 'long' });
+  $('dash-date').textContent = today[0].toUpperCase() + today.slice(1);
+  renderKpis(); renderAttention(); renderChart(); renderColors(); renderRecent();
+}
 
+function renderKpis() {
+  const t = totals(dayStart(0)), y = totals(dayStart(1), dayStart(0));
+  const w = totals(dayStart(6)), pw = totals(dayStart(13), dayStart(6));
+  const m = totals(dayStart(29)), pm = totals(dayStart(59), dayStart(29));
+  $('kpi-grid').innerHTML = `
+    <div class="kpi hero">
+      <div class="kpi-label">Сьогодні</div>
+      <div class="kpi-val">${uah(t.sum)}</div>
+      <div class="kpi-sub"><span>${ordersWord(t.count)}</span>${deltaHtml(t.sum, y.sum)}<span class="kpi-dim">${y.count ? 'вчора ' + uah(y.sum) : 'вчора замовлень не було'}</span></div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">7 днів</div>
+      <div class="kpi-val">${uah(w.sum)}</div>
+      <div class="kpi-sub"><span>${ordersWord(w.count)}</span>${deltaHtml(w.sum, pw.sum)}</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">30 днів</div>
+      <div class="kpi-val">${uah(m.sum)}</div>
+      <div class="kpi-sub"><span>${ordersWord(m.count)}</span>${deltaHtml(m.sum, pm.sum)}</div>
+    </div>`;
+}
 
+// Графік виручки. chartSel — вибраний стовпчик (-1 — показуємо підсумок за весь період)
+let chartDays = 7, chartSel = -1, chartData = [], chartAnimate = true;
+function renderChart() {
+  chartData = [];
+  for (let i = chartDays - 1; i >= 0; i--) {
+    const from = dayStart(i);
+    chartData.push({ from, ...totals(from, i ? dayStart(i - 1) : Infinity) });
+  }
+  if (chartSel >= chartData.length) chartSel = -1;
+  const max = Math.max(...chartData.map(d => d.sum));
+  const dense = chartDays > 14, last = chartData.length - 1;
+  const chart = $('chart');
+  chart.className = 'chart' + (dense ? ' dense' : '') + (chartAnimate ? ' anim' : '');
+  chartAnimate = false;
+  chart.innerHTML = chartData.map((d, i) => {
+    const h = max && d.sum ? Math.max(Math.round(d.sum / max * 100), 5) : 0;
+    const day = new Date(d.from).toLocaleDateString('uk-UA', { day: 'numeric', month: 'long' });
+    return `<button type="button" class="bar${d.sum ? '' : ' zero'}${i === last ? ' today' : ''}" style="--h:${h}%" data-i="${i}" aria-label="${day}: ${uah(d.sum)}, ${ordersWord(d.count)}"><i></i></button>`;
+  }).join('');
+  const x = $('chart-x');
+  x.className = 'chart-x' + (dense ? ' dense' : '');
+  x.innerHTML = chartData.map((d, i) => {
+    const dt = new Date(d.from);
+    // 7 днів — день тижня під кожним стовпчиком; 30 днів — число під кожним п'ятим, щоб підписи не злипались
+    const text = dense ? ((last - i) % 5 === 0 ? dt.getDate() : '') : dt.toLocaleDateString('uk-UA', { weekday: 'short' });
+    return `<span${i === last ? ' class="today"' : ''}>${text}</span>`;
+  }).join('');
+  syncChartSel();
+}
+function syncChartSel() {
+  const chart = $('chart');
+  chart.classList.toggle('has-sel', chartSel >= 0);
+  chart.querySelectorAll('.bar').forEach((b, i) => b.classList.toggle('sel', i === chartSel));
+  const d = chartData[chartSel];
+  const sum = d ? d.sum : chartData.reduce((s, x) => s + x.sum, 0);
+  const count = d ? d.count : chartData.reduce((s, x) => s + x.count, 0);
+  $('chart-cap-day').textContent = d
+    ? new Date(d.from).toLocaleDateString('uk-UA', { weekday: 'long', day: 'numeric', month: 'long' })
+    : `Разом за ${chartDays} днів`;
+  $('chart-cap-sum').innerHTML = `${uah(sum)}<small>${ordersWord(count)}</small>`;
+}
+$('chart').addEventListener('click', (e) => {
+  const b = e.target.closest('.bar');
+  if (!b) return;
+  const i = Number(b.dataset.i);
+  chartSel = chartSel === i ? -1 : i;
+  syncChartSel();
+});
+$('chart-seg').addEventListener('click', (e) => {
+  const b = e.target.closest('button');
+  if (!b) return;
+  chartDays = Number(b.dataset.days); chartSel = -1; chartAnimate = true;
+  $('chart-seg').querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b));
+  renderChart();
+});
+
+// Що потребує уваги. Натискання відкриває список саме цих замовлень
+function renderAttention() {
+  const fresh = allOrders.filter(o => stOf(o.status) === 'new');
+  const overdue = allOrders.filter(isOverdue);
+  const unpaid = allOrders.filter(isUnpaid);
+  const noTtn = allOrders.filter(isNoTtn);
+  const outNames = [];
+  allProducts.forEach(p => {
+    const colors = colorsOf(p).map(normalizeColor);
+    if (colors.length) colors.filter(c => !c.in_stock).forEach(c => outNames.push(c.name));
+    else if (!(p.stock > 0)) outNames.push(p.name);
+  });
+  const rows = [
+    fresh.length && ['amber', 'ti-bell-ringing', 'Нові замовлення', 'Чекають на підтвердження', fresh.length, "showOrders('new')"],
+    overdue.length && ['red', 'ti-alarm', 'Прострочені', `Не відправлені понад ${shop.shipDays} дн.`, overdue.length, "showOrders('overdue')"],
+    unpaid.length && ['orange', 'ti-wallet', 'Не оплачені', `Чекаємо ${uah(unpaid.reduce((s, o) => s + waitSum(o), 0))}`, unpaid.length, "showOrders('unpaid')"],
+    noTtn.length && ['violet', 'ti-truck-delivery', 'Відправлені без ТТН', 'Клієнт ще не отримав номер накладної', noTtn.length, "showOrders('nottn')"],
+    outNames.length && ['grey', 'ti-bulb-off', 'Немає в наявності', outNames.map(esc).join(', '), outNames.length, "switchTab('products')"],
+  ].filter(Boolean);
+  $('attention-list').innerHTML = rows.length
+    ? rows.map(([tone, icon, name, hint, count, action]) => `
+      <button type="button" class="att-row att-${tone}" onclick="${action}">
+        <span class="att-ico"><i class="ti ${icon}"></i></span>
+        <span class="att-text"><span class="att-name">${name}</span><span class="att-hint">${hint}</span></span>
+        <span class="att-count">${count}</span><i class="ti ti-chevron-right"></i>
+      </button>`).join('')
+    : `<div class="att-ok"><span class="att-ico"><i class="ti ti-check"></i></span><span>Усе під контролем: нових, прострочених і неоплачених замовлень немає.</span></div>`;
+}
+
+// Які кольори беруть найчастіше — щоб знати, який пластик докуповувати
+const COLOR_HEX = {
+  'білий': '#ececea', 'чорний': '#1e1e20', 'темно-сірий': '#5a5a5c', 'морська хвиля': '#0f8c96',
+  'нічний аметист': '#4b2a6e', 'ніжно-рожевий': '#f0cdd8', 'прозорий petg': '#dfe6ea', 'прозорий': '#dfe6ea'
+};
+function colorHex(name) {
+  const key = String(name).trim().toLowerCase();
+  for (const p of allProducts) {
+    const c = colorsOf(p).find(c => String(c.name || '').trim().toLowerCase() === key);
+    if (c && /^#[0-9a-f]{6}$/i.test(c.hex || '')) return c.hex;
+  }
+  return COLOR_HEX[key] || '#8e8e93';
+}
+let colorsDays = 30;
+function renderColors() {
+  const from = colorsDays ? dayStart(colorsDays - 1) : 0;
+  const sold = new Map();
+  for (const o of allOrders) {
+    if (!live(o) || new Date(o.created_at).getTime() < from) continue;
+    for (const it of o.items || []) {
+      const name = it.color || String(it.name || '').split(' · ')[1] || it.name || 'Без кольору';
+      sold.set(name, (sold.get(name) || 0) + (Number(it.qty) || 1));
+    }
+  }
+  const top = [...sold].sort((a, b) => b[1] - a[1]).slice(0, 6);
+  const max = top.length ? top[0][1] : 0;
+  $('colors-list').innerHTML = top.length
+    ? top.map(([name, qty]) => `
+      <div class="col-row">
+        <div class="col-name"><span class="col-dot" style="background:${colorHex(name)}"></span><span>${esc(name)}</span></div>
+        <div class="col-qty">${qty} <small>шт.</small></div>
+        <div class="col-bar"><i style="--w:${Math.round(qty / max * 100)}%"></i></div>
+      </div>`).join('')
+    : `<div class="empty">${colorsDays ? 'За 30 днів продажів ще не було' : 'Продажів ще не було'}</div>`;
+}
+$('colors-seg').addEventListener('click', (e) => {
+  const b = e.target.closest('button');
+  if (!b) return;
+  colorsDays = Number(b.dataset.days);
+  $('colors-seg').querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b));
+  renderColors();
+});
+
+function renderRecent() {
+  $('recent-orders').innerHTML = allOrders.slice(0, 5).map(o => `
+    <button type="button" class="order-row" onclick="openOrder(${Number(o.id)})">
+      <span class="or-main">
+        <span class="or-top">${esc(o.order_num)} · ${uah(o.total)}</span>
+        <span class="or-sub">${esc(o.customer_name)} · ${timeAgo(o.created_at)}</span>
+      </span>
+      ${statusChip(o, true)}
+    </button>`).join('') || '<div class="empty">Замовлень ще немає</div>';
+}
 
 function getPhotosOf(p) {
   if (Array.isArray(p.photos) && p.photos.length) return p.photos;
@@ -748,7 +1311,7 @@ function renderProductsTable() {
     const nAvail = colors.filter(c => c.in_stock).length;
     return `
     <div class="prod-card glass">
-      <div class="prod-img-cell">${cover ? `<img src="${esc(cover)}" alt="">` : `<i class="ti ti-bulb" style="font-size:22px;color:var(--text3)"></i>`}</div>
+      <div class="prod-img-cell">${cover ? `<img src="${esc(cover)}" alt="" loading="lazy" decoding="async">` : `<i class="ti ti-bulb" style="font-size:22px;color:var(--text3)"></i>`}</div>
       <div class="prod-info">
         <div class="prod-name">${esc(p.name)}</div>
         ${colors.length ? `<div class="prod-colors">${colors.map(c => esc(c.name)).join(' · ')}</div>` : ''}
@@ -770,120 +1333,438 @@ function renderProductsTable() {
 async function updateStock(id, val) {
   await fetch(`${API}/api/admin/products/${id}/stock`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', 'x-admin-token': adminToken }, body: JSON.stringify({ stock: parseInt(val) }) });
   toast('Наявність оновлено ✓');
-  await loadProducts(); renderDashboard();
+  await loadProducts(); invalidate();
 }
 async function deleteProduct(id) {
   if (!confirm('Видалити товар?')) return;
   await fetch(`${API}/api/admin/products/${id}`, { method: 'DELETE', headers: { 'x-admin-token': adminToken } });
   toast('Товар видалено');
-  await loadProducts(); renderDashboard();
+  await loadProducts(); invalidate();
 }
 
-const deliveryNames = { np:'Nova Poshta', pickup:'Самовивіз' };
-const paymentNames = { deposit:'Передоплата 100 ₴', fop:'Повна оплата (ФОП)', card:'Карта', cod:'Накладений' };
+// ── ЗАМОВЛЕННЯ ──
+const findOrder = (id) => allOrders.find(x => Number(x.id) === Number(id));
+// Телефон у міжнародному вигляді: +380XXXXXXXXX
+function phoneIntl(phone) {
+  const d = String(phone || '').replace(/\D/g, '');
+  if (/^0\d{9}$/.test(d)) return '+38' + d;
+  if (/^380\d{9}$/.test(d)) return '+' + d;
+  return d ? '+' + d : '';
+}
+const trackUrl = (ttn) => 'https://novaposhta.ua/tracking/?cargo_number=' + encodeURIComponent(ttn);
+// Копіювання з запасним способом — у застосунку з головного екрана clipboard API буває недоступний
+async function copyText(text, okMsg) {
+  let ok = false;
+  try { await navigator.clipboard.writeText(text); ok = true; } catch (e) {}
+  if (!ok) {
+    try {
+      const ta = document.createElement('textarea');
+      ta.value = text; ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0';
+      document.body.appendChild(ta); ta.select();
+      ok = document.execCommand('copy'); ta.remove();
+    } catch (e) {}
+  }
+  toast(ok ? okMsg : 'Не вдалося скопіювати');
+}
 
+// Додаткові фільтри поруч зі статусами — ті самі, що в блоці «Потребує уваги»
+const EXTRA_FILTERS = {
+  unpaid:  { label: 'Не оплачені', test: isUnpaid },
+  overdue: { label: 'Прострочені', test: isOverdue },
+  nottn:   { label: 'Без ТТН',     test: isNoTtn },
+};
 let ordersFilter = 'all';
+let ordersLimit = 30;   // малюємо порціями: сотня карток одразу гальмує телефон
+
+// Позначки на картці: оплата, прострочення, ТТН, нотатка
+function tagsHtml(o) {
+  const k = stOf(o.status);
+  if (k === 'cancelled') return '';
+  const tags = [];
+  const pay = payState(o);
+  if (pay === 'paid') tags.push('<span class="tag ok"><i class="ti ti-check"></i>Оплачено</span>');
+  else if (pay === 'deposit') tags.push('<span class="tag ok"><i class="ti ti-check"></i>Передоплата</span>');
+  else if (k !== 'done') tags.push('<span class="tag warn"><i class="ti ti-wallet"></i>Не оплачено</span>');
+  if (isOverdue(o)) tags.push('<span class="tag bad"><i class="ti ti-alarm"></i>Прострочено</span>');
+  if (isNoTtn(o)) tags.push('<span class="tag warn"><i class="ti ti-truck-delivery"></i>Без ТТН</span>');
+  else if (o.ttn) tags.push('<span class="tag mute"><i class="ti ti-truck-delivery"></i>ТТН</span>');
+  if (o.admin_note) tags.push('<span class="tag mute" title="Є нотатка"><i class="ti ti-note"></i></span>');
+  return tags.join('');
+}
+
 function renderOrdersTable() {
   const counts = {};
   allOrders.forEach(o => { const k = stOf(o.status); counts[k] = (counts[k] || 0) + 1; });
-  document.getElementById('orders-filter').innerHTML =
+  const extra = Object.entries(EXTRA_FILTERS).map(([k, f]) => [k, f, allOrders.filter(f.test).length]);
+  // Фільтр, у якому більше нічого немає (наприклад, усе оплатили), скидаємо на «Усі»
+  if (ordersFilter !== 'all') {
+    const left = EXTRA_FILTERS[ordersFilter] ? extra.find(x => x[0] === ordersFilter)[2] : counts[ordersFilter];
+    if (!left) ordersFilter = 'all';
+  }
+  $('orders-filter').innerHTML =
     `<button class="filter-chip${ordersFilter === 'all' ? ' active' : ''}" onclick="setOrdersFilter('all')">Усі <span class="cnt">${allOrders.length}</span></button>` +
+    extra.filter(x => x[2]).map(([k, f, n]) =>
+      `<button class="filter-chip${ordersFilter === k ? ' active' : ''}" onclick="setOrdersFilter('${k}')">${f.label} <span class="cnt">${n}</span></button>`).join('') +
     Object.keys(STATUSES).filter(k => counts[k]).map(k =>
       `<button class="filter-chip st-${k}${ordersFilter === k ? ' active' : ''}" onclick="setOrdersFilter('${k}')"><span class="dot"></span>${STATUSES[k].label} <span class="cnt">${counts[k]}</span></button>`
     ).join('');
 
-  const list = ordersFilter === 'all' ? allOrders : allOrders.filter(o => stOf(o.status) === ordersFilter);
-  const box = document.getElementById('orders-table');
-  if (!list.length) { box.innerHTML = `<div class="empty">${allOrders.length ? 'Немає замовлень з таким статусом' : 'Замовлень ще немає'}</div>`; return; }
-  box.innerHTML = list.map(o => {
+  const list = ordersFilter === 'all' ? allOrders
+    : EXTRA_FILTERS[ordersFilter] ? allOrders.filter(EXTRA_FILTERS[ordersFilter].test)
+    : allOrders.filter(o => stOf(o.status) === ordersFilter);
+  const box = $('orders-table');
+  if (!list.length) { box.innerHTML = '<div class="empty">Замовлень ще немає</div>'; return; }
+  box.innerHTML = list.slice(0, ordersLimit).map(o => {
     const k = stOf(o.status);
     const i = FLOW.indexOf(k);
     const next = i >= 0 ? FLOW[i + 1] : null; // скасоване далі не рухається
-    const place = o.delivery_type === 'np'
-      ? [o.delivery_city, o.delivery_branch].filter(Boolean).map(esc).join(', ')
-      : '';
     return `
-    <div class="order-card glass st-${k}">
+    <article class="order-card st-${k}" data-id="${Number(o.id)}">
       <div class="oc-head">
         <div>
-          <div class="oc-num">${esc(o.order_num)}</div>
-          <div class="oc-date">${timeAgo(o.created_at)} · ${new Date(o.created_at).toLocaleString('uk-UA', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</div>
+          <button type="button" class="oc-num" aria-label="Відкрити замовлення ${esc(o.order_num)}">${esc(o.order_num)}</button>
+          <div class="oc-date">${timeAgo(o.created_at)}</div>
         </div>
         ${statusChip(o)}
       </div>
-      <div class="oc-customer">
-        <div style="min-width:0">
-          <div class="oc-name">${esc(o.customer_name)}</div>
-          <a class="oc-phone" href="tel:${esc(String(o.customer_phone).replace(/[^+\d]/g, ''))}">${esc(o.customer_phone)}</a>
-        </div>
-        <a class="icon-btn" href="tel:${esc(String(o.customer_phone).replace(/[^+\d]/g, ''))}" aria-label="Подзвонити"><i class="ti ti-phone"></i></a>
-      </div>
-      <div class="oc-items">
-        ${(o.items || []).map(i => `<div class="oc-item"><span>${esc(i.name)}</span><span>× ${esc(i.qty)}</span></div>`).join('')}
-        <div class="oc-total"><span>Разом</span><span>${uah(o.total)}</span></div>
-      </div>
-      <div class="oc-meta">
-        <div><i class="ti ${o.delivery_type === 'np' ? 'ti-package' : 'ti-building-store'}"></i><span>${esc(deliveryNames[o.delivery_type] || o.delivery_type)}${place ? ` · ${place}` : ''}</span></div>
-        <div><i class="ti ti-credit-card"></i><span>${esc(paymentNames[o.payment_type] || o.payment_type)}</span></div>
-      </div>
-      <div class="oc-actions">
-        ${next
-          ? `<button class="next-btn st-${next}" onclick="updateOrderStatus(${o.id}, '${next}')"><i class="ti ${STATUSES[next].icon}"></i>${STATUSES[next].label}<i class="ti ti-arrow-right"></i></button>`
-          : `<div class="oc-final">${k === 'done' ? 'Замовлення завершено' : 'Замовлення скасовано'}</div>`}
-        <button class="icon-btn danger" onclick="deleteOrder(${o.id})" aria-label="Видалити"><i class="ti ti-trash"></i></button>
-      </div>
-    </div>`;
-  }).join('');
+      <div class="oc-who">${esc(o.customer_name)}</div>
+      <div class="oc-what">${(o.items || []).map(it => `${esc(it.name)} ×${esc(it.qty)}`).join(', ')}</div>
+      <div class="oc-foot"><span class="oc-sum">${uah(o.total)}</span>${tagsHtml(o)}</div>
+      ${next ? `<div class="oc-actions"><button type="button" class="next-btn st-${next}" data-next="${next}"><i class="ti ${STATUSES[next].icon}"></i>${STATUSES[next].label}<i class="ti ti-arrow-right"></i></button></div>` : ''}
+    </article>`;
+  }).join('') + (list.length > ordersLimit
+    ? `<button type="button" class="more-btn" onclick="ordersLimit += 30; renderOrdersTable()">Показати ще ${Math.min(30, list.length - ordersLimit)}</button>` : '');
 }
-function setOrdersFilter(k) { ordersFilter = k; renderOrdersTable(); }
+function setOrdersFilter(k) { ordersFilter = k; ordersLimit = 30; renderOrdersTable(); }
+// З дашборда: відкрити вкладку замовлень одразу з потрібним фільтром
+function showOrders(filter) { ordersFilter = filter; ordersLimit = 30; dirty.orders = true; switchTab('orders'); }
+
+// Один обробник на весь список замість окремого на кожній картці
+$('orders-table').addEventListener('click', (e) => {
+  const card = e.target.closest('.order-card');
+  if (!card) return;
+  const id = Number(card.dataset.id);
+  const next = e.target.closest('[data-next]');
+  if (next) return advance(id, next.dataset.next);
+  if (e.target.closest('.status-chip')) return;   // плашка статусу відкриває свій вибір
+  openOrder(id);
+});
+
+// ── ЗМІНИ В ЗАМОВЛЕННІ ──
+// Одразу показуємо зміну на екрані, а не чекаємо на сервер — на мобільному інтернеті це помітно.
+// Якщо сервер відмовив, повертаємо як було.
+async function patchOrder(id, body, okMsg) {
+  const o = findOrder(id);
+  if (!o) return false;
+  const prev = { ...o };
+  Object.assign(o, body);
+  invalidate();
+  try {
+    const res = await fetch(`${API}/api/admin/orders/${id}`, {
+      method: 'PATCH', headers: { 'Content-Type': 'application/json', 'x-admin-token': adminToken }, body: JSON.stringify(body)
+    });
+    const data = await res.json().catch(() => ({}));
+    if (res.status === 401) { logout(); return false; }
+    if (!res.ok) throw new Error(data.error || 'помилка сервера');
+    if (data.order) Object.assign(o, data.order);
+    invalidate();
+    toast(typeof okMsg === 'function' ? okMsg(data) : okMsg);
+    return true;
+  } catch (e) {
+    Object.assign(o, prev);
+    invalidate();
+    toast('Не збережено: ' + e.message);
+    return false;
+  }
+}
+const notifiedTail = (data) => data.notified ? ' · клієнту надіслано' : '';
+
+// Наступний етап. Перед «Відправлено» питаємо ТТН, якщо це Нова пошта
+function advance(id, status) {
+  const o = findOrder(id);
+  if (!o || stOf(o.status) === status) return;
+  if (status === 'shipped' && o.delivery_type === 'np') return openShipSheet(id);
+  updateOrderStatus(id, status);
+}
+function updateOrderStatus(id, status) {
+  const o = findOrder(id);
+  return patchOrder(id, { status }, (data) => `${o ? o.order_num + ' → ' : ''}${STATUSES[status].label}${notifiedTail(data)}`);
+}
+async function deleteOrder(id) {
+  if (!confirm('Видалити це замовлення? Дію неможливо скасувати.')) return;
+  try {
+    const res = await fetch(`${API}/api/admin/orders/${id}`, { method: 'DELETE', headers: { 'x-admin-token': adminToken } });
+    if (!res.ok) throw new Error();
+    if (openOrderId === id) closeOrder(true);
+    toast('Замовлення видалено');
+  } catch (e) { toast('Не вдалося видалити'); }
+  await loadOrders(); invalidate();
+}
 
 // ── ВИБІР СТАТУСУ ──
 let sheetOrderId = null;
 function openStatusSheet(id) {
-  const o = allOrders.find(x => x.id === id);
+  const o = findOrder(id);
   if (!o) return;
   sheetOrderId = id;
   const cur = stOf(o.status);
-  document.getElementById('sheet-title').textContent = `Замовлення ${o.order_num}`;
-  document.getElementById('sheet-sub').textContent = `${o.customer_name} · ${uah(o.total)}`;
-  document.getElementById('sheet-options').innerHTML = Object.entries(STATUSES).map(([k, st]) => `
+  $('sheet-title').textContent = `Замовлення ${o.order_num}`;
+  $('sheet-sub').textContent = `${o.customer_name} · ${uah(o.total)}`;
+  $('sheet-options').innerHTML = Object.entries(STATUSES).map(([k, st]) => `
     <button type="button" class="st-option st-${k}${k === cur ? ' current' : ''}${k === 'cancelled' ? ' cancel-opt' : ''}" onclick="pickStatus('${k}')">
       <span class="st-ico"><i class="ti ${st.icon}"></i></span>
-      <span class="st-text"><div class="st-label">${st.label}</div><div class="st-hint">${st.hint}</div></span>
+      <span class="st-text"><span class="st-label">${st.label}</span><span class="st-hint">${st.hint}</span></span>
       <i class="ti ti-check st-tick"></i>
     </button>`).join('');
-  document.getElementById('sheet-note').textContent = o.telegram_user_id
+  $('sheet-note').textContent = o.telegram_user_id
     ? 'Клієнт одразу отримає повідомлення в Telegram'
     : 'Клієнт замовляв не з Telegram — сповіщення не надійде';
-  document.getElementById('status-sheet').classList.add('open');
+  $('status-sheet').classList.add('open');
+  lockScroll();
 }
-function closeStatusSheet() { document.getElementById('status-sheet').classList.remove('open'); }
+function closeStatusSheet() { $('status-sheet').classList.remove('open'); lockScroll(); }
 function pickStatus(k) {
-  const o = allOrders.find(x => x.id === sheetOrderId);
+  const id = sheetOrderId;
   closeStatusSheet();
-  if (o && stOf(o.status) !== k) updateOrderStatus(o.id, k);
+  advance(id, k);
 }
-document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeStatusSheet(); closeModal(); } });
 
-async function deleteOrder(id) {
-  if (!confirm('Видалити це замовлення? Дію неможливо скасувати.')) return;
-  await fetch(`${API}/api/admin/orders/${id}`, { method: 'DELETE', headers: { 'x-admin-token': adminToken } });
-  toast('Замовлення видалено');
-  await loadOrders(); renderDashboard();
+// ── «ВІДПРАВЛЕНО»: ЗАПИТ ТТН ──
+let shipOrderId = null;
+const ttnDigits = (v) => String(v || '').replace(/\D/g, '');
+function openShipSheet(id) {
+  const o = findOrder(id);
+  if (!o) return;
+  shipOrderId = id;
+  $('ship-sub').textContent = `${o.order_num} · ${o.customer_name}`;
+  $('ship-ttn').value = o.ttn || '';
+  setShipHint();
+  $('ship-sheet').classList.add('open');
+  lockScroll();
 }
-async function updateOrderStatus(id, status) {
-  // Одразу перемальовуємо картку, а не чекаємо на сервер — на мобільному інтернеті це помітно
-  const o = allOrders.find(x => x.id === id);
-  const prev = o?.status;
-  if (o) { o.status = status; renderOrdersTable(); renderDashboard(); }
-  try {
-    const res = await fetch(`${API}/api/admin/orders/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', 'x-admin-token': adminToken }, body: JSON.stringify({ status }) });
-    if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || 'Помилка');
-    toast(`${o ? o.order_num + ' → ' : ''}${STATUSES[status].label}`);
-  } catch (e) {
-    if (o) { o.status = prev; renderOrdersTable(); renderDashboard(); }
-    toast('Не вдалося змінити статус: ' + e.message);
+function setShipHint(error) {
+  const o = findOrder(shipOrderId);
+  const hint = $('ship-hint');
+  hint.classList.toggle('err', !!error);
+  hint.textContent = error || (o && o.telegram_user_id
+    ? 'Клієнт отримає повідомлення «Відправлено» з номером і посиланням на відстеження. Поле можна лишити порожнім і додати ТТН пізніше.'
+    : 'Клієнт замовляв не з Telegram — повідомлення не надійде, надішли ТТН сам. Поле можна лишити порожнім.');
+}
+function closeShipSheet() { $('ship-sheet').classList.remove('open'); lockScroll(); }
+function confirmShip() {
+  const ttn = ttnDigits($('ship-ttn').value);
+  if (ttn && ttn.length !== 14) return setShipHint('ТТН Нової пошти — це 14 цифр. Зараз введено ' + ttn.length + '.');
+  const id = shipOrderId, o = findOrder(id);
+  closeShipSheet();
+  patchOrder(id, ttn ? { status: 'shipped', ttn } : { status: 'shipped' },
+    (data) => `${o ? o.order_num + ' → ' : ''}Відправлено${notifiedTail(data)}`);
+}
+
+// ── КАРТКА ЗАМОВЛЕННЯ ──
+let openOrderId = null;
+const deliveryNames = { np: 'Нова пошта', pickup: 'Самовивіз' };
+function openOrder(id) {
+  const o = findOrder(id);
+  if (!o) return;
+  openOrderId = Number(o.id);
+  renderOrderSheet(o);
+  $('order-sheet').classList.add('open');
+  $('os-body').scrollTop = 0;
+  lockScroll();
+}
+// skipNote — коли замовлення вже видалене і нотатку зберігати нікуди
+function closeOrder(skipNote) {
+  if (openOrderId == null) return;
+  if (!skipNote) saveNote();
+  openOrderId = null;
+  $('order-sheet').classList.remove('open');
+  lockScroll();
+}
+// Сторінка під відкритою панеллю не повинна гортатися
+function lockScroll() {
+  document.body.classList.toggle('lock', !!document.querySelector('.osheet-overlay.open, .sheet-overlay.open, .modal-overlay.open'));
+}
+
+function addressText(o) {
+  return [o.customer_name, phoneIntl(o.customer_phone), [o.delivery_region, o.delivery_city, o.delivery_branch].filter(Boolean).join(', ')]
+    .filter(Boolean).join('\n');
+}
+function paySegHtml(o) {
+  const cur = payState(o);
+  const opts = o.payment_type === 'deposit'
+    ? [['none', 'Не оплачено'], ['deposit', `Передоплата ${uah(depOf(o))}`], ['paid', 'Оплачено повністю']]
+    : [['none', 'Не оплачено'], ['paid', 'Оплачено']];
+  return opts.map(([k, label]) =>
+    `<button type="button" data-pay="${k}" class="${k === cur ? 'on' : ''}" aria-pressed="${k === cur}" onclick="setPay('${k}')">${label}</button>`).join('');
+}
+function payHintText(o) {
+  if (o.payment_type !== 'deposit') return 'Повна оплата на рахунок до відправки.';
+  const rest = o.total - depOf(o);
+  return payState(o) === 'paid' ? 'Отримано всю суму.'
+    : `Передоплата ${uah(depOf(o))}${rest > 0 ? `, решта ${uah(rest)} — при отриманні` : ''}.`;
+}
+function ttnStateHtml(o) {
+  if (!o.ttn) return '';
+  return `<a class="inline-btn" href="${trackUrl(o.ttn)}" target="_blank" rel="noopener"><i class="ti ti-external-link"></i>Відстежити</a>
+    <button type="button" class="inline-btn" onclick="copyText('${esc(o.ttn)}', 'ТТН скопійовано')"><i class="ti ti-copy"></i>Копіювати ТТН</button>`;
+}
+function ttnHintText(o) {
+  if (!o.telegram_user_id) return 'Клієнт замовляв не з Telegram — номер треба надіслати йому самому.';
+  return stOf(o.status) === 'shipped'
+    ? 'Після збереження клієнт одразу отримає номер і посилання на відстеження в Telegram.'
+    : 'Клієнт отримає номер разом із повідомленням «Відправлено».';
+}
+function footHtml(o) {
+  const k = stOf(o.status), i = FLOW.indexOf(k), next = i >= 0 ? FLOW[i + 1] : null;
+  return (next
+    ? `<button type="button" class="next-btn st-${next}" onclick="advance(${Number(o.id)}, '${next}')"><i class="ti ${STATUSES[next].icon}"></i>${STATUSES[next].label}<i class="ti ti-arrow-right"></i></button>`
+    : `<div class="os-final">${k === 'done' ? 'Замовлення завершено' : 'Замовлення скасовано'}</div>`)
+    + `<button type="button" class="icon-btn danger" onclick="deleteOrder(${Number(o.id)})" aria-label="Видалити замовлення"><i class="ti ti-trash"></i></button>`;
+}
+
+function renderOrderSheet(o) {
+  const tel = phoneIntl(o.customer_phone);
+  const isNp = o.delivery_type === 'np';
+  // Є нік — пишемо за ніком; немає — Telegram знаходить людину за номером телефону
+  const tgLink = o.telegram_username ? `https://t.me/${encodeURIComponent(o.telegram_username)}` : (tel ? `https://t.me/${tel}` : '');
+  $('os-num').textContent = o.order_num;
+  $('os-date').textContent = new Date(o.created_at).toLocaleString('uk-UA', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' }) + ' · ' + timeAgo(o.created_at);
+  $('os-body').innerHTML = `
+    <section class="os-sec">
+      <div class="os-label">Клієнт</div>
+      <div class="os-name">${esc(o.customer_name)}</div>
+      <div class="os-phone">${esc(tel || o.customer_phone)}${o.telegram_username ? ` · @${esc(o.telegram_username)}` : ''}</div>
+      <div class="act-row">
+        <a class="act-btn" href="tel:${esc(tel)}"><i class="ti ti-phone"></i>Подзвонити</a>
+        ${tgLink ? `<a class="act-btn" href="${esc(tgLink)}" target="_blank" rel="noopener"><i class="ti ti-brand-telegram"></i>Telegram</a>` : ''}
+        ${isNp
+          ? `<button type="button" class="act-btn" onclick="copyAddress()"><i class="ti ti-copy"></i>Копіювати адресу</button>`
+          : `<button type="button" class="act-btn" onclick="copyText('${esc(tel)}', 'Телефон скопійовано')"><i class="ti ti-copy"></i>Копіювати телефон</button>`}
+      </div>
+    </section>
+    <section class="os-sec">
+      <div class="os-label">Склад</div>
+      ${(o.items || []).map(it => `<div class="os-item"><span>${esc(it.name)}</span><span>${esc(it.qty)} × ${uah(it.price ?? 0)}</span></div>`).join('')}
+      <div class="os-total"><span>Разом</span><span>${uah(o.total)}</span></div>
+    </section>
+    <section class="os-sec">
+      <div class="os-label">Доставка</div>
+      ${isNp ? `
+        <div class="os-addr">${esc([o.delivery_city, o.delivery_branch].filter(Boolean).join(', ') || '—')}<small>Нова пошта${o.delivery_region ? ' · ' + esc(o.delivery_region) : ''}</small></div>
+        <div class="ttn-row">
+          <input class="ttn-input" id="os-ttn" inputmode="numeric" autocomplete="off" maxlength="17" placeholder="ТТН, 14 цифр" aria-label="ТТН Нової пошти" value="${esc(o.ttn || '')}">
+          <button type="button" class="btn btn-primary" onclick="saveTtn()">Зберегти</button>
+        </div>
+        <div class="inline-row" id="os-ttn-state">${ttnStateHtml(o)}</div>
+        <div class="os-hint" id="os-ttn-hint">${ttnHintText(o)}</div>`
+      : `<div class="os-addr">${esc(deliveryNames[o.delivery_type] || o.delivery_type || '—')}<small>Клієнт забере сам — домовся про час.</small></div>`}
+    </section>
+    <section class="os-sec">
+      <div class="os-label">Оплата</div>
+      <div class="pay-seg" id="os-pay">${paySegHtml(o)}</div>
+      <div class="os-hint" id="os-pay-hint">${payHintText(o)}</div>
+    </section>
+    <section class="os-sec">
+      <label class="os-label" for="os-note" style="display:block">Нотатка — бачиш тільки ти</label>
+      <textarea class="os-note" id="os-note" maxlength="500" placeholder="Напр.: просив подарункову упаковку" onblur="saveNote()">${esc(o.admin_note || '')}</textarea>
+    </section>`;
+  syncOrderSheet();
+}
+// Оновлює в картці те, що змінюється: статус, оплату, ТТН. Поля, які зараз редагуються, не чіпає
+function syncOrderSheet() {
+  if (openOrderId == null) return;
+  const o = findOrder(openOrderId);
+  if (!o) return closeOrder(true);
+  $('os-status').innerHTML = statusChip(o);
+  $('os-foot').innerHTML = footHtml(o);
+  $('os-pay').innerHTML = paySegHtml(o);
+  $('os-pay-hint').textContent = payHintText(o);
+  const inp = $('os-ttn');
+  if (inp) {
+    if (document.activeElement !== inp) inp.value = o.ttn || '';
+    $('os-ttn-state').innerHTML = ttnStateHtml(o);
+    const hint = $('os-ttn-hint');
+    hint.classList.remove('err'); hint.textContent = ttnHintText(o);
   }
+}
+function copyAddress() { const o = findOrder(openOrderId); if (o) copyText(addressText(o), 'Адресу скопійовано'); }
+function setPay(state) {
+  const o = findOrder(openOrderId);
+  if (!o || payState(o) === state) return;
+  const body = state === 'paid' ? { deposit_paid: o.payment_type === 'deposit', paid: true }
+    : state === 'deposit' ? { deposit_paid: true, paid: false }
+    : { deposit_paid: false, paid: false };
+  patchOrder(o.id, body, state === 'none' ? 'Позначку оплати знято' : state === 'deposit' ? 'Передоплату отримано ✓' : 'Оплачено повністю ✓');
+}
+function saveTtn() {
+  const o = findOrder(openOrderId);
+  if (!o) return;
+  const inp = $('os-ttn'), ttn = ttnDigits(inp.value);
+  if (ttn && ttn.length !== 14) {
+    const hint = $('os-ttn-hint');
+    hint.classList.add('err'); hint.textContent = 'ТТН Нової пошти — це 14 цифр. Зараз введено ' + ttn.length + '.';
+    return;
+  }
+  if ((o.ttn || '') === ttn) return toast(ttn ? 'Цей ТТН уже збережено' : 'Введи ТТН');
+  inp.blur();
+  patchOrder(o.id, { ttn }, (data) => ttn ? 'ТТН збережено' + notifiedTail(data) : 'ТТН прибрано');
+}
+function saveNote() {
+  const o = findOrder(openOrderId), el = $('os-note');
+  if (!o || !el) return;
+  const note = el.value.trim();
+  if (note === (o.admin_note || '')) return;
+  patchOrder(o.id, { admin_note: note }, 'Нотатку збережено');
+}
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Escape') return;
+  // Закриваємо верхню панель: спершу вибір статусу чи ТТН, потім картку замовлення, потім форму товару
+  if ($('ship-sheet').classList.contains('open')) return closeShipSheet();
+  if ($('status-sheet').classList.contains('open')) return closeStatusSheet();
+  if (openOrderId != null) return closeOrder();
+  closeModal();
+});
+$('ship-ttn').addEventListener('keydown', e => { if (e.key === 'Enter') confirmShip(); });
+
+// ── НАЛАШТУВАННЯ ──
+async function loadSettings() {
+  try {
+    const res = await fetch(`${API}/api/settings`);
+    const data = await res.json();
+    if (res.ok && data && typeof data === 'object') shop = { ...shop, ...data };
+  } catch (e) { /* лишаються типові значення */ }
+  fillSettingsForm();
+}
+function fillSettingsForm() {
+  $('s-deposit').value = shop.depositAmount;
+  $('s-pay').value = shop.payDetails || '';
+  $('s-shipnote').value = shop.shipNote || '';
+  $('s-shipdays').value = shop.shipDays;
+  $('s-ig').value = shop.instagram || '';
+  $('s-tt').value = shop.tiktok || '';
+}
+async function saveSettings(e) {
+  e.preventDefault();
+  const btn = $('settings-save');
+  btn.disabled = true;
+  try {
+    const res = await fetch(`${API}/api/admin/settings`, {
+      method: 'PUT', headers: { 'Content-Type': 'application/json', 'x-admin-token': adminToken },
+      body: JSON.stringify({
+        depositAmount: Number($('s-deposit').value), payDetails: $('s-pay').value,
+        shipNote: $('s-shipnote').value, shipDays: Number($('s-shipdays').value),
+        instagram: $('s-ig').value, tiktok: $('s-tt').value
+      })
+    });
+    const data = await res.json().catch(() => ({}));
+    if (res.status === 401) return logout();
+    if (!res.ok) throw new Error(data.error || 'помилка сервера');
+    shop = { ...shop, ...data.settings };
+    fillSettingsForm();   // сервер міг привести нік до повного посилання
+    invalidate();         // від терміну відправки залежить, що вважається простроченим
+    toast('Налаштування збережено ✓');
+  } catch (err) { toast('Не збережено: ' + err.message); }
+  finally { btn.disabled = false; }
 }
 
 // ── PRODUCT MODAL with multi-photo support ──
@@ -1094,7 +1975,7 @@ async function submitProduct(e) {
     if (data.success) {
       closeModal();
       toast(id ? 'Товар оновлено ✓' : 'Товар додано ✓');
-      await loadProducts(); renderDashboard();
+      await loadProducts(); invalidate();
     } else {
       toast('Помилка: ' + (data.error || 'невідома'));
     }
@@ -1104,17 +1985,19 @@ async function submitProduct(e) {
 }
 
 function switchTab(name) {
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  document.getElementById('tab-' + name).classList.add('active');
-  document.getElementById('nav-' + name).classList.add('active');
+  activeTab = name;
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.id === 'tab-' + name));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.toggle('active', n.id === 'nav-' + name));
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === name));
+  renderActive();
   window.scrollTo(0, 0);
 }
+let toastTimer = 0;
 function toast(msg) {
   const t = document.getElementById('admin-toast');
   t.textContent = msg; t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2500);
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2600);
 }
 document.getElementById('product-modal').addEventListener('click', function(e) { if (e.target === this) closeModal(); });
 </script>

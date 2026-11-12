@@ -633,6 +633,38 @@ body.light .detail-carousel-slide img { filter: drop-shadow(0 20px 26px rgba(0,0
 .order-date { font-size: 11.5px; color: var(--text3); margin-top: 2px; }
 .order-items { font-size: 12.5px; color: var(--text2); line-height: 1.5; }
 .order-total { font-size: 18px; font-weight: 800; margin-top: 10px; }
+/* Оплата й ТТН у картці замовлення */
+.order-foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 10px; }
+.order-foot .order-total { margin-top: 0; }
+.order-paid { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 600; color: var(--text2); }
+.order-paid i { font-size: 15px; }
+.order-ttn {
+  width: 100%; margin-top: 12px; padding: 11px 13px; border-radius: 14px; cursor: pointer;
+  display: flex; align-items: center; gap: 9px; text-align: left;
+  background: var(--glass-soft); border: 1px solid var(--line-soft); color: var(--text);
+  font-family: var(--font); font-size: 13px; font-weight: 600;
+}
+.order-ttn > i { font-size: 18px; color: var(--text2); }
+.order-ttn .ttn-num { flex: 1; min-width: 0; font-variant-numeric: tabular-nums; }
+.order-ttn .ttn-go { display: inline-flex; align-items: center; gap: 4px; color: var(--amber); font-size: 12.5px; white-space: nowrap; }
+/* Скільки й куди платити — на екрані після оформлення */
+.pay-box {
+  width: 100%; max-width: 320px; margin-top: 16px; padding: 16px; border-radius: 18px; text-align: left;
+  background: var(--glass-soft); border: 1px solid var(--line-soft);
+}
+.pay-label { font-size: 11px; font-weight: 700; color: var(--text3); text-transform: uppercase; letter-spacing: 0.07em; }
+.pay-sum { font-size: 26px; font-weight: 800; letter-spacing: -0.02em; margin-top: 2px; }
+.pay-rest { font-size: 12.5px; color: var(--text2); line-height: 1.5; margin-top: 2px; }
+.pay-details {
+  margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--line-soft);
+  font-size: 13.5px; line-height: 1.55; white-space: pre-line; overflow-wrap: anywhere; user-select: text; -webkit-user-select: text;
+}
+.pay-copy {
+  width: 100%; margin-top: 12px; height: 42px; border-radius: 13px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 7px;
+  background: none; border: 1px solid var(--line); color: var(--text);
+  font-family: var(--font); font-size: 13.5px; font-weight: 600;
+}
 
 .order-status {
   display: inline-flex; align-items: center; gap: 5px; flex-shrink: 0;
@@ -688,8 +720,8 @@ body.light .st-cancelled { color: #d63027; }
   <div class="page-header">
     <span class="page-title brand">YØAKE<span class="brand-deg">°</span></span>
     <div class="header-actions">
-      <button class="social-btn" onclick="openSocial('https://www.instagram.com/yoakelamps/')" aria-label="Instagram"><i class="ti ti-brand-instagram"></i></button>
-      <button class="social-btn" onclick="openSocial('https://www.tiktok.com/@yoakelamps')" aria-label="TikTok"><i class="ti ti-brand-tiktok"></i></button>
+      <button class="social-btn" id="social-ig" onclick="openSocial(shopSettings.instagram)" aria-label="Instagram"><i class="ti ti-brand-instagram"></i></button>
+      <button class="social-btn" id="social-tt" onclick="openSocial(shopSettings.tiktok)" aria-label="TikTok"><i class="ti ti-brand-tiktok"></i></button>
       <button class="theme-btn" id="theme-btn"><i class="ti ti-moon"></i></button>
     </div>
   </div>
@@ -718,7 +750,7 @@ body.light .st-cancelled { color: #d63027; }
     <div class="detail-name" id="detail-name"></div>
     <div class="detail-price" id="detail-price"></div>
     <div class="detail-stock" id="detail-stock"></div>
-    <div class="ship-note"><i class="ti ti-truck"></i> Відправка за 2–4 дні</div>
+    <div class="ship-note" id="ship-note"><i class="ti ti-truck"></i> <span id="ship-note-text">Відправка за 2–4 дні</span></div>
     <button class="detail-add-btn" id="detail-add-btn" onclick="addFromDetail()">Додати в кошик</button>
     <div id="detail-desc-block">
       <div class="detail-section-label">Про лампу</div>
@@ -847,10 +879,52 @@ window.onload = async () => {
   renderCats();
   // Splash показується мінімум 1.4с, щоб анімація логотипу встигла програтись
   const minSplash = new Promise(r => setTimeout(r, 3100));
+  loadSettings();   // не блокує заставку: якщо сервер не відповість, лишаться типові значення
   await Promise.all([loadProducts(), minSplash]);
   syncTelegramUI();
   document.getElementById('splash').classList.add('hide');
 };
+
+// ── НАЛАШТУВАННЯ МАГАЗИНУ ──
+// Власник міняє їх в адмінці (вкладка «Налаштування»). Поки не завантажились — діють ці значення.
+let shopSettings = {
+  depositAmount: 100, payDetails: '', shipNote: 'Відправка за 2–4 дні',
+  instagram: 'https://www.instagram.com/yoakelamps/', tiktok: 'https://www.tiktok.com/@yoakelamps'
+};
+let settingsLoaded = false;
+async function loadSettings() {
+  try {
+    const { res, data } = await fetchJSON(`${API}/api/settings`, {}, 10000);
+    if (res.ok && data && typeof data === 'object' && !Array.isArray(data)) {
+      shopSettings = { ...shopSettings, ...data };
+      settingsLoaded = true;
+    }
+  } catch (e) { /* магазин працює і з типовими значеннями */ }
+  applySettings();
+}
+function applySettings() {
+  document.getElementById('ship-note-text').textContent = shopSettings.shipNote || '';
+  document.getElementById('ship-note').style.display = shopSettings.shipNote ? '' : 'none';
+  document.getElementById('social-ig').style.display = shopSettings.instagram ? '' : 'none';
+  document.getElementById('social-tt').style.display = shopSettings.tiktok ? '' : 'none';
+}
+const escH = (v) => String(v ?? '').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const money = (n) => Number(n).toLocaleString('uk-UA') + ' ₴';
+// Копіювання з запасним способом: у вбудованому браузері Telegram clipboard API буває недоступний
+async function copyText(text) {
+  try { await navigator.clipboard.writeText(text); return true; } catch (e) {}
+  try {
+    const ta = document.createElement('textarea');
+    ta.value = text; ta.style.cssText = 'position:fixed;opacity:0;top:0;left:0';
+    document.body.appendChild(ta); ta.select();
+    const ok = document.execCommand('copy'); ta.remove(); return ok;
+  } catch (e) { return false; }
+}
+async function copyPayDetails() {
+  haptic();
+  showToast(await copyText(shopSettings.payDetails) ? 'Реквізити скопійовано' : 'Не вдалося скопіювати — виділіть текст вручну');
+}
+const trackUrl = (ttn) => 'https://novaposhta.ua/tracking/?cargo_number=' + encodeURIComponent(ttn);
 
 // Запит із таймаутом: якщо сервер «завис», не чекаємо вічно
 async function fetchJSON(url, opts = {}, ms = 20000) {
@@ -1309,12 +1383,14 @@ function renderCheckoutStep() {
       </div>
     </div>`;
   } else if (checkoutStep === 3) {
+    // Сума передоплати береться з налаштувань: якщо вони не встигли завантажитись — пробуємо ще раз і оновлюємо екран
+    if (!settingsLoaded) loadSettings().then(() => { if (settingsLoaded && checkoutStep === 3) renderCheckoutStep(); });
     el.innerHTML = `<div class="checkout-form">
       <div style="display:flex;flex-direction:column;gap:10px">
         <div class="delivery-option ${checkoutData.payment==='deposit'?'selected':''}" onclick="selectPayment('deposit')">
           <div class="delivery-opt-icon"><i class="ti ti-credit-card"></i></div>
           <div class="delivery-opt-info">
-            <div class="delivery-opt-name">Передоплата 100 грн</div>
+            <div class="delivery-opt-name">Передоплата ${Math.min(shopSettings.depositAmount, cartTotal()).toLocaleString('uk-UA')} грн</div>
             <div class="delivery-opt-desc">Бронь лампи + страховка доставки (вираховується з вартості). Доплата при отриманні</div>
           </div>
           <div class="radio ${checkoutData.payment==='deposit'?'checked':''}"></div>
@@ -1362,6 +1438,18 @@ async function placeOrder() {
     }
     const orderNum = data.orderNum;
     const orderTotal = data.total ?? cartTotal();
+    const isDeposit = checkoutData.payment === 'deposit';
+    const payNow = data.payNow ?? (isDeposit ? Math.min(shopSettings.depositAmount, orderTotal) : orderTotal);
+    const payBox = `
+        <div class="pay-box">
+          <div class="pay-label">${isDeposit ? 'Передоплата зараз' : 'До оплати'}</div>
+          <div class="pay-sum">${money(payNow)}</div>
+          ${isDeposit && orderTotal > payNow ? `<div class="pay-rest">Решта ${money(orderTotal - payNow)} — при отриманні</div>` : ''}
+          ${shopSettings.payDetails
+            ? `<div class="pay-details">${escH(shopSettings.payDetails)}</div>
+               <button class="pay-copy" onclick="copyPayDetails()"><i class="ti ti-copy"></i> Скопіювати реквізити</button>`
+            : `<div class="pay-rest">Реквізити для оплати надішле менеджер.</div>`}
+        </div>`;
     cart = {}; updateBadge();
     loadOrders();
     setStep(4);
@@ -1370,6 +1458,7 @@ async function placeOrder() {
         <div class="success-icon">✓</div>
         <div class="success-title">Замовлення оформлено</div>
         <div class="success-desc">Номер: <strong>${orderNum}</strong> · ${Number(orderTotal).toLocaleString('uk-UA')} ₴<br><br>Менеджер зв'яжеться з вами найближчим часом для підтвердження.</div>
+        ${payBox}
         ${orderPathHtml('new')}
         <button class="success-btn" onclick="showPage('shop')">Продовжити покупки</button>
       </div>`;
@@ -1516,6 +1605,10 @@ function renderOrders() {
   el.innerHTML = orders.map(o => {
     const st = STATUS_LABELS[o.status] || STATUS_LABELS.new;
     const date = o.created_at ? new Date(o.created_at).toLocaleDateString('uk-UA', { day:'numeric', month:'long' }) : '';
+    // Що вже оплачено і номер накладної — те, що власник відмітив в адмінці
+    const paid = o.status === 'cancelled' ? '' : o.paid ? 'Оплачено'
+      : (o.payment_type === 'deposit' && o.deposit_paid ? 'Передоплату отримано' : '');
+    const ttn = o.status === 'cancelled' ? '' : String(o.ttn || '').replace(/\D/g, '');
     return `
     <div class="order-card">
       <div class="order-top">
@@ -1527,7 +1620,13 @@ function renderOrders() {
       </div>
       ${orderProgressHtml(o.status)}
       <div class="order-items">${(o.items||[]).map(i=>`${i.name} ×${i.qty||1}`).join(' · ')}</div>
-      <div class="order-total">${Number(o.total).toLocaleString('uk-UA')} ₴</div>
+      <div class="order-foot">
+        <div class="order-total">${Number(o.total).toLocaleString('uk-UA')} ₴</div>
+        ${paid ? `<span class="order-paid"><i class="ti ti-circle-check"></i>${paid}</span>` : ''}
+      </div>
+      ${ttn ? `<button class="order-ttn" onclick="openSocial('${trackUrl(ttn)}')" aria-label="Відстежити посилку ${ttn}">
+        <i class="ti ti-truck-delivery"></i><span class="ttn-num">ТТН ${ttn}</span><span class="ttn-go">Відстежити <i class="ti ti-external-link"></i></span>
+      </button>` : ''}
     </div>
   `;
   }).join('');

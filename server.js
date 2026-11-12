@@ -179,6 +179,66 @@ function verifyInitData(initData) {
 }
 const tgUserFrom = (req) => verifyInitData(req.headers['x-telegram-init-data']);
 
+// ── НАЛАШТУВАННЯ МАГАЗИНУ ──
+// Те, що власник міняє сам в адмінці (вкладка «Налаштування»), без правок коду.
+// Лежить одним рядком у таблиці settings; значення нижче діють, поки нічого не збережено.
+const DEFAULT_SETTINGS = {
+  depositAmount: 100,                       // передоплата при оплаті «решта при отриманні», ₴
+  payDetails: '',                           // реквізити для оплати — бачить покупець
+  shipNote: 'Відправка за 2–4 дні',         // рядок на сторінці лампи
+  shipDays: 4,                              // після скількох днів невідправлене замовлення вважається простроченим
+  instagram: 'https://www.instagram.com/yoakelamps/',
+  tiktok: 'https://www.tiktok.com/@yoakelamps'
+};
+let settingsCache = null, settingsAt = 0;
+async function getSettings() {
+  if (settingsCache && Date.now() - settingsAt < 60 * 1000) return settingsCache;
+  try {
+    const { data, error } = await supabase.from('settings').select('data').eq('id', 'shop').maybeSingle();
+    if (error) throw error;
+    settingsCache = { ...DEFAULT_SETTINGS, ...(data?.data || {}) };
+    settingsAt = Date.now();
+    return settingsCache;
+  } catch (e) {
+    // База недоступна — магазин має працювати далі: беремо останні відомі або типові значення
+    console.warn('Settings load:', e.message);
+    return settingsCache || { ...DEFAULT_SETTINGS };
+  }
+}
+
+// Посилання на соцмережу: приймаємо і повну адресу, і просто нік («yoakelamps» або «@yoakelamps»)
+function socialUrl(value, makeUrl) {
+  const v = String(value ?? '').trim();
+  if (!v) return '';
+  if (/^@?[A-Za-z0-9._]{1,40}$/.test(v)) return makeUrl(v.replace(/^@/, ''));
+  try {
+    const u = new URL(v);
+    if (u.protocol !== 'https:' || v.length > 200) return null;
+    return u.toString();
+  } catch { return null; }
+}
+
+// Перевіряє форму налаштувань. Повертає { value } або { error } з поясненням, що виправити
+function cleanSettings(b) {
+  const out = {};
+  const dep = Number(b.depositAmount);
+  if (!Number.isInteger(dep) || dep < 1 || dep > 50000) return { error: 'Передоплата: вкажи суму від 1 до 50 000 ₴' };
+  out.depositAmount = dep;
+  const days = Number(b.shipDays);
+  if (!Number.isInteger(days) || days < 1 || days > 60) return { error: 'Термін відправки: вкажи від 1 до 60 днів' };
+  out.shipDays = days;
+  if (typeof b.shipNote !== 'string' || b.shipNote.trim().length > 80) return { error: 'Текст про відправку: до 80 символів' };
+  out.shipNote = b.shipNote.trim();
+  if (typeof b.payDetails !== 'string' || b.payDetails.trim().length > 1000) return { error: 'Реквізити: до 1000 символів' };
+  out.payDetails = b.payDetails.trim();
+  const ig = socialUrl(b.instagram, (h) => `https://www.instagram.com/${h}/`);
+  const tt = socialUrl(b.tiktok, (h) => `https://www.tiktok.com/@${h}`);
+  if (ig === null) return { error: 'Instagram: встав посилання (https://…) або нік' };
+  if (tt === null) return { error: 'TikTok: встав посилання (https://…) або нік' };
+  out.instagram = ig; out.tiktok = tt;
+  return { value: out };
+}
+
 // ────────────────────────────────────────────
 //  PUBLIC API
 // ────────────────────────────────────────────
@@ -197,6 +257,11 @@ app.get('/api/products', async (req, res) => {
       colors: p.colors || []
     })));
   } catch(e) { res.status(500).json({ error: e.message }); }
+});
+
+// Налаштування, які потрібні магазину: сума передоплати, тексти, соцмережі, реквізити
+app.get('/api/settings', async (req, res) => {
+  res.set('Cache-Control', 'no-store').json(await getSettings());
 });
 
 app.post('/api/orders', orderLimiter, async (req, res) => {
@@ -239,12 +304,17 @@ app.post('/api/orders', orderLimiter, async (req, res) => {
     const total = clean.reduce((sum, i) => sum + i.price * i.qty, 0);
     const tgUser = tgUserFrom(req);
     const orderNum = 'YK-' + Date.now().toString().slice(-6);
+    // Суму передоплати запам'ятовуємо в замовленні: якщо її потім змінять у налаштуваннях, старі замовлення не «попливуть»
+    const settings = await getSettings();
+    const depositAmount = payment === 'deposit' ? Math.min(settings.depositAmount, total) : null;
 
     const { error } = await supabase.from('orders').insert({
       order_num: orderNum,
       customer_name: name.trim(),
       customer_phone: String(phone).trim(),
       telegram_user_id: tgUser ? String(tgUser.id) : null,
+      telegram_username: tgUser?.username ? String(tgUser.username).slice(0, 64) : null,
+      deposit_amount: depositAmount,
       delivery_type: delivery,
       delivery_region: delivery === 'np' ? region.trim() : '',
       delivery_city: delivery === 'np' ? city.trim() : '',
@@ -260,7 +330,7 @@ app.post('/api/orders', orderLimiter, async (req, res) => {
     const deliveryText = delivery === 'np'
       ? `📦 Нова Пошта\n🏙 ${escHtml(region)}, ${escHtml(city)}, ${escHtml(branch)}`
       : '🏠 Самовивіз';
-    const paymentText = payment === 'deposit' ? '💳 Передоплата 100 грн (доплата при отриманні)' : '🏦 Повна оплата на рахунок ФОП';
+    const paymentText = payment === 'deposit' ? `💳 Передоплата ${uah(depositAmount)} (доплата при отриманні)` : '🏦 Повна оплата на рахунок ФОП';
     const msg = `🛒 <b>НОВЕ ЗАМОВЛЕННЯ ${orderNum}</b>\n\n👤 <b>Клієнт:</b> ${escHtml(name)}\n📞 <b>Телефон:</b> ${escHtml(String(phone))}` +
       (tgUser?.username ? `\n✈️ <b>Telegram:</b> @${escHtml(tgUser.username)}` : '') +
       `\n\n<b>Товари:</b>\n${itemsList}\n\n<b>Сума:</b> ${uah(total)}\n\n<b>Доставка:</b> ${deliveryText}\n<b>Оплата:</b> ${paymentText}`;
@@ -269,7 +339,8 @@ app.post('/api/orders', orderLimiter, async (req, res) => {
       bot.sendMessage(process.env.ADMIN_CHAT_ID, msg, { parse_mode: 'HTML' })
         .catch(err => console.error('Telegram error:', err.message));
     }
-    res.json({ success: true, orderNum, total });
+    // payNow — скільки покупець має переказати зараз (передоплата або вся сума)
+    res.json({ success: true, orderNum, total, payNow: payment === 'deposit' ? depositAmount : total });
   } catch(e) { res.status(500).json({ error: e.message }); }
 });
 
@@ -279,9 +350,10 @@ app.get('/api/orders', async (req, res) => {
   if (!tgUser) return res.json([]);
   const telegramId = tgUser.id;
   try {
+    // Лише те, що покупцю можна бачити: внутрішня нотатка адміна (admin_note) сюди не потрапляє
     const { data, error } = await supabase
       .from('orders')
-      .select('*')
+      .select('id, order_num, items, total, status, created_at, delivery_type, payment_type, ttn, deposit_paid, paid, deposit_amount')
       .eq('telegram_user_id', String(telegramId))
       .order('created_at', { ascending: false });
     if (error) throw error;
@@ -313,35 +385,76 @@ app.get('/api/admin/orders', adminAuth, async (req, res) => {
   } catch(e) { res.status(500).json({ error: e.message }); }
 });
 
-// Тексти сповіщень клієнту при зміні статусу замовлення
+// Посилання на відстеження посилки на сайті Нової пошти
+const trackUrl = (ttn) => `https://novaposhta.ua/tracking/?cargo_number=${encodeURIComponent(ttn)}`;
+const ttnLines = (ttn) => `ТТН Нової пошти: <code>${escHtml(ttn)}</code>\n<a href="${trackUrl(ttn)}">Відстежити посилку</a>`;
+
+// Тексти сповіщень клієнту при зміні статусу замовлення. o — рядок замовлення з бази
 const STATUS_MESSAGES = {
-  new:       (n) => `📥 <b>Замовлення ${n}</b>\n\nМи прийняли твоє замовлення. Скоро підтвердимо деталі.`,
-  confirmed: (n) => `✅ <b>Замовлення ${n} підтверджено</b>\n\nБеремо в роботу. Повідомимо, коли лампа піде на друк.`,
-  printing:  (n) => `🖨 <b>Замовлення ${n} друкується</b>\n\nТвоя лампа зараз на принтері. Це займе кілька днів.`,
-  shipped:   (n) => `📦 <b>Замовлення ${n} відправлено</b>\n\nПосилка вже в дорозі. ТТН надішлемо окремо.`,
-  done:      (n) => `🎉 <b>Замовлення ${n} отримано</b>\n\nДякуємо за покупку! Будемо раді фото лампи у тебе вдома.`,
-  cancelled: (n) => `❌ <b>Замовлення ${n} скасовано</b>\n\nЯкщо це помилка — напиши нам, розберемось.`
+  new:       (o) => `📥 <b>Замовлення ${o.order_num}</b>\n\nМи прийняли твоє замовлення. Скоро підтвердимо деталі.`,
+  confirmed: (o) => `✅ <b>Замовлення ${o.order_num} підтверджено</b>\n\nБеремо в роботу. Повідомимо, коли лампа піде на друк.`,
+  printing:  (o) => `🖨 <b>Замовлення ${o.order_num} друкується</b>\n\nТвоя лампа зараз на принтері. Це займе кілька днів.`,
+  shipped:   (o) => o.delivery_type !== 'np'
+    ? `📦 <b>Замовлення ${o.order_num} готове</b>\n\nЛампу можна забирати. Напиши нам, щоб домовитись про час.`
+    : `📦 <b>Замовлення ${o.order_num} відправлено</b>\n\nПосилка вже в дорозі.\n` + (o.ttn ? ttnLines(o.ttn) : 'ТТН надішлемо окремо.'),
+  done:      (o) => `🎉 <b>Замовлення ${o.order_num} отримано</b>\n\nДякуємо за покупку! Будемо раді фото лампи у тебе вдома.`,
+  cancelled: (o) => `❌ <b>Замовлення ${o.order_num} скасовано</b>\n\nЯкщо це помилка — напиши нам, розберемось.`
 };
 
+// Часткове оновлення замовлення з адмінки. Можна передати будь-що з:
+// status, ttn, admin_note, deposit_paid, paid — змінюється лише передане.
 app.patch('/api/admin/orders/:id', adminAuth, async (req, res) => {
-  const { status } = req.body || {};
-  if (!STATUS_MESSAGES[status]) return res.status(400).json({ error: 'Невідомий статус' });
+  const b = req.body || {};
+  const bad = (msg) => res.status(400).json({ error: msg });
+  const patch = {};
+
+  if ('status' in b) {
+    if (!Object.prototype.hasOwnProperty.call(STATUS_MESSAGES, b.status)) return bad('Невідомий статус');
+    patch.status = b.status;
+  }
+  if ('ttn' in b) {
+    const ttn = String(b.ttn ?? '').replace(/[\s-]/g, '');
+    if (ttn && !/^\d{14}$/.test(ttn)) return bad('ТТН Нової пошти — це 14 цифр');
+    patch.ttn = ttn || null;
+  }
+  if ('admin_note' in b) {
+    if (typeof b.admin_note !== 'string' || b.admin_note.length > 500) return bad('Нотатка: до 500 символів');
+    patch.admin_note = b.admin_note.trim() || null;
+  }
+  for (const key of ['deposit_paid', 'paid']) {
+    if (key in b) {
+      if (typeof b[key] !== 'boolean') return bad('Невірна позначка оплати');
+      patch[key] = b[key];
+    }
+  }
+  if (!Object.keys(patch).length) return bad('Нічого змінювати');
+
   try {
+    const { data: before, error: findErr } = await supabase
+      .from('orders').select('status, ttn').eq('id', req.params.id).maybeSingle();
+    if (findErr) throw findErr;
+    if (!before) return res.status(404).json({ error: 'Замовлення не знайдено' });
+
+    const statusChanged = 'status' in patch && patch.status !== before.status;
+    const ttnChanged = 'ttn' in patch && patch.ttn && patch.ttn !== before.ttn;
+    if (statusChanged && patch.status === 'shipped') patch.shipped_at = new Date().toISOString();
+
     const { data, error } = await supabase
-      .from('orders')
-      .update({ status })
-      .eq('id', req.params.id)
-      .select('order_num, telegram_user_id')
-      .single();
+      .from('orders').update(patch).eq('id', req.params.id).select('*').single();
     if (error) throw error;
 
-    // Сповіщаємо клієнта в Telegram, якщо він оформляв замовлення через Mini App
-    if (hasRealToken && data?.telegram_user_id && STATUS_MESSAGES[status]) {
-      bot.sendMessage(data.telegram_user_id, STATUS_MESSAGES[status](data.order_num), { parse_mode: 'HTML' })
+    // Сповіщаємо клієнта в Telegram, якщо він оформляв замовлення через Mini App:
+    // про новий етап — завжди; про ТТН окремо — лише коли посилка вже відправлена
+    let text = null;
+    if (statusChanged) text = STATUS_MESSAGES[data.status](data);
+    else if (ttnChanged && data.status === 'shipped') text = `🧾 <b>ТТН для замовлення ${data.order_num}</b>\n\n${ttnLines(data.ttn)}`;
+    const notified = !!(text && hasRealToken && data.telegram_user_id);
+    if (notified) {
+      bot.sendMessage(data.telegram_user_id, text, { parse_mode: 'HTML', disable_web_page_preview: true })
         .catch(err => console.error('Notify error:', err.message));
     }
 
-    res.json({ success: true });
+    res.json({ success: true, order: data, notified });
   } catch(e) { res.status(500).json({ error: e.message }); }
 });
 
@@ -432,6 +545,20 @@ app.patch('/api/admin/products/:id/stock', adminAuth, async (req, res) => {
     const { error } = await supabase.from('products').update({ stock }).eq('id', req.params.id);
     if (error) throw error;
     res.json({ success: true });
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
+
+// Зберегти налаштування магазину (вкладка «Налаштування»)
+app.put('/api/admin/settings', adminAuth, async (req, res) => {
+  const checked = cleanSettings(req.body || {});
+  if (checked.error) return res.status(400).json({ error: checked.error });
+  try {
+    const { error } = await supabase.from('settings')
+      .upsert({ id: 'shop', data: checked.value, updated_at: new Date().toISOString() });
+    if (error) throw error;
+    settingsCache = { ...DEFAULT_SETTINGS, ...checked.value };
+    settingsAt = Date.now();
+    res.json({ success: true, settings: settingsCache });
   } catch(e) { res.status(500).json({ error: e.message }); }
 });
 
